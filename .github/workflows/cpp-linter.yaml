@@ -1,0 +1,18 @@
+name: C++ Linter
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: clang-format Check
+        uses: jidicula/clang-format-action@v4.13.0
+        with:
+          source: "."
+          extensions: "hpp,cpp,tpp,ipp"
+          clangFormatVersion: 16
+          style: "Google"
