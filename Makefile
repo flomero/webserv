@@ -3,17 +3,19 @@ CPP      := c++
 CPPFLAGS := -Wall -Werror -Wextra -std=c++11
 DEPFLAGS := -MMD -MP
 
-# Target library name
-NAME     := libftpp.a
+# Target name
+NAME     := webserv
 
 OBJ_DIR  := obj
 
-
+DIRS     :=
+SRCS     := main.cpp
+HDRS     :=
 
 # data_structures
-DIRS     := src/configuration
-SRCS     :=
-HDRS     := Lexer.hpp
+DIRS     += src/configuration include/configuration
+SRCS     += Lexer.cpp
+HDRS     += Lexer.hpp
 
 
 
@@ -31,7 +33,7 @@ all: $(NAME)
 
 # Rule to create the static library
 $(NAME): $(OBJS) $(HDR_CHECK)
-	ar rcs $@ $(OBJS)
+	$(CPP) $(CPPFLAGS) $(OBJS) -o $(NAME)
 
 # Rule to compile source files into object files
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)

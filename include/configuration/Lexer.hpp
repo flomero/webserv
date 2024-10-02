@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/02 13:32:05 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/02 13:47:55 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,6 @@ class Lexer {
 		int			_line;
 		int			_column;
 
-		char	peekChar();
 		char	getChar();
 		void	skipWhitespace();
 		Token	parseNumber();
@@ -64,5 +63,6 @@ class Lexer {
 
 	public:
 		Lexer(const std::string& source);
+		char	peekChar();
 		Token nextToken();
 };
