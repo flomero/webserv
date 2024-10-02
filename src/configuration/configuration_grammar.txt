@@ -1,0 +1,30 @@
+<config> ::= <server>+
+
+<server> ::= "server" "{" <server_body> "}"
+
+<server_body> ::= <option>* <route>+
+
+<option> ::= "port" <number> ";"
+            | "host" <string> ";"
+            | "server_name" <string> ";"
+            | "error_page" <number> <string> ";"
+            | "client_body_size" <number> ";"
+
+<route> ::= "location" <string> "{" <route_body> "}"
+
+<route_body> ::= <route_option>*
+
+<route_option> ::= "methods" <string_list> ";"
+                  | "root" <string> ";"
+                  | "index" <string> ";"
+                  | "autoindex" <on_off> ";"
+                  | "upload_dir" <string> ";"
+                  | "cgi" <string> <string> ";"
+                  | "redirect" <string> ";"
+
+<string_list> ::= <string> | <string> <string_list>
+
+<on_off> ::= "on" | "off"
+
+<number> ::= [0-9]+
+<string> ::= [a-zA-Z0-9/\._-]+
