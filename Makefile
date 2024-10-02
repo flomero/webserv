@@ -13,7 +13,7 @@ OBJ_DIR  := obj
 # data_structures
 DIRS     := src/configuration
 SRCS     :=
-HDRS     :=
+HDRS     := Lexer.hpp
 
 
 
