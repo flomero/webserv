@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:43:36 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/02 13:54:40 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/02 14:44:46 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,14 @@ int main(int argc, char const *argv[])
 		}
 
 		Lexer lexer(source);
+		Parser parser(lexer);
 
-		while (lexer.peekChar()) {
-			std::cout << lexer.nextToken().value;
+		std::vector<Server> servers_config = parser.parse();
+
+		for (auto serv : servers_config) {
+			std::cout	<< serv.serverName << ": "
+						<< serv.host << ":" << serv.port
+						<< std::endl;
 		}
 	}
 

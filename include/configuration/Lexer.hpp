@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/02 13:47:55 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/02 14:36:25 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ enum TokenType {
 	TOKEN_UPLOAD_DIR,
 	TOKEN_CGI,
 	TOKEN_REDIRECT,
+	TOKEN_IP_V4,
 	TOKEN_STRING,
 	TOKEN_NUMBER,
 	TOKEN_ON,
@@ -56,13 +57,14 @@ class Lexer {
 		int			_column;
 
 		char	getChar();
+		char	peekChar();
 		void	skipWhitespace();
 		Token	parseNumber();
+		Token	parseIp_v4(std::string value, int count);
 		Token	parseString();
 		Token	parseKeywordOrString();
 
 	public:
 		Lexer(const std::string& source);
-		char	peekChar();
 		Token nextToken();
 };

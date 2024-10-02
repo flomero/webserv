@@ -14,8 +14,8 @@ HDRS     :=
 
 # data_structures
 DIRS     += src/configuration include/configuration
-SRCS     += Lexer.cpp
-HDRS     += Lexer.hpp
+SRCS     += Lexer.cpp Parser.cpp
+HDRS     += Lexer.hpp Parser.hpp
 
 
 

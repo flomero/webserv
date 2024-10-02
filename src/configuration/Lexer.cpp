@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/02 13:56:30 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/02 14:41:07 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,24 @@ Token Lexer::parseNumber() {
 	while (isdigit(peekChar())) {
 		value += getChar();
 	}
+	if (peekChar() == '.')
+		return parseIp_v4(value, 1);
 	return {TOKEN_NUMBER, value, _line, _column};
+}
+
+Token Lexer::parseIp_v4(std::string value, int count) {
+	if (peekChar() != '.') {
+		if (count != 4)
+			return {TOKEN_STRING, value, _line, _column}; // Defaults to string
+		else
+			return {TOKEN_IP_V4, value, _line, _column};
+	}
+
+	value += getChar();
+	while (isdigit(peekChar()))
+		value += getChar();
+
+	return parseIp_v4(value, count + 1);
 }
 
 Token Lexer::parseString() {
