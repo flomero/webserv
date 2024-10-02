@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/02 13:20:52 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/02 13:32:05 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,4 +39,30 @@ enum TokenType {
 	TOKEN_SEMICOLON,
 	TOKEN_EOF,
 	TOKEN_INVALID
+};
+
+struct Token {
+	TokenType type;
+	std::string value;
+	int line;
+	int column;
+};
+
+class Lexer {
+	private:
+		std::string	_source;
+		size_t		_currentPos;
+		int			_line;
+		int			_column;
+
+		char	peekChar();
+		char	getChar();
+		void	skipWhitespace();
+		Token	parseNumber();
+		Token	parseString();
+		Token	parseKeywordOrString();
+
+	public:
+		Lexer(const std::string& source);
+		Token nextToken();
 };
