@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:30:29 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/04 16:37:37 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/05 14:03:23 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@
 #include <map>
 #include <string>
 
-// Base class for HTTP messages - used for both requests and responses
-
+/**
+ * @brief Base class for HTTP messages - used for both requests and responses
+ */
 class HttpMessage {
  public:
   HttpMessage() = default;
@@ -37,7 +38,7 @@ class HttpMessage {
   void addHeader(const std::string &key, const std::string &value);
 
  protected:
-  std::string httpVersion;
+  std::string httpVersion = "HTTP/1.1";
   std::map<std::string, std::string> headers;
   std::string body;
 };

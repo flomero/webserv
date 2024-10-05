@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/04 18:28:05 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/05 14:03:34 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,17 @@
 
 #include "HttpMessage.hpp"
 
+/**
+ * @brief Represents an HTTP request
+ */
 class HttpRequest : public HttpMessage {
  public:
   HttpRequest(const std::string &rawRequest);
   virtual ~HttpRequest() = default;
 
   // Getters
-  std::string getMethod() const;
-  std::string getRequestUri() const;
+  [[nodiscard]] std::string getMethod() const;
+  [[nodiscard]] std::string getRequestUri() const;
 
   // Setters
   void setMethod(const std::string &method);
