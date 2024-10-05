@@ -1,32 +1,43 @@
-<config> ::= <server>+
+<config> ::= "http" "{" <server>+ "}"
 
 <server> ::= "server" "{" <server_body> "}"
 
-<server_body> ::= <option>* <route>+
+<server_body> ::= <server_option>* <route>*
 
-<option> ::= "port" <number> ";"
-            | "host" <ip_v4> ";"
+<server_option> ::= "listen" <listen_value> ";"
             | "server_name" <string> ";"
+            | "root" <string> ";"
+            | "index" <string> ";"
+            | "client_max_body_size" <size_value> ";"
+            | "upload_dir" <string> ";"
+            | "request_timeout" <time_value> ";"
             | "error_page" <number> <string> ";"
-            | "client_body_size" <number> ";"
+
+<listen_value> ::= <ip_v4> ":" <number>
+                 | <ip_v4>
+                 | ":" <number>
+                 | <number>
+
+<size_value> ::= <number> "G" | <number>
+
+<time_value> ::= <number> "s" | <number>
 
 <route> ::= "location" <string> "{" <route_body> "}"
 
 <route_body> ::= <route_option>*
 
-<route_option> ::= "methods" <string_list> ";"
-                  | "root" <string> ";"
-                  | "index" <string> ";"
-                  | "autoindex" <on_off> ";"
-                  | "upload_dir" <string> ";"
-                  | "cgi" <string> <string> ";"
-                  | "redirect" <string> ";"
+<route_option> ::= "allow_methods" <string_list> ";"
+                     | "autoindex" <on_off> ";"
+                     | "alias" <string> ";"
+                     | "cgi" <string> <string> ";"
+                     | "return" <return_value> ";"
+
+<return_value> ::= <number> <string> | <number>
 
 <string_list> ::= <string> | <string> <string_list>
 
 <on_off> ::= "on" | "off"
 
-<ip_v4>  ::= <number> "." <number> "." <number> "." <number>
-
 <number> ::= [0-9]+
 <string> ::= [a-zA-Z0-9/\._-]+
+<ip_v4> ::= [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
