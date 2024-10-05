@@ -6,11 +6,13 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/04 17:12:45 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/04 18:28:05 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <vector>
 
 #include "HttpMessage.hpp"
 
@@ -36,13 +38,24 @@ class HttpRequest : public HttpMessage {
 
   class InvalidMethod : public std::exception {
    public:
-    const char *what() const noexcept override { return "Invalid HTTP method"; }
+    const char *what() const noexcept override { return "Method not allowed"; }
+  };
+
+  class InvalidVersion : public std::exception {
+   public:
+    const char *what() const noexcept override {
+      return "HTTP version not supported";
+    }
   };
 
  private:
   HttpRequest() = default;
   std::string method;
   std::string requestUri;
+
+  void validate() const;
+  static const std::vector<std::string> supportedMethods;
+  static const std::vector<std::string> supportedVersions;
 };
 
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request);
