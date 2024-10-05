@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:30:29 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/05 14:03:23 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/05 15:00:24 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,10 @@ class HttpMessage {
   virtual ~HttpMessage() = default;
 
   // Getters
-  std::string getHttpVersion() const;
-  std::map<std::string, std::string> getHeaders() const;
-  std::string getBody() const;
+  [[nodiscard]] std::string getHttpVersion() const;
+  [[nodiscard]] std::map<std::string, std::string> getHeaders() const;
+  [[nodiscard]] std::string getHeader(const std::string &key) const;
+  [[nodiscard]] std::string getBody() const;
 
   // Setters
   void setHttpVersion(const std::string &httpVersion);
@@ -36,9 +37,10 @@ class HttpMessage {
 
   // Add a header to the message
   void addHeader(const std::string &key, const std::string &value);
+  void addHeaderIfNew(const std::string &key, const std::string &value);
 
  protected:
-  std::string httpVersion = "HTTP/1.1";
-  std::map<std::string, std::string> headers;
-  std::string body;
+  std::string _httpVersion = "HTTP/1.1";
+  std::map<std::string, std::string> _headers;
+  std::string _body;
 };

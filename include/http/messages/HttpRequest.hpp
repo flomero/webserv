@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/05 14:03:34 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/05 15:00:49 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,12 +53,12 @@ class HttpRequest : public HttpMessage {
 
  private:
   HttpRequest() = default;
-  std::string method;
-  std::string requestUri;
+  std::string _method;
+  std::string _requestUri;
 
   void validate() const;
-  static const std::vector<std::string> supportedMethods;
-  static const std::vector<std::string> supportedVersions;
+  static const std::vector<std::string> _supportedMethods;
+  static const std::vector<std::string> _supportedVersions;
 };
 
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request);
