@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/05 13:57:46 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/05 15:58:08 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ enum TokenType {
 	TOKEN_RETURN,
 	TOKEN_IP_V4,
 	TOKEN_NUMBER,
-	TOKEN_SIZE_VALUE,
-	TOKEN_TIME_VALUE,
 	TOKEN_ON,
 	TOKEN_OFF,
 	TOKEN_OPEN_BRACE,
@@ -70,7 +68,7 @@ class Lexer {
 
 		Token	parseNumber();
 		Token	parseIp_v4(std::string value, int count);
-		Token	parseString();
+		Token	parseString(std::string value);
 		Token	parseKeywordOrString();
 
 	public:

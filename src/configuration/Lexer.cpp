@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/05 14:00:41 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/05 16:16:40 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ Token Lexer::parseNumber() {
 Token Lexer::parseIp_v4(std::string value, int count) {
 	if (peekChar() != '.') {
 		if (count != 4)
-			return {TOKEN_STRING, value, _line, _column}; // Defaults to string
+			return parseString(value); // Defaults to string
 		else
 			return {TOKEN_IP_V4, value, _line, _column};
 	}
@@ -105,9 +105,15 @@ Token Lexer::parseIp_v4(std::string value, int count) {
 	return parseIp_v4(value, count + 1);
 }
 
-Token Lexer::parseString() {
-	std::string value;
-	while (isalnum(peekChar()) || peekChar() == '/' || peekChar() == '.' || peekChar() == '-' || peekChar() == '_')
+Token Lexer::parseString(std::string value) {
+	while (isalnum(peekChar())
+	   || (peekChar() >= '<' && peekChar() <= '@')
+	   || (peekChar() >= '-' && peekChar() <= '/')
+	   || (peekChar() == '!')
+	   || (peekChar() >= '$' && peekChar() <= '&')
+	   || (peekChar() >= '*' && peekChar() <= '+')
+	   || (peekChar() == '_')
+	   || (peekChar() == ':'))
 		value += getChar();
 
 	return {TOKEN_STRING, value, _line, _column};
@@ -115,9 +121,16 @@ Token Lexer::parseString() {
 
 Token Lexer::parseKeywordOrString() {
 	std::string value;
-	while (isalnum(peekChar()) || peekChar() == '_' || peekChar() == '.' || peekChar() == '/') {
+	while (isalnum(peekChar())
+	   || (peekChar() >= '<' && peekChar() <= '@')
+	   || (peekChar() >= '-' && peekChar() <= '/')
+	   || (peekChar() == '!')
+	   || (peekChar() >= '$' && peekChar() <= '&')
+	   || (peekChar() >= '*' && peekChar() <= '+')
+	   || (peekChar() == '_')
+	   || (peekChar() == ':'))
 		value += getChar();
-	}
+
 
 	if (value == "http")					return {TOKEN_HTTP, value, _line, _column};
     if (value == "server")					return {TOKEN_SERVER, value, _line, _column};
