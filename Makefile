@@ -12,10 +12,15 @@ DIRS     :=
 SRCS     := main.cpp
 HDRS     :=
 
-# data_structures
+# configuration
 DIRS     += src/configuration include/configuration
 SRCS     += Lexer.cpp Parser.cpp
 HDRS     += Lexer.hpp Parser.hpp
+
+# Server / Routes
+DIRS     += src include
+SRCS     += Server.cpp Route.cpp
+HDRS     += Server.hpp Route.hpp
 
 
 

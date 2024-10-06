@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:56:20 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 14:21:16 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 14:56:16 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,18 +41,20 @@ void Server::setErrorPages(const std::map<int, std::string>& pages) { _errorPage
 
 // Overload "<<" operator
 std::ostream& operator<<(std::ostream& os, const Server& server) {
-	os << std::left << std::setw(32) << server.getServerName() << server.getHost() << ":" << server.getPort() << "\n";
+	os << std::left << std::setw(32) << COLOR(BLUE, server.getServerName()) << BLUE << server.getHost() << ":" << server.getPort() << RESET_COLOR << "\n";
 
 	if (server.getIndex() != "") {os << std::left << std::setw(32) << "  |- index: " << server.getIndex() << "\n";}
 	if (server.getRoot() != "") {os << std::left << std::setw(32) << "  |- root: " << server.getRoot() << "\n";}
 	if (server.getUploadDir() != "") {os << std::left << std::setw(32) << "  |- upload dir: " << server.getUploadDir() << "\n";}
 
 	os << std::left << std::setw(32) << "  |- client max body size: " << server.getClientMaxBodySize() << " bytes\n";
-	os << std::left << std::setw(32) << "  |- request timeout: " << server.getRequestTimeout() << " seconds\n";
+	os << std::left << std::setw(32) << "  |- request timeout: " << server.getRequestTimeout() << " ms\n";
 
-	os << "  |- error pages: \n";
-	for (const auto& page : server.getErrorPages())
-		os << std::left << std::setw(8) << "    |- " << page.first << " -> " << page.second << "\n";
+	if (server.getErrorPages().size() != 0) {
+		os << "  |- error pages: \n";
+		for (const auto& page : server.getErrorPages())
+			os << std::left << std::setw(8) << "    |- " << page.first << " -> " << page.second << "\n";
+	}
 
 	os << "  |- routes: \n";
 	for (const auto& route : server.getRoutes())

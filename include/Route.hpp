@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:54:56 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 14:16:40 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 14:32:15 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,8 @@
 # include <map>
 
 # include <iostream>
-# include <iomanip>
+# include "misc/ft_iomanip.hpp"
 
-# define RED     "\033[0;31m"
-# define GREEN   "\033[0;32m"
-# define YELLOW  "\033[0;33m"
-# define BLUE    "\033[0;34m"
-# define RESET   "\033[0m"
 
 class Route {
 	private:

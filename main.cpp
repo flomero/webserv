@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:43:36 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/02 14:44:46 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 14:07:09 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,7 @@ int main(int argc, char const *argv[])
 		std::vector<Server> servers_config = parser.parse();
 
 		for (auto serv : servers_config) {
-			std::cout	<< serv.serverName << ": "
-						<< serv.host << ":" << serv.port
+			std::cout	<< serv
 						<< std::endl;
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 14:08:26 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 14:54:56 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,33 +129,35 @@ Server Parser::parseServer() {
 
 			case TOKEN_REQUEST_TIMEOUT: {
 				expect(TOKEN_REQUEST_TIMEOUT);
-				size_t timeout = 1000 * std::stoul(_currentToken.value); // By default, read in seconds
+				size_t timeout = 0;
+				size_t msValue = 1000 * std::stoul(_currentToken.value); // By default, read in seconds
 				expect(TOKEN_NUMBER);
 				while (_currentToken.type == TOKEN_STRING) {
 					if (_currentToken.value == "ms") // 1/1000th of a second
-						timeout /= 1000;
+						msValue /= 1000;
 					else if (_currentToken.value == "m") // 60 seconds
-						timeout *= 60;
+						msValue *= 60;
 					else if (_currentToken.value == "h") // 60 minutes
-						timeout *= 60 * 60;
+						msValue *= 60 * 60;
 					else if (_currentToken.value == "d") // 24 hours
-						timeout *= 24 * 60 * 60;
+						msValue *= 24 * 60 * 60;
 					else if (_currentToken.value == "w") // 7 days
-						timeout *= 7 * 24 * 60 * 60;
+						msValue *= 7 * 24 * 60 * 60;
 					else if (_currentToken.value == "M") // 30 days
-						timeout *= 30 * 24 * 60 * 60;
+						msValue *= 30 * 24 * 60 * 60;
 					else if (_currentToken.value == "y") // 365 days
-						timeout *= 365 * 24 * 60 * 60;
+						msValue *= 365 * 24 * 60 * 60;
 
 					_currentToken = _lexer.nextToken(); // Moves past the suffix
 
 					if (_currentToken.type != TOKEN_NUMBER) break;
-					server.setRequestTimeout(timeout);
-					timeout = 1000 * std::stoul(_currentToken.value);
+					timeout += msValue;
+					msValue = 1000 * std::stoul(_currentToken.value);
 
 					_currentToken = _lexer.nextToken(); // Move past the number
 				}
-				server.setRequestTimeout(timeout);
+				server.setRequestTimeout(timeout + msValue);
+				std::cout << "[Debug] - total timeout: " << server.getRequestTimeout() << std::endl;
 				expect(TOKEN_SEMICOLON);
 				break;
 			}
