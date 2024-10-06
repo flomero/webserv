@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/05 16:25:34 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 13:41:45 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,12 @@ Server Parser::parseServer() {
 					 && _currentToken.value[0] == ':') { // In the form ":8080"
 						server.port = std::stoi(_currentToken.value.substr(1, _currentToken.value.size() - 1));
 						_currentToken = _lexer.nextToken();
+					} else {
+						server.port = 80; // Default port
 					}
 				} else if (_currentToken.type == TOKEN_NUMBER) {
 					server.port = std::stoi(_currentToken.value);
+					server.host = std::string("0.0.0.0"); // Default IP
 					_currentToken = _lexer.nextToken(); // Consume port
 				} else {
 					throw std::runtime_error("Invalid listen value");

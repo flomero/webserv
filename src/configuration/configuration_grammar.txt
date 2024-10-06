@@ -18,9 +18,11 @@
                  | ":" <number>
                  | <number>
 
-<size_value> ::= <number> "G" | <number>
+<size_value> ::= (<number> <size_unit)+
+               | <number>
 
-<time_value> ::= <number> "s" | <number>
+<time_value> ::= (<number> <time_unit)+
+               | <number>
 
 <route> ::= "location" <string> "{" <route_body> "}"
 
@@ -41,3 +43,5 @@
 <number> ::= [0-9]+
 <string> ::= [a-zA-Z0-9/\._-]+
 <ip_v4> ::= [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+<size_unit> ::= (k|K|m|M|g|G)
+<time_unit> ::= (ms|s|m|h|d|w|M|y)
