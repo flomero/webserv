@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/05 15:02:24 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/06 12:49:01 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@
 
 const std::vector<std::string> HttpRequest::_supportedMethods = {"GET", "POST",
                                                                  "DELETE"};
+
+// used to differentiate between 501 and 400
+const std::vector<std::string> HttpRequest::_unsupportedMethods = {
+    "HEAD", "PUT", "CONNECT", "OPTIONS", "TRACE", "PATCH"};
 
 const std::vector<std::string> HttpRequest::_supportedVersions = {"HTTP/1.0",
                                                                   "HTTP/1.1"};
@@ -27,38 +31,60 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
   std::istringstream lineStream(line);
   lineStream >> _method >> _requestUri >> _httpVersion;
   if (_method.empty() || _requestUri.empty() || _httpVersion.empty()) {
-    throw InvalidRequest();
+    throw BadRequest();
   }
   validate();
   while (std::getline(requestStream, line)) {
-    if (!line.empty() && line.back() == '\r') {
-      line.pop_back();
-    }
-    if (line.empty()) {
-      break;
-    }
-    std::string key, value;
+    if (!line.empty() && line.back() == '\r') line.pop_back();
+    if (line.empty()) break;
     std::istringstream headerStream(line);
+    std::string key, value;
     std::getline(headerStream, key, ':');
-    if (headerStream.peek() == ' ') headerStream.get();
+    headerStream.ignore(1, ' ');
     std::getline(headerStream, value);
     addHeader(key, value);
   }
-  // Read body
-  std::string body;
-  std::getline(requestStream, body, '\0');
-  setBody(body);
+  if (getHeader("Transfer-Encoding") == "chunked") {
+    parseChunkedBody(requestStream);
+  } else {
+    auto contentLengthHeader = getHeader("Content-Length");
+    if (!contentLengthHeader.empty()) {
+      std::size_t contentLength = std::stoul(contentLengthHeader);
+      std::string body(contentLength, '\0');
+      requestStream.read(&body[0], contentLength);
+      setBody(body);
+    } else {
+      setBody("");
+    }
+  }
 }
 
 void HttpRequest::validate() const {
   if (std::find(_supportedMethods.begin(), _supportedMethods.end(), _method) ==
       _supportedMethods.end()) {
-    throw InvalidMethod();
+    if (std::find(_unsupportedMethods.begin(), _unsupportedMethods.end(),
+                  _method) != _unsupportedMethods.end()) {
+      throw NotImplemented();
+    }
+    throw BadRequest();
   }
   if (std::find(_supportedVersions.begin(), _supportedVersions.end(),
                 _httpVersion) == _supportedVersions.end()) {
     throw InvalidVersion();
   }
+}
+
+void HttpRequest::parseChunkedBody(std::istringstream &requestStream) {
+  std::string line;
+  std::getline(requestStream, line);
+  std::istringstream lineStream(line);
+  size_t chunkSize;
+  lineStream >> std::hex >> chunkSize;
+  if (chunkSize == 0) return;
+  std::string chunk;
+  std::getline(requestStream, chunk);
+  setBody(getBody() + chunk);
+  parseChunkedBody(requestStream);
 }
 
 std::string HttpRequest::getMethod() const { return _method; }

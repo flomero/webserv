@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/05 15:00:49 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/06 12:39:05 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,18 +32,23 @@ class HttpRequest : public HttpMessage {
   void setMethod(const std::string &method);
   void setRequestUri(const std::string &requestUri);
 
-  class InvalidRequest : public std::exception {
+  // Error 400
+  class BadRequest : public std::exception {
    public:
     const char *what() const noexcept override {
-      return "Invalid HTTP request";
+      return "Bad request - invalid HTTP request line";
     }
   };
 
-  class InvalidMethod : public std::exception {
+  // Error 501
+  class NotImplemented : public std::exception {
    public:
-    const char *what() const noexcept override { return "Method not allowed"; }
+    const char *what() const noexcept override {
+      return "Method not implemented";
+    }
   };
 
+  // Error 505
   class InvalidVersion : public std::exception {
    public:
     const char *what() const noexcept override {
@@ -55,9 +60,13 @@ class HttpRequest : public HttpMessage {
   HttpRequest() = default;
   std::string _method;
   std::string _requestUri;
+  std::string _rawRequest;
 
   void validate() const;
+  void parseChunkedBody(std::istringstream &requestStream);
+
   static const std::vector<std::string> _supportedMethods;
+  static const std::vector<std::string> _unsupportedMethods;
   static const std::vector<std::string> _supportedVersions;
 };
 
