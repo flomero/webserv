@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/05 15:58:08 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 16:04:10 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,4 +74,5 @@ class Lexer {
 	public:
 		Lexer(const std::string& source);
 		Token nextToken();
+		Token nextTokenWhitespace();
 };

@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/05 16:16:40 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 16:04:04 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,38 @@ Token Lexer::nextToken() {
 
 
 	return parseKeywordOrString();
+}
+
+Token Lexer::nextTokenWhitespace() {
+	std::string value;
+	char currentChar = peekChar();
+
+	// Continue looping until we find one of the delimiters
+	while (currentChar != '\0' && currentChar != ';' && currentChar != '{' && currentChar != '}') {
+		// Consume the current character
+		value += getChar();
+		currentChar = peekChar();
+	}
+
+	// If we have accumulated anything, return it as a TOKEN_STRING
+	if (!value.empty()) {
+		return {TOKEN_STRING, value, _line, _column};
+	}
+
+	// If no valid string was found, we return the next meaningful token (the delimiter)
+	// if (currentChar == ';' || currentChar == '{' || currentChar == '}') {
+	// 	// We treat the delimiters as their own tokens, consuming the character
+	// 	char delim = getChar();
+	// 	return {TOKEN_DELIMITER, std::string(1, delim), _line, _column};
+	// }
+
+	if (currentChar == '\0') {return {TOKEN_EOF, "", _line, _column};}
+	if (currentChar == '{') {return {TOKEN_OPEN_BRACE, "{", _line, _column};}
+	if (currentChar == '}') {return {TOKEN_CLOSE_BRACE, "}", _line, _column};}
+	if (currentChar == ';') {return {TOKEN_SEMICOLON, ";", _line, _column};}
+
+	// End of file, return an empty token
+	return {TOKEN_EOF, "", _line, _column};
 }
 
 

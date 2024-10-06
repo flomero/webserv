@@ -34,7 +34,7 @@
                      | "cgi" <string> <string> ";"
                      | "return" <return_value> ";"
 
-<return_value> ::= <number> <string> | <number>
+<return_value> ::= <number>? <string>?
 
 <string_list> ::= <string> | <string> <string_list>
 

@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 14:54:56 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 16:08:33 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,16 +247,25 @@ Route Parser::parseRoute() {
 
 			case TOKEN_RETURN: {
 				expect(TOKEN_RETURN);
-				route.setCode(std::stoi(_currentToken.value));
-				route.setRedirect(std::string(""));
-				expect(TOKEN_NUMBER);
-				while (_currentToken.type == TOKEN_STRING) {
-					std::string redirect = route.getRedirect();
-					redirect.append(_currentToken.value);
-					route.setRedirect(redirect);
+
+				if (_currentToken.type == TOKEN_NUMBER)
+					route.setCode(std::stoi(_currentToken.value));
+				else
+					route.setCode(302);
+
+
+				_currentToken = _lexer.nextTokenWhitespace();
+				if (_currentToken.type == TOKEN_STRING) {
+					route.setRedirect(_currentToken.value.substr(1, _currentToken.value.size() - 1));
 					_currentToken = _lexer.nextToken();
+					expect(TOKEN_SEMICOLON);
+				} else if (_currentToken.type == TOKEN_SEMICOLON) {
+					_currentToken = _lexer.nextToken();
+					break ;
+				} else {
+					throw std::runtime_error("Unexpected token");
 				}
-				expect(TOKEN_SEMICOLON);
+
 				break;
 			}
 
