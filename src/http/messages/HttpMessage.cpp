@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:37:17 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/05 15:02:41 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/06 13:09:33 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ std::string HttpMessage::getHeader(const std::string &key) const {
   if (_headers.find(key) != _headers.end()) {
     return _headers.at(key);
   }
-  return nullptr;
+  return "";
 }
 
 std::string HttpMessage::getBody() const { return _body; }

@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/06 12:49:01 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/06 13:33:11 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,16 +75,33 @@ void HttpRequest::validate() const {
 }
 
 void HttpRequest::parseChunkedBody(std::istringstream &requestStream) {
+  std::vector<char> body;
   std::string line;
-  std::getline(requestStream, line);
-  std::istringstream lineStream(line);
-  size_t chunkSize;
-  lineStream >> std::hex >> chunkSize;
-  if (chunkSize == 0) return;
-  std::string chunk;
-  std::getline(requestStream, chunk);
-  setBody(getBody() + chunk);
-  parseChunkedBody(requestStream);
+
+  while (true) {
+    if (!std::getline(requestStream, line)) break;
+
+    if (line.empty()) continue;
+
+    std::size_t chunkSize;
+    try {
+      chunkSize = std::stoul(line, nullptr, 16);
+    } catch (const std::exception &e) {
+      throw BadRequest();
+    }
+
+    if (chunkSize == 0) break;
+
+    std::string chunk(chunkSize, '\0');
+    requestStream.read(&chunk[0], chunkSize);
+
+    if (requestStream.gcount() < static_cast<std::streamsize>(chunkSize)) break;
+
+    body.insert(body.end(), chunk.begin(), chunk.end());
+    requestStream.ignore(2);
+  }
+
+  setBody(std::string(body.begin(), body.end()));
 }
 
 std::string HttpRequest::getMethod() const { return _method; }
