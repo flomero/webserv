@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 16:04:04 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/06 16:42:35 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,9 +91,9 @@ Token Lexer::nextTokenWhitespace() {
 	}
 
 	// If we have accumulated anything, return it as a TOKEN_STRING
-	if (!value.empty()) {
+	if (!value.empty())
 		return {TOKEN_STRING, value, _line, _column};
-	}
+
 
 	// If no valid string was found, we return the next meaningful token (the delimiter)
 	// if (currentChar == ';' || currentChar == '{' || currentChar == '}') {

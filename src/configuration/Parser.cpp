@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 16:08:33 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/07 15:43:02 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,6 @@ Parser::Parser(Lexer& lexer): _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
 
 void Parser::expect(TokenType type) {
-	// std::cout << "[Debug] - currentToken: " << _currentToken.value << std::endl;
-	// std::cout << "        - currentToken: " << _currentToken.type << std::endl;
-	// std::cout << "        - expected    : " << type << std::endl << std::endl;
-
 	if (_currentToken.type != type)
 		throw std::runtime_error("Unexpected token");
 
@@ -31,9 +27,9 @@ std::vector<Server> Parser::parse() {
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);
 
-	while (_currentToken.type != TOKEN_CLOSE_BRACE) {
+	while (_currentToken.type != TOKEN_CLOSE_BRACE)
 		servers.push_back(parseServer());
-	}
+
 
 	expect(TOKEN_CLOSE_BRACE);
 	return servers;
@@ -156,8 +152,8 @@ Server Parser::parseServer() {
 
 					_currentToken = _lexer.nextToken(); // Move past the number
 				}
-				server.setRequestTimeout(timeout + msValue);
-				std::cout << "[Debug] - total timeout: " << server.getRequestTimeout() << std::endl;
+				timeout += msValue;
+				server.setRequestTimeout(timeout);
 				expect(TOKEN_SEMICOLON);
 				break;
 			}
