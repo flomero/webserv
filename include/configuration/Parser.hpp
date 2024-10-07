@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:58:34 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/07 17:28:42 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/07 17:59:14 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,9 @@
 
 class Parser {
 	private:
-		Lexer&	_lexer;
-		Token	_currentToken;
+		Lexer&						_lexer;
+		Token						_currentToken;
+		std::vector<std::string>	_parsingErrors;
 
 		void	expect(eTokenType type);
 		Server	parseServer();
@@ -35,5 +36,6 @@ class Parser {
 		Parser(Lexer& lexer);
 		std::vector<Server> parse();
 
-		void reportError(std::string message, std::string expected, std::string found) const;
+		void reportError(eParsingErrors error, std::string expected, std::string found);
+		void flushErrors() const;
 };

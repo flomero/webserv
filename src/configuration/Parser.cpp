@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/07 17:33:09 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/07 18:06:24 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ Parser::Parser(Lexer& lexer): _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
 void Parser::expect(eTokenType type) {
 	if (_currentToken.type != type)
-		reportError("testMessage", tokenToString.at(type), tokenToString.at(_currentToken.type));
-		// throw std::runtime_error("Unexpected token");
+		reportError(UNEXPECTED_TOKEN, tokenToString.at(type), tokenToString.at(_currentToken.type));
 
 	_currentToken = _lexer.nextToken();
 }
@@ -175,11 +174,13 @@ Server Parser::parseServer() {
 				std::vector<Route> routes = server.getRoutes();
 				routes.push_back(parseRoute());
 				server.setRoutes(routes);
+				break;
 			}
-			break;
 
 			default:
-				throw std::runtime_error("Unexpected token in server body");
+				_currentToken = _lexer.nextToken();
+				break;
+				// throw std::runtime_error("Unexpected token in server body");
 		}
 	}
 
@@ -277,14 +278,26 @@ Route Parser::parseRoute() {
 
 
 
-void Parser::reportError(std::string message, std::string expected, std::string found) const  {
+void Parser::reportError(eParsingErrors error, std::string expected, std::string found) {
 	std::ostringstream errorMsg;
 
-	(void)message;
-	(void)expected;
-	(void)found;
+	errorMsg	<< _lexer.getErrorPrefix()
+				<< parsingErrorsMessages.at(error);
 
-	errorMsg << _lexer.getErrorPrefix();
+	switch (error) {
+		case UNEXPECTED_TOKEN:
+			errorMsg	<< "'" << COLOR(RED, expected) << "'"
+						<< std::endl << std::endl
+						<< COLOR(RED, "Got: ")
+						<< found
+						<< std::endl;
+			break;
+	}
 
-	std::cerr << errorMsg.str() << std::endl;
+	_parsingErrors.push_back(errorMsg.str());
+}
+
+void Parser::flushErrors() const {
+	for (auto msg: _parsingErrors)
+		std::cerr	<< msg << std::endl << std::endl;
 }
