@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/07 15:43:02 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/07 17:33:09 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,10 @@
 Parser::Parser(Lexer& lexer): _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
 
-void Parser::expect(TokenType type) {
+void Parser::expect(eTokenType type) {
 	if (_currentToken.type != type)
-		throw std::runtime_error("Unexpected token");
+		reportError("testMessage", tokenToString.at(type), tokenToString.at(_currentToken.type));
+		// throw std::runtime_error("Unexpected token");
 
 	_currentToken = _lexer.nextToken();
 }
@@ -29,7 +30,6 @@ std::vector<Server> Parser::parse() {
 
 	while (_currentToken.type != TOKEN_CLOSE_BRACE)
 		servers.push_back(parseServer());
-
 
 	expect(TOKEN_CLOSE_BRACE);
 	return servers;
@@ -171,13 +171,12 @@ Server Parser::parseServer() {
 				break;
 			}
 
-			case TOKEN_LOCATION:
-				{
-					std::vector<Route> routes = server.getRoutes();
-					routes.push_back(parseRoute());
-					server.setRoutes(routes);
-				}
-				break;
+			case TOKEN_LOCATION: {
+				std::vector<Route> routes = server.getRoutes();
+				routes.push_back(parseRoute());
+				server.setRoutes(routes);
+			}
+			break;
 
 			default:
 				throw std::runtime_error("Unexpected token in server body");
@@ -272,4 +271,20 @@ Route Parser::parseRoute() {
 
 	expect(TOKEN_CLOSE_BRACE);
 	return route;
+}
+
+
+
+
+
+void Parser::reportError(std::string message, std::string expected, std::string found) const  {
+	std::ostringstream errorMsg;
+
+	(void)message;
+	(void)expected;
+	(void)found;
+
+	errorMsg << _lexer.getErrorPrefix();
+
+	std::cerr << errorMsg.str() << std::endl;
 }

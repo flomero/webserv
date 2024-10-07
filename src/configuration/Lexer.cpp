@@ -6,25 +6,25 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 16:42:35 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/07 17:30:39 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/configuration/Lexer.hpp"
 
-Lexer::Lexer(const std::string& source):
-	_source(source), _currentPos(0), _line(1), _column(0) {}
+Lexer::Lexer(const std::string& source_name, const std::string& source_content):
+	_source_name(source_name), _source_content(source_content), _currentPos(0), _line(1), _column(0) {}
 
 
 
 char Lexer::peekChar() {
-	if (_currentPos >= _source.size()) return '\0';
-	return _source[_currentPos];
+	if (_currentPos >= _source_content.size()) return '\0';
+	return _source_content[_currentPos];
 }
 
 char Lexer::getChar() {
-	if (_currentPos >= _source.size()) return '\0';
-	char c = _source[_currentPos++];
+	if (_currentPos >= _source_content.size()) return '\0';
+	char c = _source_content[_currentPos++];
 	_column++;
 	if (c == '\n') {
 		_line++;
@@ -85,22 +85,13 @@ Token Lexer::nextTokenWhitespace() {
 
 	// Continue looping until we find one of the delimiters
 	while (currentChar != '\0' && currentChar != ';' && currentChar != '{' && currentChar != '}') {
-		// Consume the current character
-		value += getChar();
+		value += getChar(); // Consume the current character
 		currentChar = peekChar();
 	}
 
 	// If we have accumulated anything, return it as a TOKEN_STRING
 	if (!value.empty())
 		return {TOKEN_STRING, value, _line, _column};
-
-
-	// If no valid string was found, we return the next meaningful token (the delimiter)
-	// if (currentChar == ';' || currentChar == '{' || currentChar == '}') {
-	// 	// We treat the delimiters as their own tokens, consuming the character
-	// 	char delim = getChar();
-	// 	return {TOKEN_DELIMITER, std::string(1, delim), _line, _column};
-	// }
 
 	if (currentChar == '\0') {return {TOKEN_EOF, "", _line, _column};}
 	if (currentChar == '{') {return {TOKEN_OPEN_BRACE, "{", _line, _column};}
@@ -184,4 +175,19 @@ Token Lexer::parseKeywordOrString() {
     if (value == "off")						return {TOKEN_OFF, value, _line, _column};
 
 	return {TOKEN_STRING, value, _line, _column}; // Default to string if not a keyword
+}
+
+
+
+std::string Lexer::getErrorPrefix() const {
+	std::ostringstream errorMsg;
+
+	errorMsg	<< _source_name << ": "
+				<< _line << ":"
+				<< _column << ": "
+				<< COLOR(RED, std::string("error: "))
+				<< "expected: "
+				<< std::endl;
+
+	return errorMsg.str();
 }
