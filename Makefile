@@ -11,27 +11,32 @@ OBJ_DIR  := obj
 
 # Source directories and files
 SRCS_DIR := src \
-            src/http/messages \
-			src/http/status
+			src/http/messages \
+			src/http/status \
+			src/files \
+			src/log
 
 # Header directories
 HDRS_DIR := include/ \
 			include/http/messages \
-			include/http/status
+			include/http/status \
+			include/log
 
 INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
 SRCS     := main.cpp \
-            HttpMessage.cpp \
-            HttpRequest.cpp \
+			HttpMessage.cpp \
+			HttpRequest.cpp \
 			HttpResponse.cpp \
-			HttpStatus.cpp
+			HttpStatus.cpp \
+			mimetypes.cpp \
+			Logger.cpp
 
 HDRS     := HttpMessage.hpp \
-            HttpRequest.hpp \
+			HttpRequest.hpp \
 			HttpResponse.hpp \
-			HttpStatus.hpp
-
+			HttpStatus.hpp \
+			Logger.hpp
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
