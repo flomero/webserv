@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:20:32 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:09:36 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/09 15:21:54 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,22 +32,15 @@ void Logger::setOutputToConsole() {
 		logFile.close();
 }
 
-std::string Logger::getTimestamp() {
-	std::time_t now = std::time(nullptr);
-	std::tm* timeinfo = std::localtime(&now);
-	char buffer[80];
-	std::strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
-	return std::string(buffer);
-}
-
 void Logger::log(const std::string& msg, LogLevel level) {
+	std::time_t now = std::time(nullptr);
 	if (outputToFile) {
-		logFile << std::left << std::setw(20) << getTimestamp() << " "
-				<< std::left << std::setw(10) << level << " " << msg
+		logFile << std::left << std::put_time(std::localtime(&now), "%F %T")
+				<< " " << std::left << std::setw(20) << level << " " << msg
 				<< std::endl;
 	} else {
-		std::cout << std::left << std::setw(20) << getTimestamp() << " "
-				  << std::left << std::setw(20) << level << " " << msg
+		std::cout << std::left << std::put_time(std::localtime(&now), "%F %T")
+				  << " " << std::left << std::setw(20) << level << " " << msg
 				  << std::endl;
 	}
 }

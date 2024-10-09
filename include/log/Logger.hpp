@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:14:03 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:11:54 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/09 15:16:41 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,6 @@ class Logger {
 	private:
 		bool outputToFile = false;
 		std::ofstream logFile;
-
-		std::ostringstream formatMessage(const std::string& msg,
-										 LogLevel level);
-		std::string getTimestamp();
 };
 
 std::ostream& operator<<(std::ostream& os, LogLevel level);
