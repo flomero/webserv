@@ -1,3 +1,7 @@
 BasedOnStyle: Google
-IndentWidth: 2
 ColumnLimit: 80
+UseTab: Always
+TabWidth: 4
+IndentWidth: 4
+IndentAccessModifiers: true
+AllowShortIfStatementsOnASingleLine: Never

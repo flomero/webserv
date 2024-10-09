@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:37:17 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/06 13:09:33 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/09 15:09:16 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,25 @@
 std::string HttpMessage::getHttpVersion() const { return _httpVersion; }
 
 std::map<std::string, std::string> HttpMessage::getHeaders() const {
-  return _headers;
+	return _headers;
 }
 
 std::string HttpMessage::getHeader(const std::string &key) const {
-  if (_headers.find(key) != _headers.end()) {
-    return _headers.at(key);
-  }
-  return "";
+	if (_headers.find(key) != _headers.end()) {
+		return _headers.at(key);
+	}
+	return "";
 }
 
 std::string HttpMessage::getBody() const { return _body; }
 
 void HttpMessage::setHttpVersion(const std::string &httpVersion) {
-  _httpVersion = httpVersion;
+	_httpVersion = httpVersion;
 }
 
 void HttpMessage::setHeaders(
-    const std::map<std::string, std::string> &headers) {
-  _headers = headers;
+	const std::map<std::string, std::string> &headers) {
+	_headers = headers;
 }
 
 void HttpMessage::setBody(const std::string &body) { _body = body; }
@@ -45,7 +45,7 @@ void HttpMessage::setBody(const std::string &body) { _body = body; }
  * @param value The header value
  */
 void HttpMessage::addHeader(const std::string &key, const std::string &value) {
-  _headers[key] = value;
+	_headers[key] = value;
 }
 
 /**
@@ -55,8 +55,8 @@ void HttpMessage::addHeader(const std::string &key, const std::string &value) {
  * @param value The header value
  */
 void HttpMessage::addHeaderIfNew(const std::string &key,
-                                 const std::string &value) {
-  if (_headers.find(key) == _headers.end()) {
-    _headers[key] = value;
-  }
+								 const std::string &value) {
+	if (_headers.find(key) == _headers.end()) {
+		_headers[key] = value;
+	}
 }
