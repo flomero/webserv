@@ -33,3 +33,6 @@ webserv
 *.exe
 *.out
 *.app
+
+#Subject etc
+*.pdf
