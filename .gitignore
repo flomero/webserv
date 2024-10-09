@@ -36,3 +36,7 @@ webserv
 
 #Subject etc
 *.pdf
+
+# Editor files
+.vscode
+.idea
