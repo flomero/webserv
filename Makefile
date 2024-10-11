@@ -20,7 +20,8 @@ SRCS_DIR := src \
 HDRS_DIR := include/ \
 			include/http/messages \
 			include/http/status \
-			include/log
+			include/log \
+			include/requesthandlers
 
 INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
@@ -30,13 +31,15 @@ SRCS     := main.cpp \
 			HttpResponse.cpp \
 			HttpStatus.cpp \
 			mimetypes.cpp \
-			Logger.cpp
+			Logger.cpp \
+			postrequest.cpp
 
 HDRS     := HttpMessage.hpp \
 			HttpRequest.hpp \
 			HttpResponse.hpp \
 			HttpStatus.hpp \
-			Logger.hpp
+			Logger.hpp \
+			requesthandlers.hpp
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
