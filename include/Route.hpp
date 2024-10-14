@@ -12,42 +12,41 @@
 
 #pragma once
 
-# include <string>
-# include <vector>
-# include <map>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
-# include <iostream>
-# include "misc/ft_iomanip.hpp"
-
+#include "misc/ft_iomanip.hpp"
 
 class Route {
 	private:
-		std::string							_path;
-		std::string							_alias;
-		std::vector<std::string>			_methods;
-		std::string							_root;
-		std::string							_index;
-		bool								_autoindex;
-		std::string							_uploadDir;
-		std::map<std::string, std::string>	_cgiHandlers;
-		int									_code;
-		std::string							_redirect;
+		std::string _path;
+		std::string _alias;
+		std::vector<std::string> _methods;
+		std::string _root;
+		std::string _index;
+		bool _autoindex;
+		std::string _uploadDir;
+		std::map<std::string, std::string> _cgiHandlers;
+		int _code;
+		std::string _redirect;
 
 	public:
 		// Constructor
 		Route();
 
 		// Getters
-		const std::string&			getPath() const;
-		const std::string&			getAlias() const;
+		const std::string& getPath() const;
+		const std::string& getAlias() const;
 		const std::vector<std::string>& getMethods() const;
-		const std::string&			getRoot() const;
-		const std::string&			getIndex() const;
-		bool						isAutoindex() const;
-		const std::string&			getUploadDir() const;
+		const std::string& getRoot() const;
+		const std::string& getIndex() const;
+		bool isAutoindex() const;
+		const std::string& getUploadDir() const;
 		const std::map<std::string, std::string>& getCgiHandlers() const;
-		int							getCode() const;
-		const std::string&			getRedirect() const;
+		int getCode() const;
+		const std::string& getRedirect() const;
 
 		// Setters
 		void setPath(const std::string& path);

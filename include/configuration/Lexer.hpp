@@ -6,20 +6,20 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/09 15:04:17 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/14 14:50:08 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# include <string>
-# include <vector>
-# include <map>
-# include <sstream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
-# include "../misc/ft_iomanip.hpp"
+#include "ft_iomanip.hpp"
 
-# define COMMENT_PLACEHOLDER '#'
+#define COMMENT_PLACEHOLDER '#'
 
 enum eTokenType {
 	TOKEN_HTTP,
@@ -78,39 +78,40 @@ const std::map<eTokenType, std::string> tokenToString = {
 	{TOKEN_CLOSE_BRACE, "}"},
 	{TOKEN_SEMICOLON, ";"},
 
-	{TOKEN_EOF, "EOF"}
-};
+	{TOKEN_EOF, "EOF"}};
 
 struct Token {
-	eTokenType type;
-	std::string value;
-	int line;
-	int column;
+		eTokenType type;
+		std::string value;
+		int line;
+		int column;
 };
 
 class Lexer {
 	private:
-		std::string	_source_name;
-		std::string	_source_content;
-		size_t		_currentPos;
-		int			_line;
-		int			_column;
+		std::string _source_name;
+		std::string _source_content;
+		size_t _currentPos;
+		int _line;
+		int _column;
 
-		char	getChar();
-		char	peekChar();
-		void	skipWhitespace();
-		void	skipComment();
+		char getChar();
+		char peekChar();
+		void skipWhitespace();
+		void skipComment();
 
-		Token	parseNumber();
-		Token	parseIp_v4(std::string value, int count);
-		Token	parseString(std::string value);
-		Token	parseKeywordOrString();
+		Token parseNumber();
+		Token parseIp_v4(std::string value, int count);
+		Token parseString(std::string value);
+		Token parseKeywordOrString();
 
 	public:
-		Lexer(const std::string& source_name, const std::string& source_content);
+		Lexer(const std::string& source_name,
+			  const std::string& source_content);
 		Token nextToken();
 		Token nextTokenWhitespace();
 
-		// void reportError(const std::string &message, const std::string &expected, const std::string &found) const;
+		// void reportError(const std::string &message, const std::string
+		// &expected, const std::string &found) const;
 		std::string getErrorPrefix() const;
 };

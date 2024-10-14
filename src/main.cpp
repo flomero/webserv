@@ -5,17 +5,17 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/02 13:43:36 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/09 14:17:10 by lgreau           ###   ########.fr       */
+/*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
+/*   Updated: 2024/10/14 14:50:44 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "include/webserv.hpp"
-
+#include <exception>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
-#include <exception>
+
+#include "webserv.hpp"
 
 std::string readFile(const std::string &filename) {
 	std::ifstream file(filename);
@@ -28,8 +28,9 @@ std::string readFile(const std::string &filename) {
 	return buffer.str();
 }
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
+	LOG_INFO("Starting server...");
+
 	if (argc == 2) {
 		std::string source;
 
@@ -46,13 +47,12 @@ int main(int argc, char const *argv[])
 
 		try {
 			servers_config = parser.parse();
-		} catch (std::exception& e) {
+		} catch (std::exception &e) {
 			parser.flushErrors();
 		}
 
 		for (auto serv : servers_config) {
-			std::cout	<< serv
-						<< std::endl;
+			std::cout << serv << std::endl;
 		}
 	}
 

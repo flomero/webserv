@@ -1,3 +1,6 @@
+# Compiled programs
+webserv
+
 # Prerequisites
 *.d
 
@@ -32,3 +35,9 @@ obj
 *.out
 *.app
 webserv
+#Subject etc
+*.pdf
+
+# Editor files
+.vscode
+.idea

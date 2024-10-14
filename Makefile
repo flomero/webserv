@@ -1,67 +1,144 @@
 # Compiler and flags
-CPP      := c++
-CPPFLAGS := -Wall -Werror -Wextra -std=c++11
+CXX      := c++
+CXXFLAGS := -Wall -Werror -Wextra -std=c++17
 DEPFLAGS := -MMD -MP
 
 # Target name
 NAME     := webserv
 
+# Directory for object files
 OBJ_DIR  := obj
 
-DIRS     :=
-SRCS     := main.cpp
-HDRS     :=
+# Source directories and files
+SRCS_DIR := src \
+			src/http/messages \
+			src/http/status \
+			src/files \
+			src/log \
+			src/configuration
 
-# configuration
-DIRS     += src/configuration include/configuration
-SRCS     += Lexer.cpp Parser.cpp
-HDRS     += Lexer.hpp Parser.hpp
+# Header directories
+HDRS_DIR := include/ \
+			include/http/messages \
+			include/http/status \
+			include/log \
+			include/configuration \
+			include/misc
 
-# Server / Routes
-DIRS     += src include
-SRCS     += Server.cpp Route.cpp
-HDRS     += Server.hpp Route.hpp
+INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
+SRCS     := main.cpp \
+			HttpMessage.cpp \
+			HttpRequest.cpp \
+			HttpResponse.cpp \
+			HttpStatus.cpp \
+			mimetypes.cpp \
+			Logger.cpp \
+			Lexer.cpp \
+			Parser.cpp \
+			Route.cpp \
+			Server.cpp
 
+HDRS     := webserv.hpp \
+			HttpMessage.hpp \
+			HttpRequest.hpp \
+			HttpResponse.hpp \
+			HttpStatus.hpp \
+			Logger.hpp \
+			Lexer.hpp \
+			Parser.hpp \
+			Server.hpp \
+			ParsingErrors.hpp \
+			ft_iomanip.hpp
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
-DEPS     := $(SRCS:.cpp=.d)
+DEPS     := $(OBJS:.o=.d)
 
+# Precompiled headers
 HDR_CHECK := $(addprefix $(OBJ_DIR)/, $(HDRS:.hpp=.hpp.gch))
 
 # VPATH for source and header files
-vpath %.cpp $(DIRS)
-vpath %.hpp $(DIRS)
+vpath %.cpp $(SRCS_DIR)
+vpath %.hpp $(HDRS_DIR)
 
 # Main target
-all: $(NAME)
+all: ascii $(NAME)
 
-# Rule to create the static library
+# Rule to build the executable
 $(NAME): $(OBJS) $(HDR_CHECK)
-	$(CPP) $(CPPFLAGS) $(OBJS) -o $(NAME)
+	@echo "$(CLEAR_LINE)$(YELLOW)Linking $(ITALIC_LIGHT_YELLOW)$(NAME)$(NC)"
+	@$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(INCLUDES)
+	@if [ -f $(NAME) ]; then \
+		echo "$(GREEN)$(NAME) compiled successfully!$(NC)"; \
+		echo "$(CYAN)Run with ./$(NAME)$(NC)"; \
+		echo "------------------------------------------------"; \
+	else \
+		echo "$(RED)$(NAME) failed to compile$(NC)"; \
+	fi
 
 # Rule to compile source files into object files
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
-	$(CPP) $(CPPFLAGS) $(DEPFLAGS) -c $< -o $@
+	@$(eval CURRENT := $(shell echo $$(($(CURRENT) + 1))))
+	@$(eval PERCENT := $(shell echo $$(($(CURRENT) * 100 / $(TOTAL_SRCS)))))
+	@printf "$(CLEAR_LINE)$(YELLOW)Compiling $(PERCENT)%% [$(CURRENT)/$(TOTAL_SRCS)] $(ITALIC_LIGHT_YELLOW)$<$(NC) "
+	@$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@ $(INCLUDES)
 
+# Rule for precompiled headers
 $(OBJ_DIR)/%.hpp.gch: %.hpp | $(OBJ_DIR)
-	$(CPP) $(CPPFLAGS) -x c++-header -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -x c++-header -c $< -o $@ $(INCLUDES)
 
-$(OBJ_DIR) :
-	mkdir -p $@
+# Create object directory
+$(OBJ_DIR):
+	@echo "$(YELLOW)Creating object directory...$(NC)"
+	@mkdir -p $@
 
+# Include generated dependencies
 -include $(DEPS)
 
 # Clean rule
 clean:
-	rm -rf $(OBJ_DIR) $(DEPS)
+	@echo "$(RED)Cleaning $(NAME)...$(NC)"
+	@rm -rf $(OBJ_DIR)
 
 # Full clean rule
 fclean: clean
-	rm -f $(NAME)
+	@echo "$(RED)Removing binary files...$(NC)"
+	@rm -f $(NAME)
 
 # Rebuild everything
 re: fclean all
 
+# add debug flags
+debug: $(CXXFLAGS) += -g -fsanitize=address -pedantic
+debug: re
+
 # Phony targets
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re debug
+
+# Colors:
+GREEN = \033[0;32m
+LIGHT_GREEN = \033[0;92m
+RED = \033[0;31m
+YELLOW = \033[0;33m
+LIGHT_YELLOW = \033[0;93m
+ITALIC_LIGHT_YELLOW = \033[3;93m
+CYAN = \033[0;36m
+NC = \033[0m
+CLEAR_LINE = \033[2K\r
+ASCII_ART = $(CYAN)
+
+ascii:
+	@echo "------------------------------------------------"
+	@echo "$(CYAN)"
+	@echo "     __ __  __ __ __      "
+	@echo "|  ||_ |__)(_ |_ |__)\  / "
+	@echo "|/\||__|__)__)|__| \  \/  "
+	@echo "                          "
+	@echo "$(NC)"
+	@echo "------------------------------------------------"
+
+BAR_WIDTH = 50
+TOTAL_SRCS = $(words $(SRCS))
+
+format:
+	find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i
