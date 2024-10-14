@@ -5,6 +5,7 @@ webserv
 *.d
 
 # Compiled Object files
+obj
 *.slo
 *.lo
 *.o
@@ -33,7 +34,7 @@ webserv
 *.exe
 *.out
 *.app
-
+webserv
 #Subject etc
 *.pdf
 

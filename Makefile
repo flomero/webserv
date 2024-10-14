@@ -14,13 +14,16 @@ SRCS_DIR := src \
 			src/http/messages \
 			src/http/status \
 			src/files \
-			src/log
+			src/log \
+			src/configuration
 
 # Header directories
 HDRS_DIR := include/ \
 			include/http/messages \
 			include/http/status \
-			include/log
+			include/log \
+			include/configuration \
+			include/misc
 
 INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
@@ -30,13 +33,23 @@ SRCS     := main.cpp \
 			HttpResponse.cpp \
 			HttpStatus.cpp \
 			mimetypes.cpp \
-			Logger.cpp
+			Logger.cpp \
+			Lexer.cpp \
+			Parser.cpp \
+			Route.cpp \
+			Server.cpp
 
-HDRS     := HttpMessage.hpp \
+HDRS     := webserv.hpp \
+			HttpMessage.hpp \
 			HttpRequest.hpp \
 			HttpResponse.hpp \
 			HttpStatus.hpp \
-			Logger.hpp
+			Logger.hpp \
+			Lexer.hpp \
+			Parser.hpp \
+			Server.hpp \
+			ParsingErrors.hpp \
+			ft_iomanip.hpp
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
@@ -72,7 +85,7 @@ $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 
 # Rule for precompiled headers
 $(OBJ_DIR)/%.hpp.gch: %.hpp | $(OBJ_DIR)
-	@$(CXX) $(CXXFLAGS) -x c++-header -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -x c++-header -c $< -o $@ $(INCLUDES)
 
 # Create object directory
 $(OBJ_DIR):
@@ -126,3 +139,6 @@ ascii:
 
 BAR_WIDTH = 50
 TOTAL_SRCS = $(words $(SRCS))
+
+format:
+	find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i
