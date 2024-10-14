@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/07 18:06:24 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/14 14:33:16 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,10 @@ std::vector<Server> Parser::parse() {
 		servers.push_back(parseServer());
 
 	expect(TOKEN_CLOSE_BRACE);
+
+	if (_parsingErrors.size() != 0)
+		throw std::runtime_error("Found some parsing errors");
+
 	return servers;
 }
 
@@ -57,8 +61,9 @@ Server Parser::parseServer() {
 					server.setPort(std::stoi(_currentToken.value));
 					_currentToken = _lexer.nextToken(); // Consume port
 				} else {
-					throw std::runtime_error("Invalid listen value");
+					reportError(LISTEN_MISSING_VALUES, "listen [host|port] or listen [host]:[port]", "listen [ ]");
 				}
+
 				expect(TOKEN_SEMICOLON);
 				break;
 			}
@@ -281,18 +286,25 @@ Route Parser::parseRoute() {
 void Parser::reportError(eParsingErrors error, std::string expected, std::string found) {
 	std::ostringstream errorMsg;
 
-	errorMsg	<< _lexer.getErrorPrefix()
-				<< parsingErrorsMessages.at(error);
+	errorMsg	<< COLOR(BLUE, _lexer.getErrorPrefix())
+				<< COLOR(RED, parsingErrorsMessages.at(error).at(ERROR_NAME))
+				<< std::endl << std::endl
+				<< std::left << std::setw(12) << parsingErrorsMessages.at(error).at(ERROR_TEXT);
 
 	switch (error) {
 		case UNEXPECTED_TOKEN:
-			errorMsg	<< "'" << COLOR(RED, expected) << "'"
-						<< std::endl << std::endl
-						<< COLOR(RED, "Got: ")
-						<< found
-						<< std::endl;
+			errorMsg	<< "'" << expected << "'";
+			break;
+
+		default:
+			errorMsg	<< expected;
 			break;
 	}
+
+	errorMsg	<< std::endl
+				<< std::left << std::setw(12) << "got: "
+				<< found
+				<< std::endl;
 
 	_parsingErrors.push_back(errorMsg.str());
 }

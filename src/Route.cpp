@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:58:51 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 15:21:38 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/09 14:10:47 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, const Route& route) {
 			os << "        |- " << std::left << std::setw(6) << (handler.first + ": ") << handler.second << "\n";
 	}
 
-	os << std::left << std::setw(24) << "      |- code: " << RED << route.getCode() << RESET_COLOR << "\n";
-	if (route.getRedirect() != "") {os << std::left << std::setw(24) << "      |- redirect: " << route.getRedirect() << "\n";}
+	if (route.getCode() != 0) {os << std::left << std::setw(24) << "      |- code: " << RED << route.getCode() << RESET_COLOR << "\n";}
+	if (route.getRedirect() != "") {os << std::left << std::setw(24) << "      |- redirect/content: " << route.getRedirect() << "\n";}
 	return os;
 }

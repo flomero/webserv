@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/07 18:05:25 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/09 14:34:46 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,8 +184,7 @@ std::string Lexer::getErrorPrefix() const {
 
 	errorMsg	<< _source_name << ":"
 				<< _line << ":"
-				<< (_column + 1) << ": "
-				<< COLOR(RED, std::string("error: "));
+				<< _column << ": ";
 
 	return errorMsg.str();
 }

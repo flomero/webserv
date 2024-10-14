@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 17:08:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/07 17:36:29 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/09 14:44:53 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,16 @@
 # include <string>
 
 enum eParsingErrors {
-	UNEXPECTED_TOKEN
+	UNEXPECTED_TOKEN,
+
+	LISTEN_MISSING_VALUES
 };
 
-const std::map<eParsingErrors, std::string> parsingErrorsMessages = {
-	{UNEXPECTED_TOKEN, "expected: "}
+# define ERROR_NAME 0
+# define ERROR_TEXT 1
+
+const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages = {
+	{UNEXPECTED_TOKEN, {"UNEXPECTED_TOKEN", "expected: "}},
+
+	{LISTEN_MISSING_VALUES, {"LISTEN_MISSING_VALUES", "expected: "}}
 };
