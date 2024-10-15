@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/11 16:11:11 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/15 10:51:48 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,10 @@ int handlePostRequest(HttpRequest &request) {
 	return 415;
 }
 
-int handlePostUrlEncoded(HttpRequest &request) { return 200; }
+int handlePostUrlEncoded(HttpRequest &request) {
+	(void)request;
+	return 200;
+}
 
 int handlePostMultipart(HttpRequest &request) {
 	std::string contentType = request.getHeader("Content-Type");
@@ -42,7 +45,7 @@ int handlePostMultipart(HttpRequest &request) {
 	std::size_t pos = 0;
 
 	std::string body = request.getBody();
-	while (pos = body.find(boundaryDelimiter, pos) != std::string::npos) {
+	while ((pos = body.find(boundaryDelimiter, pos)) != std::string::npos) {
 		pos += boundaryDelimiter.length();
 		if (pos == body.length())
 			break;
@@ -70,17 +73,17 @@ int handlePostMultipart(HttpRequest &request) {
 			return Http::BAD_REQUEST;
 		}
 		if (contentDisposition.find("filename=") != std::string::npos)
-			return handleFileUpload(part, contentDisposition, contentType);
+			return handleFileUpload(part, contentDisposition);
 		else {
 			// ToDo: handle form fields - not sure if needed
 			LOG_INFO("Form field: " + part);
 		}
 	}
+	return Http::OK;
 }
 
 int handleFileUpload(const std::string &part,
-					 const std::string &contentDisposition,
-					 const std::string &contentType) {
+					 const std::string &contentDisposition) {
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {

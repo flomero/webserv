@@ -37,8 +37,6 @@ SRCS     := main.cpp \
 			mimetypes.cpp \
 			Logger.cpp \
 			postrequest.cpp \
-
-HDRS     := HttpMessage.hpp \
 			Lexer.cpp \
 			Parser.cpp \
 			Route.cpp \
