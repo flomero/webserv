@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:54:56 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 14:32:15 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/15 15:29:20 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,16 +37,16 @@ class Route {
 		Route();
 
 		// Getters
-		const std::string& getPath() const;
-		const std::string& getAlias() const;
-		const std::vector<std::string>& getMethods() const;
-		const std::string& getRoot() const;
-		const std::string& getIndex() const;
-		bool isAutoindex() const;
-		const std::string& getUploadDir() const;
-		const std::map<std::string, std::string>& getCgiHandlers() const;
-		int getCode() const;
-		const std::string& getRedirect() const;
+		[[nodiscard]] const std::string& getPath() const;
+		[[nodiscard]] const std::string& getAlias() const;
+		[[nodiscard]] const std::vector<std::string>& getMethods() const;
+		[[nodiscard]] const std::string& getRoot() const;
+		[[nodiscard]] const std::string& getIndex() const;
+		[[nodiscard]] bool isAutoindex() const;
+		[[nodiscard]] const std::string& getUploadDir() const;
+		[[nodiscard]] const std::map<std::string, std::string>& getCgiHandlers() const;
+		[[nodiscard]] int getCode() const;
+		[[nodiscard]] const std::string& getRedirect() const;
 
 		// Setters
 		void setPath(const std::string& path);
