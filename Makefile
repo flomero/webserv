@@ -14,14 +14,18 @@ SRCS_DIR := src \
 			src/http/messages \
 			src/http/status \
 			src/files \
-			src/log
+			src/log \
+			src/configuration \
+			src/requesthandlers \
 
 # Header directories
 HDRS_DIR := include/ \
 			include/http/messages \
 			include/http/status \
 			include/log \
-			include/requesthandlers
+			include/requesthandlers \
+			include/configuration \
+			include/misc \
 
 INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
@@ -32,14 +36,26 @@ SRCS     := main.cpp \
 			HttpStatus.cpp \
 			mimetypes.cpp \
 			Logger.cpp \
-			postrequest.cpp
+			postrequest.cpp \
 
 HDRS     := HttpMessage.hpp \
+			Lexer.cpp \
+			Parser.cpp \
+			Route.cpp \
+			Server.cpp \
+
+HDRS     := webserv.hpp \
+			HttpMessage.hpp \
 			HttpRequest.hpp \
 			HttpResponse.hpp \
 			HttpStatus.hpp \
 			Logger.hpp \
-			requesthandlers.hpp
+			requesthandlers.hpp \
+			Lexer.hpp \
+			Parser.hpp \
+			Server.hpp \
+			ParsingErrors.hpp \
+			ft_iomanip.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
@@ -75,7 +91,7 @@ $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 
 # Rule for precompiled headers
 $(OBJ_DIR)/%.hpp.gch: %.hpp | $(OBJ_DIR)
-	@$(CXX) $(CXXFLAGS) -x c++-header -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -x c++-header -c $< -o $@ $(INCLUDES)
 
 # Create object directory
 $(OBJ_DIR):
@@ -102,8 +118,11 @@ re: fclean all
 debug: $(CXXFLAGS) += -g -fsanitize=address -pedantic
 debug: re
 
+format:
+	find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i
+
 # Phony targets
-.PHONY: all clean fclean re debug
+.PHONY: all clean fclean re debug ascii format
 
 # Colors:
 GREEN = \033[0;32m
@@ -129,3 +148,4 @@ ascii:
 
 BAR_WIDTH = 50
 TOTAL_SRCS = $(words $(SRCS))
+

@@ -1,0 +1,49 @@
+<config> ::= "http" "{" <server>+ "}"
+
+<server> ::= "server" "{" <server_body> "}"
+
+<server_body> ::= <server_option>* <route>*
+
+<server_option> ::= "listen" <listen_value> ";"
+            | "server_name" <string> ";"
+            | "root" <string> ";"
+            | "index" <string> ";"
+            | "client_max_body_size" <size_value> ";"
+            | "upload_dir" <string> ";"
+            | "request_timeout" <time_value> ";"
+            | "error_page" <number> <string> ";"
+
+<listen_value> ::= <ip_v4> ":" <number>
+                 | <ip_v4>
+                 | ":" <number>
+                 | <number>
+
+<size_value> ::= (<number> <size_unit)+
+               | <number>
+
+<time_value> ::= (<number> <time_unit)+
+               | <number>
+
+<route> ::= "location" <string> "{" <route_body> "}"
+
+<route_body> ::= <route_option>*
+
+<route_option> ::= "allow_methods" <string_list> ";"
+                     | "autoindex" <on_off> ";"
+                     | "alias" <string> ";"
+                     | "cgi" <string> <string> ";"
+                     | "return" <return_value> ";"
+
+<return_value> ::= <number> <string>
+                 | <number>
+                 | <string>
+
+<string_list> ::= <string> | <string> <string_list>
+
+<on_off> ::= "on" | "off"
+
+<number> ::= [0-9]+
+<string> ::= [a-zA-Z0-9/\._-]+
+<ip_v4> ::= [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+<size_unit> ::= (k|K|m|M|g|G)
+<time_unit> ::= (ms|s|m|h|d|w|M|y)
