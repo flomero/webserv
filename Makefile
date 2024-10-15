@@ -15,15 +15,17 @@ SRCS_DIR := src \
 			src/http/status \
 			src/files \
 			src/log \
-			src/configuration
+			src/configuration \
+			src/Server \
 
 # Header directories
 HDRS_DIR := include/ \
+			include/Server \
 			include/http/messages \
 			include/http/status \
 			include/log \
 			include/configuration \
-			include/misc
+			include/misc \
 
 INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
@@ -34,10 +36,11 @@ SRCS     := main.cpp \
 			HttpStatus.cpp \
 			mimetypes.cpp \
 			Logger.cpp \
+			ServerPostRequest.cpp \
 			Lexer.cpp \
 			Parser.cpp \
 			Route.cpp \
-			Server.cpp
+			Server.cpp \
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \
@@ -49,7 +52,7 @@ HDRS     := webserv.hpp \
 			Parser.hpp \
 			Server.hpp \
 			ParsingErrors.hpp \
-			ft_iomanip.hpp
+			ft_iomanip.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
@@ -112,8 +115,11 @@ re: fclean all
 debug: $(CXXFLAGS) += -g -fsanitize=address -pedantic
 debug: re
 
+format:
+	find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i
+
 # Phony targets
-.PHONY: all clean fclean re debug
+.PHONY: all clean fclean re debug ascii format
 
 # Colors:
 GREEN = \033[0;32m
@@ -140,5 +146,3 @@ ascii:
 BAR_WIDTH = 50
 TOTAL_SRCS = $(words $(SRCS))
 
-format:
-	find . -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i
