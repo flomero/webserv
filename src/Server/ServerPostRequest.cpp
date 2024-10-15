@@ -1,34 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   postrequest.cpp                                    :+:      :+:    :+:   */
+/*   ServerPostRequest.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/15 10:51:48 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/15 14:58:20 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "requesthandlers.hpp"
+#include "Server.hpp"
 
-int handlePostRequest(HttpRequest &request) {
+int Server::handlePostRequest(HttpRequest &request) {
 	std::string contentType = request.getHeader("Content-Type");
-	if (contentType == "application/x-www-form-urlencoded")
-		return handlePostUrlEncoded(request);
-	else if (contentType == "multipart/form-data")
+	if (contentType == "application/x-www-form-urlencoded") {
+		LOG_INFO("application/x-www-form-urlencoded");
+		// TODO: not sure if needed
+	} else if (contentType == "multipart/form-data")
 		return handlePostMultipart(request);
 
 	LOG_ERROR("Unsupported content type: " + contentType);
 	return 415;
 }
 
-int handlePostUrlEncoded(HttpRequest &request) {
-	(void)request;
-	return 200;
-}
-
-int handlePostMultipart(HttpRequest &request) {
+int Server::handlePostMultipart(HttpRequest &request) {
 	std::string contentType = request.getHeader("Content-Type");
 	std::size_t boundaryPos = contentType.find("boundary=");
 	if (boundaryPos == std::string::npos) {
@@ -75,15 +71,15 @@ int handlePostMultipart(HttpRequest &request) {
 		if (contentDisposition.find("filename=") != std::string::npos)
 			return handleFileUpload(part, contentDisposition);
 		else {
-			// ToDo: handle form fields - not sure if needed
+			// TODO: handle form fields - not sure if needed
 			LOG_INFO("Form field: " + part);
 		}
 	}
 	return Http::OK;
 }
 
-int handleFileUpload(const std::string &part,
-					 const std::string &contentDisposition) {
+int Server::handleFileUpload(const std::string &part,
+							 const std::string &contentDisposition) {
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {

@@ -16,14 +16,14 @@ SRCS_DIR := src \
 			src/files \
 			src/log \
 			src/configuration \
-			src/requesthandlers \
+			src/Server \
 
 # Header directories
 HDRS_DIR := include/ \
+			include/Server \
 			include/http/messages \
 			include/http/status \
 			include/log \
-			include/requesthandlers \
 			include/configuration \
 			include/misc \
 
@@ -36,7 +36,7 @@ SRCS     := main.cpp \
 			HttpStatus.cpp \
 			mimetypes.cpp \
 			Logger.cpp \
-			postrequest.cpp \
+			ServerPostRequest.cpp \
 			Lexer.cpp \
 			Parser.cpp \
 			Route.cpp \
@@ -48,7 +48,6 @@ HDRS     := webserv.hpp \
 			HttpResponse.hpp \
 			HttpStatus.hpp \
 			Logger.hpp \
-			requesthandlers.hpp \
 			Lexer.hpp \
 			Parser.hpp \
 			Server.hpp \

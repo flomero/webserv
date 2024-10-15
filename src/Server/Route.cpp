@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:58:51 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/09 14:10:47 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/15 15:03:59 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/Route.hpp"
+#include "Route.hpp"
 
 // Constructor
 Route::Route() : _autoindex(false), _code(0) {}

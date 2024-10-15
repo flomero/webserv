@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:45:24 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 14:32:20 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/15 11:14:38 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,10 @@
 #include <string>
 #include <vector>
 
+#include "HttpRequest.hpp"
+#include "HttpResponse.hpp"
+#include "HttpStatus.hpp"
+#include "Logger.hpp"
 #include "Route.hpp"
 #include "misc/ft_iomanip.hpp"
 
@@ -42,16 +46,16 @@ class Server {
 		Server();
 
 		// Getters
-		int getPort() const;
-		size_t getRequestTimeout() const;
-		size_t getClientMaxBodySize() const;
-		const std::string& getHost() const;
-		const std::string& getIndex() const;
-		const std::string& getRoot() const;
-		const std::string& getUploadDir() const;
-		const std::string& getServerName() const;
-		const std::vector<Route>& getRoutes() const;
-		const std::map<int, std::string>& getErrorPages() const;
+		[[nodiscard]] int getPort() const;
+		[[nodiscard]] size_t getRequestTimeout() const;
+		[[nodiscard]] size_t getClientMaxBodySize() const;
+		[[nodiscard]] const std::string& getHost() const;
+		[[nodiscard]] const std::string& getIndex() const;
+		[[nodiscard]] const std::string& getRoot() const;
+		[[nodiscard]] const std::string& getUploadDir() const;
+		[[nodiscard]] const std::string& getServerName() const;
+		[[nodiscard]] const std::vector<Route>& getRoutes() const;
+		[[nodiscard]] const std::map<int, std::string>& getErrorPages() const;
 
 		// Setters
 		void setPort(int port);
@@ -67,4 +71,11 @@ class Server {
 
 		// Overload "<<" operator to print Server details
 		friend std::ostream& operator<<(std::ostream& os, const Server& server);
+
+		// Request handlers
+		// POST request handlers
+		int handlePostRequest(HttpRequest& request);
+		int handlePostMultipart(HttpRequest& request);
+		int handleFileUpload(const std::string& part,
+							 const std::string& contentDisposition);
 };

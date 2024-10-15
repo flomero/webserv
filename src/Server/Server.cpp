@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:56:20 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/06 14:56:16 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/15 11:11:59 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/Server.hpp"
+#include "Server.hpp"
 
 // Constructor
 Server::Server()
