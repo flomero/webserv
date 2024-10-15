@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:45:24 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/15 11:14:38 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/15 15:54:27 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,9 @@ class Server {
 
 		// Overload "<<" operator to print Server details
 		friend std::ostream& operator<<(std::ostream& os, const Server& server);
+
+		// Main request logic
+		void handleRequest(HttpRequest& request);
 
 		// Request handlers
 		// POST request handlers

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:11:49 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/15 15:52:12 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,12 @@ class HttpRequest : public HttpMessage {
 		// Getters
 		[[nodiscard]] std::string getMethod() const;
 		[[nodiscard]] std::string getRequestUri() const;
+		[[nodiscard]] std::string getServerSidePath() const;
 
 		// Setters
 		void setMethod(const std::string &method);
 		void setRequestUri(const std::string &requestUri);
+		void setServerSidePath(const std::string &serverSidePath);
 
 		// Error 400
 		class BadRequest : public std::exception {
@@ -61,6 +63,7 @@ class HttpRequest : public HttpMessage {
 		std::string _method;
 		std::string _requestUri;
 		std::string _rawRequest;
+		std::string _serverSidePath;
 
 		void validate() const;
 		void parseChunkedBody(std::istringstream &requestStream);

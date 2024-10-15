@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:09:19 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/15 15:53:08 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,10 +114,16 @@ std::string HttpRequest::getMethod() const { return _method; }
 
 std::string HttpRequest::getRequestUri() const { return _requestUri; }
 
+std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
+
 void HttpRequest::setMethod(const std::string &method) { _method = method; }
 
 void HttpRequest::setRequestUri(const std::string &requestUri) {
 	_requestUri = requestUri;
+}
+
+void HttpRequest::setServerSidePath(const std::string &serverSidePath) {
+	_serverSidePath = serverSidePath;
 }
 
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
