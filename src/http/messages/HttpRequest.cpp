@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/15 20:03:47 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/21 16:16:20 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,9 @@ std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
 
 bool HttpRequest::getIsFile() const { return _isFile; }
 
+std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
+
+std::string HttpRequest::getQueryString() const { return _queryString; }
 
 void HttpRequest::setMethod(const std::string &method) { _method = method; }
 
@@ -130,6 +133,14 @@ void HttpRequest::setServerSidePath(const std::string &serverSidePath) {
 }
 
 void HttpRequest::setIsFile(bool isFile) { _isFile = isFile; }
+
+void HttpRequest::setRessourceExtension(const std::string &ressourceExtension) {
+	_ressourceExtension = ressourceExtension;
+}
+
+void HttpRequest::setQueryString(const std::string &queryString) {
+	_queryString = queryString;
+}
 
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
 	os << request.getMethod() << " " << request.getRequestUri() << " "

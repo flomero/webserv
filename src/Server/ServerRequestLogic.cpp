@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/21 14:44:14 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/21 16:55:11 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,25 +32,34 @@ void Server::handleRequest(HttpRequest& request) {
 	std::string location("/"); // Defaults to "/" if empty
 	if (pathStart != uri.npos)
 		location = uri.substr(pathStart, uri.size());
+	size_t queryStart = location.find_first_of('?');
+	if (queryStart != uri.npos) {
+		LOG_DEBUG("  |- Query string found:  " + location);
+		request.setQueryString(location.substr(queryStart + 1, location.back()));
+		location = location.substr(0, queryStart);
+		LOG_DEBUG("  |- Query string:        " + request.getQueryString());
+	}
 	request.setServerSidePath("." + _root + location);
 
-	LOG_DEBUG("  |- uri:                " + uri);
-	LOG_DEBUG("  |- location:           " + location);
-	LOG_DEBUG("  |- server side path:   " + request.getServerSidePath());
+	LOG_DEBUG("  |- uri:                     " + uri);
+	LOG_DEBUG("  |- location:                " + location);
+	LOG_DEBUG("  |- server side path:        " + request.getServerSidePath());
 	std::filesystem::path serverSidePath(request.getServerSidePath());
-	LOG_DEBUG("  |- filesystem::path:   " + serverSidePath.generic_string() + "\n");
+	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
 
 	// Check ressource existence
-	LOG_INFO("Checking ressource existence");
-	if (!std::filesystem::exists(serverSidePath))
-		return ; // Early return if ressource doesn't exist (TODO: any error code for this ?)
-	request.setIsFile(
-		std::filesystem::is_regular_file(serverSidePath)
-	);
+	if (request.getMethod() != "POST") {
+		LOG_INFO("Checking ressource existence");
+		if (!std::filesystem::exists(serverSidePath))
+			return ; // Early return if ressource doesn't exist (TODO: any error code for this ?)
+		request.setIsFile(
+			std::filesystem::is_regular_file(serverSidePath)
+		);
 
-	LOG_DEBUG("  |- Ressource exists");
-	LOG_DEBUG((request.getIsFile())?"  |- Ressource is a file\n":"  |- Ressource is a directory\n");
+		LOG_DEBUG("  |- Ressource exists");
+		LOG_DEBUG((request.getIsFile())?"  |- Ressource is a file\n":"  |- Ressource is a directory\n");
+	}
 
 
 	// Match to the server's possible locations

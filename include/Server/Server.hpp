@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:45:24 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/18 15:33:49 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/21 15:59:07 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+
+// CGI script
+#include <unistd.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -78,6 +83,7 @@ class Server {
 
 		// CGI handler
 		void handleRequestCGI(HttpRequest& request, Route& route);
+		void handleRequestCGIExecution(HttpRequest& request, Route& route);
 
 		// Request handlers
 		// POST request handlers
