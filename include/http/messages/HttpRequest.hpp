@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/15 15:52:12 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/15 20:03:00 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,13 @@ class HttpRequest : public HttpMessage {
 		[[nodiscard]] std::string getMethod() const;
 		[[nodiscard]] std::string getRequestUri() const;
 		[[nodiscard]] std::string getServerSidePath() const;
+		[[nodiscard]] bool getIsFile() const;
 
 		// Setters
 		void setMethod(const std::string &method);
 		void setRequestUri(const std::string &requestUri);
 		void setServerSidePath(const std::string &serverSidePath);
+		void setIsFile(bool isFile);
 
 		// Error 400
 		class BadRequest : public std::exception {
@@ -64,6 +66,7 @@ class HttpRequest : public HttpMessage {
 		std::string _requestUri;
 		std::string _rawRequest;
 		std::string _serverSidePath;
+		bool _isFile;
 
 		void validate() const;
 		void parseChunkedBody(std::istringstream &requestStream);

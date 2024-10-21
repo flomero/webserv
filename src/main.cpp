@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/15 16:45:05 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/21 14:44:50 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
 			std::cout << serv << std::endl;
 		}
 
-		std::string exampleRequest = "GET test/upload/icons/icon.png HTTP/1.1\nHost: www.example.com\nUser-Agent: curl/7.68.0\nAccept: */*";
+		std::string exampleRequest = "GET test/images/icons/icon.png HTTP/1.1\nHost: www.example.com\nUser-Agent: curl/7.68.0\nAccept: */*";
 		HttpRequest testRequest(exampleRequest);
 		servers_config.at(0).handleRequest(testRequest);
 	}

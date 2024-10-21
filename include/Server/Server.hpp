@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:45:24 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/15 15:54:27 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/18 15:33:49 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -74,6 +75,9 @@ class Server {
 
 		// Main request logic
 		void handleRequest(HttpRequest& request);
+
+		// CGI handler
+		void handleRequestCGI(HttpRequest& request, Route& route);
 
 		// Request handlers
 		// POST request handlers

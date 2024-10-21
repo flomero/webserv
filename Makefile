@@ -41,7 +41,8 @@ SRCS     := main.cpp \
 			Parser.cpp \
 			Route.cpp \
 			Server.cpp \
-			ServerRequestLogic.cpp
+			ServerRequestLogic.cpp \
+			ServerRequestCGI.cpp
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \

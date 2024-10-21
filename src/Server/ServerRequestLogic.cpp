@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/15 16:49:28 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/21 14:44:14 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,31 @@ void Server::handleRequest(HttpRequest& request) {
 	std::string location("/"); // Defaults to "/" if empty
 	if (pathStart != uri.npos)
 		location = uri.substr(pathStart, uri.size());
-	request.setServerSidePath(_root + location);
+	request.setServerSidePath("." + _root + location);
 
 	LOG_DEBUG("  |- uri:                " + uri);
 	LOG_DEBUG("  |- location:           " + location);
-	LOG_DEBUG("  |- server side path:   " + request.getServerSidePath() + "\n");
+	LOG_DEBUG("  |- server side path:   " + request.getServerSidePath());
+	std::filesystem::path serverSidePath(request.getServerSidePath());
+	LOG_DEBUG("  |- filesystem::path:   " + serverSidePath.generic_string() + "\n");
+
+
+	// Check ressource existence
+	LOG_INFO("Checking ressource existence");
+	if (!std::filesystem::exists(serverSidePath))
+		return ; // Early return if ressource doesn't exist (TODO: any error code for this ?)
+	request.setIsFile(
+		std::filesystem::is_regular_file(serverSidePath)
+	);
+
+	LOG_DEBUG("  |- Ressource exists");
+	LOG_DEBUG((request.getIsFile())?"  |- Ressource is a file\n":"  |- Ressource is a directory\n");
 
 
 	// Match to the server's possible locations
 	LOG_INFO("Getting best match for the corresponding location path");
 	// Track the best match
-	Route bestMatch;
+	Route matchedRoute;
 	size_t longestMatchLength = 0;
 	for (auto route: _routes) {
 		// Check if the current route is a prefix of the path
@@ -51,12 +65,21 @@ void Server::handleRequest(HttpRequest& request) {
 
 			// Select this route if it's the longest match so far
 			if (routeLength > longestMatchLength) {
-				bestMatch = route;
+				matchedRoute = route;
 				longestMatchLength = routeLength;
 			}
 		}
 	}
 
 	LOG_DEBUG("  |- location:     " + location);
-	LOG_DEBUG("  |- best match:   " + bestMatch.getPath() + "\n");
+	LOG_DEBUG("  |- best match:   " + matchedRoute.getPath() + "\n");
+
+
+
+	// Check for CGI on the Route
+	LOG_INFO("Checking for route's informations: CGI");
+	if (matchedRoute.getCgiHandlers().size() > 0)
+		handleRequestCGI(request, matchedRoute);
+	else
+		LOG_INFO("Did not enter handleRequestCGI");
 }
