@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/21 16:55:11 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/21 17:51:50 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,20 +48,6 @@ void Server::handleRequest(HttpRequest& request) {
 	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
 
-	// Check ressource existence
-	if (request.getMethod() != "POST") {
-		LOG_INFO("Checking ressource existence");
-		if (!std::filesystem::exists(serverSidePath))
-			return ; // Early return if ressource doesn't exist (TODO: any error code for this ?)
-		request.setIsFile(
-			std::filesystem::is_regular_file(serverSidePath)
-		);
-
-		LOG_DEBUG("  |- Ressource exists");
-		LOG_DEBUG((request.getIsFile())?"  |- Ressource is a file\n":"  |- Ressource is a directory\n");
-	}
-
-
 	// Match to the server's possible locations
 	LOG_INFO("Getting best match for the corresponding location path");
 	// Track the best match
@@ -83,6 +69,20 @@ void Server::handleRequest(HttpRequest& request) {
 	LOG_DEBUG("  |- location:     " + location);
 	LOG_DEBUG("  |- best match:   " + matchedRoute.getPath() + "\n");
 
+
+	// Check ressource existence
+	if (request.getMethod() != "POST"
+	 || matchedRoute.getCgiHandlers().size() > 0) { // Check only if not POST or POST w/ CGI
+		LOG_INFO("Checking ressource existence");
+		if (!std::filesystem::exists(serverSidePath))
+			return ; // Early return if ressource doesn't exist (TODO: any error code for this ?)
+		request.setIsFile(
+			std::filesystem::is_regular_file(serverSidePath)
+		);
+
+		LOG_DEBUG("  |- Ressource exists");
+		LOG_DEBUG((request.getIsFile())?"  |- Ressource is a file\n":"  |- Ressource is a directory\n");
+	}
 
 
 	// Check for CGI on the Route

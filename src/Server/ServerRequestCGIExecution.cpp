@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/21 17:28:48 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/21 17:37:09 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,15 +65,13 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 
 		// Execute CGI
 		char* argv[] = { strdup(cgiPath.c_str()), strdup(request.getServerSidePath().c_str()), nullptr };
-		LOG_DEBUG("  |- executing:");
-		LOG_DEBUG("  |- " + cgiPath + " " + cgiPath);
 		if (execve(argv[0], argv, envp) == -1) {
 			// Print error message if execve fails
 			perror("execve failed");
 			exit(EXIT_FAILURE);  // Exit if exec fails
 		}
 
-		LOG_DEBUG("Child process exec failed");
+		LOG_ERROR("Child process exec failed");
 
 		// If exec fails, exit
 		exit(1);
