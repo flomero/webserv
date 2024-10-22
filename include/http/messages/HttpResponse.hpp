@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:49:26 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:11:51 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/22 14:55:31 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,22 +19,22 @@
  */
 class HttpResponse : public HttpMessage {
 	public:
+		HttpResponse() = default;
 		HttpResponse(int status);
 		~HttpResponse() = default;
 		HttpResponse(const HttpResponse &other) = default;
 		HttpResponse &operator=(const HttpResponse &other) = default;
 
 		// Setters
-		void SetStatus(int status);
+		void setStatus(int status);
 		void setDefaultHeaders();
 
 		// Getters
-		[[nodiscard]] int GetStatus() const;
+		[[nodiscard]] int getStatus() const;
 
 		// Member Functions
-		[[nodiscard]] std::string ToString() const;
+		[[nodiscard]] std::string toString() const;
 
 	private:
-		HttpResponse() = default;
 		int _status = 0;
 };

@@ -43,7 +43,8 @@ SRCS     := main.cpp \
 			Server.cpp \
 			ServerRequestLogic.cpp \
 			ServerRequestCGI.cpp \
-			ServerRequestCGIExecution.cpp
+			ServerRequestCGIExecution.cpp \
+			ServerRequestAutoindex.cpp \
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \

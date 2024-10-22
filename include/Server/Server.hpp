@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:45:24 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/21 15:59:07 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/22 15:33:51 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,4 +91,7 @@ class Server {
 		int handlePostMultipart(HttpRequest& request);
 		int handleFileUpload(const std::string& part,
 							 const std::string& contentDisposition);
+
+		// Autoindex handler
+		void handleAutoindex(HttpRequest& request, const std::string& path);
 };
