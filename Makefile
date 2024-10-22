@@ -16,7 +16,7 @@ SRCS_DIR := src \
 			src/files \
 			src/log \
 			src/configuration \
-			src/Server \
+			src/Server
 
 # Header directories
 HDRS_DIR := include/ \
@@ -25,7 +25,7 @@ HDRS_DIR := include/ \
 			include/http/status \
 			include/log \
 			include/configuration \
-			include/misc \
+			include/misc
 
 INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
@@ -41,6 +41,9 @@ SRCS     := main.cpp \
 			Parser.cpp \
 			Route.cpp \
 			Server.cpp \
+			ServerRequestLogic.cpp \
+			ServerRequestCGI.cpp \
+			ServerRequestCGIExecution.cpp
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \
@@ -52,7 +55,7 @@ HDRS     := webserv.hpp \
 			Parser.hpp \
 			Server.hpp \
 			ParsingErrors.hpp \
-			ft_iomanip.hpp \
+			ft_iomanip.hpp
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:11:49 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/21 16:15:20 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,18 @@ class HttpRequest : public HttpMessage {
 		// Getters
 		[[nodiscard]] std::string getMethod() const;
 		[[nodiscard]] std::string getRequestUri() const;
+		[[nodiscard]] std::string getServerSidePath() const;
+		[[nodiscard]] bool getIsFile() const;
+		[[nodiscard]] std::string getRessourceExtension() const;
+		[[nodiscard]] std::string getQueryString() const;
 
 		// Setters
 		void setMethod(const std::string &method);
 		void setRequestUri(const std::string &requestUri);
+		void setServerSidePath(const std::string &serverSidePath);
+		void setIsFile(bool isFile);
+		void setRessourceExtension(const std::string &ressourceExtension);
+		void setQueryString(const std::string &queryString);
 
 		// Error 400
 		class BadRequest : public std::exception {
@@ -61,6 +69,10 @@ class HttpRequest : public HttpMessage {
 		std::string _method;
 		std::string _requestUri;
 		std::string _rawRequest;
+		std::string _serverSidePath;
+		bool _isFile;
+		std::string _ressourceExtension;
+		std::string _queryString;
 
 		void validate() const;
 		void parseChunkedBody(std::istringstream &requestStream);

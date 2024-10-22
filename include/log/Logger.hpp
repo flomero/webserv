@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   logger.hpp                                         :+:      :+:    :+:   */
+/*   Logger.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:14:03 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:16:41 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/15 16:21:42 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,26 +14,20 @@
 
 #include <ctime>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <sstream>
 
-#define BLUE "\033[34m"
-#define GREEN "\033[32m"
-#define YELLOW "\033[33m"
-#define RED "\033[31m"
-#define CYAN "\033[36m"
-#define RESET "\033[0m"
+#include "ft_iomanip.hpp"
 
 #define DEBUG_COLOR BLUE
 #define INFO_COLOR CYAN
 #define WARN_COLOR YELLOW
 #define ERROR_COLOR RED
 
-#define DEBUG_PREFIX DEBUG_COLOR "[DEBUG]" RESET
-#define INFO_PREFIX INFO_COLOR "[INFO]" RESET
-#define WARN_PREFIX WARN_COLOR "[WARN]" RESET
-#define ERROR_PREFIX ERROR_COLOR "[ERROR]" RESET
+#define DEBUG_PREFIX DEBUG_COLOR "[DEBUG]" RESET_COLOR
+#define INFO_PREFIX INFO_COLOR "[INFO]" RESET_COLOR
+#define WARN_PREFIX WARN_COLOR "[WARN]" RESET_COLOR
+#define ERROR_PREFIX ERROR_COLOR "[ERROR]" RESET_COLOR
 
 enum LogLevel { DEBUG, INFO, WARN, ERROR };
 

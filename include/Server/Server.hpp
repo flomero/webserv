@@ -3,20 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:45:24 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/15 11:14:38 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/21 15:59:07 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <exception>
+#include <filesystem>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
+
+// CGI script
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -71,6 +77,13 @@ class Server {
 
 		// Overload "<<" operator to print Server details
 		friend std::ostream& operator<<(std::ostream& os, const Server& server);
+
+		// Main request logic
+		void handleRequest(HttpRequest& request);
+
+		// CGI handler
+		void handleRequestCGI(HttpRequest& request, Route& route);
+		void handleRequestCGIExecution(HttpRequest& request, Route& route);
 
 		// Request handlers
 		// POST request handlers
