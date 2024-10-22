@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/21 17:53:39 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/22 12:13:23 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,34 +55,43 @@ int main(int argc, char const *argv[]) {
 			std::cout << serv << std::endl;
 		}
 
+		std::cout
+			<< COLOR(YELLOW,
+					 "                     ~~~~~~~~ GET request TEST ~~~~~~~~")
+			<< std::endl
+			<< std::endl;
+
 		std::string getRequestWithQueryString =
-			"GET /test/scripts/test_get.py?size=large&format=png HTTP/1.1\n"
+			"GET /test/scripts/test.py?size=large&format=png HTTP/1.1\n"
 			"Host: www.example.com\n"
 			"User-Agent: curl/7.68.0\n"
 			"Accept: */*\n"
 			"Connection: keep-alive\n"
 			"Cache-Control: no-cache\n"
-			"\r\n";  // End of headers (denoted by empty line)
+			"\r\n";	 // End of headers (denoted by empty line)
 		HttpRequest getRequestWithQuery(getRequestWithQueryString);
 
+		LOG_INFO(getRequestWithQueryString);
+		servers_config.at(0).handleRequest(getRequestWithQuery);
+
+		std::cout << std::endl << std::endl << std::endl << std::endl;
+
+		std::cout
+			<< COLOR(YELLOW,
+					 "                     ~~~~~~~~ POST request TEST ~~~~~~~~")
+			<< std::endl
+			<< std::endl;
 
 		std::string postRequestWithBodyString =
-			"POST /test/scripts/test_post.py HTTP/1.1\n"
+			"POST /test/scripts/test.py HTTP/1.1\n"
 			"Host: www.example.com\n"
 			"User-Agent: curl/7.68.0\n"
 			"Content-Type: application/x-www-form-urlencoded\n"
 			"Content-Length: 34\n"
 			"Connection: keep-alive\n"
-			"\r\n"  // End of headers
+			"\r\n"								   // End of headers
 			"name=John+Doe&age=30&city=New+York";  // Body content
 		HttpRequest postRequestWithBody(postRequestWithBodyString);
-
-
-		LOG_INFO("Sending to " + servers_config.at(0).getServerName() + ":");
-		LOG_INFO(getRequestWithQueryString);
-		servers_config.at(0).handleRequest(getRequestWithQuery);
-
-		std::cout << std::endl << std::endl;
 
 		LOG_INFO(postRequestWithBodyString);
 		servers_config.at(0).handleRequest(postRequestWithBody);

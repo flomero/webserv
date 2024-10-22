@@ -6,15 +6,16 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/21 17:37:09 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/22 12:08:30 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
 #include "Logger.hpp"
+#include "Server.hpp"
 
 void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
-	std::string cgiPath = route.getCgiHandlers().at(request.getRessourceExtension());
+	std::string cgiPath =
+		route.getCgiHandlers().at(request.getRessourceExtension());
 
 	// Create environment variables for CGI
 	LOG_INFO("Create environment variables for CGI");
@@ -22,7 +23,7 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 	env["REQUEST_METHOD"] = request.getMethod();
 	LOG_DEBUG("  |- REQUEST_METHOD:    " + env["REQUEST_METHOD"]);
 
-	env["QUERY_STRING"] = request.getQueryString();  // for GET requests
+	env["QUERY_STRING"] = request.getQueryString();	 // for GET requests
 	LOG_DEBUG("  |- QUERY_STRING:      " + env["QUERY_STRING"]);
 
 	env["SCRIPT_NAME"] = request.getServerSidePath();
@@ -51,24 +52,25 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 	envp[i] = nullptr;
 
 	int pipeIn[2], pipeOut[2];
-	pipe(pipeIn);  // For input to the CGI script
-	pipe(pipeOut); // For output from the CGI script
+	pipe(pipeIn);	// For input to the CGI script
+	pipe(pipeOut);	// For output from the CGI script
 
 	pid_t pid = fork();
 	if (pid == 0) {
 		// Child process: set up pipes and execv
-		close(pipeIn[1]);  // Close write end of input pipe
-		close(pipeOut[0]); // Close read end of output pipe
+		close(pipeIn[1]);	// Close write end of input pipe
+		close(pipeOut[0]);	// Close read end of output pipe
 
-		dup2(pipeIn[0], STDIN_FILENO);  // Redirect stdin to pipeIn
-		dup2(pipeOut[1], STDOUT_FILENO); // Redirect stdout to pipeOut
+		dup2(pipeIn[0], STDIN_FILENO);	  // Redirect stdin to pipeIn
+		dup2(pipeOut[1], STDOUT_FILENO);  // Redirect stdout to pipeOut
 
 		// Execute CGI
-		char* argv[] = { strdup(cgiPath.c_str()), strdup(request.getServerSidePath().c_str()), nullptr };
+		char* argv[] = {strdup(cgiPath.c_str()),
+						strdup(request.getServerSidePath().c_str()), nullptr};
 		if (execve(argv[0], argv, envp) == -1) {
 			// Print error message if execve fails
 			perror("execve failed");
-			exit(EXIT_FAILURE);  // Exit if exec fails
+			exit(EXIT_FAILURE);	 // Exit if exec fails
 		}
 
 		LOG_ERROR("Child process exec failed");
@@ -77,14 +79,15 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 		exit(1);
 	} else {
 		// Parent process: send data to child and read response
-		close(pipeIn[0]);   // Close read end of input pipe
-		close(pipeOut[1]);  // Close write end of output pipe
+		close(pipeIn[0]);	// Close read end of input pipe
+		close(pipeOut[1]);	// Close write end of output pipe
 
 		// Write POST data to the CGI process if it's a POST request
 		if (request.getMethod() == "POST")
-			write(pipeIn[1], request.getBody().c_str(), request.getBody().size());
+			write(pipeIn[1], request.getBody().c_str(),
+				  request.getBody().size());
 
-		close(pipeIn[1]); // Close write end of input pipe
+		close(pipeIn[1]);  // Close write end of input pipe
 
 		// Read the CGI output
 		char buffer[4096];
@@ -94,7 +97,7 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 			response.append(buffer, bytesRead);
 
 		close(pipeOut[0]);
-		LOG_DEBUG("response: " + response + "\n");
+		LOG_DEBUG("response:\n" + response + "\n");
 
 		// Process the response from the CGI script
 		// Here, you need to parse headers and body
@@ -102,7 +105,8 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 		size_t headerEnd = response.find("\r\n\r\n");
 		if (headerEnd != std::string::npos) {
 			std::string headers = response.substr(0, headerEnd);
-			std::string body = response.substr(headerEnd + 4); // Body starts after the "\r\n\r\n"
+			std::string body = response.substr(
+				headerEnd + 4);	 // Body starts after the "\r\n\r\n"
 
 			LOG_DEBUG("Headers: " + headers);
 			LOG_DEBUG("Body: " + body);

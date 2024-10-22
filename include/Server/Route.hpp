@@ -44,7 +44,8 @@ class Route {
 		[[nodiscard]] const std::string& getIndex() const;
 		[[nodiscard]] bool isAutoindex() const;
 		[[nodiscard]] const std::string& getUploadDir() const;
-		[[nodiscard]] const std::map<std::string, std::string>& getCgiHandlers() const;
+		[[nodiscard]] const std::map<std::string, std::string>& getCgiHandlers()
+			const;
 		[[nodiscard]] int getCode() const;
 		[[nodiscard]] const std::string& getRedirect() const;
 

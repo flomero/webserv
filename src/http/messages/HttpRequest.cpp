@@ -118,7 +118,9 @@ std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
 
 bool HttpRequest::getIsFile() const { return _isFile; }
 
-std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
+std::string HttpRequest::getRessourceExtension() const {
+	return _ressourceExtension;
+}
 
 std::string HttpRequest::getQueryString() const { return _queryString; }
 

@@ -13,16 +13,16 @@
 #pragma once
 
 #include <exception>
+#include <filesystem>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 // CGI script
-#include <unistd.h>
-#include <sys/wait.h>
 #include <fcntl.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
