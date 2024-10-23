@@ -33,6 +33,7 @@
                      | "alias" <string> ";"
                      | "cgi" <string> <string> ";"
                      | "return" <return_value> ";"
+                     | "index" <string_list> ";"
 
 <return_value> ::= <number> <string>
                  | <number>

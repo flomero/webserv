@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/14 14:48:06 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/23 14:47:21 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,6 +283,13 @@ Route Parser::parseRoute() {
 
 				break;
 			}
+
+			case TOKEN_INDEX:
+				expect(TOKEN_INDEX);
+				route.setIndex(_currentToken.value);
+				expect(TOKEN_STRING);
+				expect(TOKEN_SEMICOLON);
+				break;
 
 			default:
 				throw std::runtime_error("Unexpected token in route body");
