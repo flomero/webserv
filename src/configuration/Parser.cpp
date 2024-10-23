@@ -6,11 +6,12 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/23 14:47:21 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/23 15:03:49 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
+#include "Logger.hpp"
 
 Parser::Parser(Lexer& lexer)
 	: _lexer(lexer), _currentToken(lexer.nextToken()) {}
@@ -64,8 +65,8 @@ Server Parser::parseServer() {
 					_currentToken = _lexer.nextToken();	 // Consume port
 				} else {
 					reportError(LISTEN_MISSING_VALUES,
-								"listen [host|port] or listen [host]:[port]",
-								"listen [ ]");
+								"listen [host|port]; or listen [host]:[port];",
+								"listen [" + _currentToken.value + "]");
 				}
 
 				expect(TOKEN_SEMICOLON);

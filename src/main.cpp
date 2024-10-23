@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/22 12:13:23 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/23 14:57:58 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ int main(int argc, char const *argv[]) {
 			servers_config = parser.parse();
 		} catch (std::exception &e) {
 			parser.flushErrors();
+			exit(1);
 		}
 
 		for (auto serv : servers_config) {
