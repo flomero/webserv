@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:09:30 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/22 14:52:24 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ HttpResponse::HttpResponse(int status) : _status(status) {
 	setDefaultHeaders();
 }
 
-void HttpResponse::SetStatus(int status) { _status = status; }
+void HttpResponse::setStatus(int status) { _status = status; }
 
-int HttpResponse::GetStatus() const { return _status; }
+int HttpResponse::getStatus() const { return _status; }
 
 std::string getCurrentDate() {
 	auto now = std::chrono::system_clock::now();
@@ -43,7 +43,7 @@ void HttpResponse::setDefaultHeaders() {
 	// ToDo: Add more headers
 }
 
-std::string HttpResponse::ToString() const {
+std::string HttpResponse::toString() const {
 	std::string str = _httpVersion + " " + std::to_string(_status) + " " +
 					  getStatusMessage(_status) + "\r\n";
 	for (const auto &[key, value] : _headers) {
