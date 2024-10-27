@@ -45,6 +45,7 @@ SRCS     := main.cpp \
 			ServerRequestCGI.cpp \
 			ServerRequestCGIExecution.cpp \
 			ServerRequestAutoindex.cpp \
+			Socket.cpp \
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \
@@ -55,6 +56,7 @@ HDRS     := webserv.hpp \
 			Lexer.hpp \
 			Parser.hpp \
 			Server.hpp \
+			Socket.hpp \
 			ParsingErrors.hpp \
 			ft_iomanip.hpp
 
