@@ -31,6 +31,7 @@ class HttpRequest : public HttpMessage {
 		[[nodiscard]] bool getIsFile() const;
 		[[nodiscard]] std::string getRessourceExtension() const;
 		[[nodiscard]] std::string getQueryString() const;
+		[[nodiscard]] int getRequestLength() const;
 
 		// Setters
 		void setMethod(const std::string &method);

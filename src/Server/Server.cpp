@@ -14,10 +14,15 @@
 
 // Constructor
 Server::Server()
-	: _port(80),
+	: _port(8080),  // Changed port from 80 to 8080
 	  _requestTimeout(60),
 	  _clientMaxBodySize(1048576),
-	  _host("127.0.0.1") {}
+	  _host("127.0.0.1"),
+	  _serverSocket(_port) {
+	_serverSocket.bind();
+	_serverSocket.listen();
+}
+
 
 // Getters
 int Server::getPort() const { return _port; }
@@ -84,4 +89,34 @@ std::ostream& operator<<(std::ostream& os, const Server& server) {
 		os << "    |- " << route << "\n";  // Use Route's overloaded << operator
 
 	return os;
+}
+
+void Server::run() {
+	while (true) {
+		acceptNewClient();
+		handleClients();
+	}
+}
+
+void Server::acceptNewClient() {
+	try {
+		int client_fd = _serverSocket.accept();
+		LOG_INFO("New client connected");
+		auto* client = new ClientConnection(client_fd);
+		_clients.push_back(client);
+	} catch (const std::exception& e) {
+		// LOG_ERROR(e.what());
+	}
+}
+
+void Server::handleClients() {
+	for (size_t i = 0; i < _clients.size(); ++i) {
+		if (_clients[i]->isDisconnected()) {
+			delete _clients[i];
+			_clients.erase(_clients.begin() + i);
+			--i;
+		} else {
+			_clients[i]->processRequest();
+		}
+	}
 }

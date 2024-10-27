@@ -48,13 +48,13 @@ void Socket::listen() const {
 	}
 }
 
-int Socket::accept() {
-	LOG_DEBUG("Accepting connection");
-
-	socklen_t addrLen = sizeof(_addr);
-	const int clientFd = ::accept(_socketFd, reinterpret_cast<struct sockaddr *>(&_addr), &addrLen);
+int Socket::accept() const {
+	sockaddr_in clientAddr;
+	socklen_t addrLen = sizeof(clientAddr);
+	const int clientFd = ::accept(_socketFd, reinterpret_cast<struct sockaddr *>(&clientAddr), &addrLen);
 	if (clientFd == -1) {
-		throw std::runtime_error("Accept failed");
+		throw std::runtime_error("Accept failed: " + std::string(strerror(errno)));
 	}
 	return clientFd;
 }
+

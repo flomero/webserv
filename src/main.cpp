@@ -52,49 +52,50 @@ int main(int argc, char const *argv[]) {
 		}
 
 		for (auto serv : servers_config) {
+			serv.run();
 			std::cout << serv << std::endl;
 		}
 
-		std::cout
-			<< COLOR(YELLOW,
-					 "                     ~~~~~~~~ GET request TEST ~~~~~~~~")
-			<< std::endl
-			<< std::endl;
-
-		std::string getRequestWithQueryString =
-			"GET /test/scripts/test.py?size=large&format=png HTTP/1.1\n"
-			"Host: www.example.com\n"
-			"User-Agent: curl/7.68.0\n"
-			"Accept: */*\n"
-			"Connection: keep-alive\n"
-			"Cache-Control: no-cache\n"
-			"\r\n";	 // End of headers (denoted by empty line)
-		HttpRequest getRequestWithQuery(getRequestWithQueryString);
-
-		LOG_INFO(getRequestWithQueryString);
-		servers_config.at(0).handleRequest(getRequestWithQuery);
-
-		std::cout << std::endl << std::endl << std::endl << std::endl;
-
-		std::cout
-			<< COLOR(YELLOW,
-					 "                     ~~~~~~~~ POST request TEST ~~~~~~~~")
-			<< std::endl
-			<< std::endl;
-
-		std::string postRequestWithBodyString =
-			"POST /test/scripts/test.py HTTP/1.1\n"
-			"Host: www.example.com\n"
-			"User-Agent: curl/7.68.0\n"
-			"Content-Type: application/x-www-form-urlencoded\n"
-			"Content-Length: 34\n"
-			"Connection: keep-alive\n"
-			"\r\n"								   // End of headers
-			"name=John+Doe&age=30&city=New+York";  // Body content
-		HttpRequest postRequestWithBody(postRequestWithBodyString);
-
-		LOG_INFO(postRequestWithBodyString);
-		servers_config.at(0).handleRequest(postRequestWithBody);
+		// std::cout
+		// 	<< COLOR(YELLOW,
+		// 			 "                     ~~~~~~~~ GET request TEST ~~~~~~~~")
+		// 	<< std::endl
+		// 	<< std::endl;
+		//
+		// std::string getRequestWithQueryString =
+		// 	"GET /test/scripts/test.py?size=large&format=png HTTP/1.1\n"
+		// 	"Host: www.example.com\n"
+		// 	"User-Agent: curl/7.68.0\n"
+		// 	"Accept: */*\n"
+		// 	"Connection: keep-alive\n"
+		// 	"Cache-Control: no-cache\n"
+		// 	"\r\n";	 // End of headers (denoted by empty line)
+		// HttpRequest getRequestWithQuery(getRequestWithQueryString);
+		//
+		// LOG_INFO(getRequestWithQueryString);
+		// servers_config.at(0).handleRequest(getRequestWithQuery);
+		//
+		// std::cout << std::endl << std::endl << std::endl << std::endl;
+		//
+		// std::cout
+		// 	<< COLOR(YELLOW,
+		// 			 "                     ~~~~~~~~ POST request TEST ~~~~~~~~")
+		// 	<< std::endl
+		// 	<< std::endl;
+		//
+		// std::string postRequestWithBodyString =
+		// 	"POST /test/scripts/test.py HTTP/1.1\n"
+		// 	"Host: www.example.com\n"
+		// 	"User-Agent: curl/7.68.0\n"
+		// 	"Content-Type: application/x-www-form-urlencoded\n"
+		// 	"Content-Length: 34\n"
+		// 	"Connection: keep-alive\n"
+		// 	"\r\n"								   // End of headers
+		// 	"name=John+Doe&age=30&city=New+York";  // Body content
+		// HttpRequest postRequestWithBody(postRequestWithBodyString);
+		//
+		// LOG_INFO(postRequestWithBodyString);
+		// servers_config.at(0).handleRequest(postRequestWithBody);
 	}
 
 	return 0;

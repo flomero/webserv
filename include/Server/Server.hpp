@@ -24,11 +24,13 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "ClientConnection.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "HttpStatus.hpp"
 #include "Logger.hpp"
 #include "Route.hpp"
+#include "Socket.hpp"
 #include "misc/ft_iomanip.hpp"
 
 class Server {
@@ -46,6 +48,9 @@ class Server {
 
 		std::vector<Route> _routes;
 		std::map<int, std::string> _errorPages;
+
+		Socket _serverSocket;
+		std::vector<ClientConnection*> _clients;
 
 	public:
 		// Constructor
@@ -94,4 +99,9 @@ class Server {
 
 		// Autoindex handler
 		void handleAutoindex(HttpRequest& request, const std::string& path);
+
+		void run();
+	private:
+		void acceptNewClient();
+		void handleClients();
 };

@@ -10,7 +10,7 @@ class Socket {
 
 		void bind();
 		void listen() const;
-		int accept();
+		int accept() const;
 
 	private:
 		int _socketFd;

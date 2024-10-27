@@ -123,6 +123,9 @@ std::string HttpRequest::getRessourceExtension() const {
 }
 
 std::string HttpRequest::getQueryString() const { return _queryString; }
+int HttpRequest::getRequestLength() const {
+	return _rawRequest.length() + getBody().length(); //Todo: check if this is correct
+}
 
 void HttpRequest::setMethod(const std::string &method) { _method = method; }
 
