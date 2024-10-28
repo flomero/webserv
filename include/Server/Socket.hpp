@@ -10,9 +10,12 @@ class Socket {
 
 		void bind();
 		void listen() const;
-		int accept() const;
+		[[nodiscard]] int accept() const;
+		[[nodiscard]] int getSocketFd() const;
 
 	private:
+		void setupAddress();
+		void setSocketOpt() const;
 		int _socketFd;
 		int _port;
 		sockaddr_in _addr;

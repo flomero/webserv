@@ -50,9 +50,6 @@ class ServerConfig {
 		std::vector<Route> _routes;
 		std::map<int, std::string> _errorPages;
 
-		Socket _serverSocket;
-		std::vector<ClientConnection*> _clients;
-
 	public:
 		// Constructor
 		ServerConfig();

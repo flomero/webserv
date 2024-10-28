@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX      := c++
-CXXFLAGS := -Wall -Werror -Wextra -std=c++17
+CXXFLAGS := -Wall -Werror -Wextra -std=c++17 -pthread
 DEPFLAGS := -MMD -MP
 
 # Target name

@@ -21,6 +21,8 @@ void ClientConnection::processRequest() {
 			while (isCompleteRequest(_requestBuffer)) {
 				HttpRequest request(_requestBuffer);
 
+
+
 				HttpResponse response;
 				response.setStatus(200); // OK
 				response.setDefaultHeaders();
