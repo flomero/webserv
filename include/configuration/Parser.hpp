@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:58:34 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/14 14:50:18 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/28 15:20:25 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include "Lexer.hpp"
 #include "ParsingErrors.hpp"
 #include "Route.hpp"
-#include "Server.hpp"
+#include "ServerConfig.hpp"
 
 #define REGEX_IP_V4                                                            \
 	"(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[" \
@@ -35,12 +35,12 @@ class Parser {
 		std::vector<std::string> _parsingErrors;
 
 		void expect(eTokenType type);
-		Server parseServer();
+		ServerConfig parseServer();
 		Route parseRoute();
 
 	public:
 		Parser(Lexer& lexer);
-		std::vector<Server> parse();
+		std::vector<ServerConfig> parse();
 
 		void reportError(eParsingErrors error, std::string expected,
 						 std::string found);

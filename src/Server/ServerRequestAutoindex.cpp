@@ -6,12 +6,12 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:25:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/22 15:33:16 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
-#include "Server.hpp"
+#include "ServerConfig.hpp"
 
 std::string humanReadableSize(uintmax_t size) {
 	constexpr uintmax_t KB = 1024;
@@ -21,17 +21,13 @@ std::string humanReadableSize(uintmax_t size) {
 
 	std::ostringstream result;
 	if (size >= TB) {
-		result << std::fixed << std::setprecision(2) << (double)size / TB
-			   << " TB";
+		result << std::fixed << std::setprecision(2) << (double)size / TB << " TB";
 	} else if (size >= GB) {
-		result << std::fixed << std::setprecision(2) << (double)size / GB
-			   << " GB";
+		result << std::fixed << std::setprecision(2) << (double)size / GB << " GB";
 	} else if (size >= MB) {
-		result << std::fixed << std::setprecision(2) << (double)size / MB
-			   << " MB";
+		result << std::fixed << std::setprecision(2) << (double)size / MB << " MB";
 	} else if (size >= KB) {
-		result << std::fixed << std::setprecision(2) << (double)size / KB
-			   << " KB";
+		result << std::fixed << std::setprecision(2) << (double)size / KB << " KB";
 	} else {
 		result << size << " B";
 	}
@@ -70,21 +66,15 @@ std::string buildDirectoryListingHTML(const std::string& path) {
 		std::string entryPath = entry.path().string();
 		std::string entryName = entry.path().filename().string();
 		std::string entrySize =
-			entry.is_directory()
-				? "-"
-				: humanReadableSize(std::filesystem::file_size(entry.path()));
-		std::time_t entryTime =
-			decltype(entry.last_write_time())::clock::to_time_t(
-				entry.last_write_time());
+			entry.is_directory() ? "-" : humanReadableSize(std::filesystem::file_size(entry.path()));
+		std::time_t entryTime = decltype(entry.last_write_time())::clock::to_time_t(entry.last_write_time());
 		std::string entryTimeStr = formatTimestamp(entryTime);
 
 		html << "<tr>";
 		if (entry.is_directory()) {
-			html << "<td><a href=\"" << entryName << "/\">" << entryName
-				 << "/</a></td>";
+			html << "<td><a href=\"" << entryName << "/\">" << entryName << "/</a></td>";
 		} else {
-			html << "<td><a href=\"" << entryName << "\">" << entryName
-				 << "</a></td>";
+			html << "<td><a href=\"" << entryName << "\">" << entryName << "</a></td>";
 		}
 		html << "<td>" << entrySize << "</td>";
 		html << "<td>" << entryTimeStr << "</td>";
@@ -146,7 +136,7 @@ std::string buildDirectoryListingHTML(const std::string& path) {
 	return html.str();
 }
 
-void Server::handleAutoindex(HttpRequest& request, const std::string& path) {
+void ServerConfig::handleAutoindex(HttpRequest& request, const std::string& path) {
 	HttpResponse response;
 
 	if (std::filesystem::is_directory(path)) {

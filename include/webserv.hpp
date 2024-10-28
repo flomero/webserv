@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:43:58 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/14 14:51:08 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/28 15:13:42 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,4 +17,4 @@
 #include "Logger.hpp"
 #include "Parser.hpp"
 #include "Route.hpp"
-#include "Server.hpp"
+#include "ServerConfig.hpp"

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/22 12:13:23 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/28 15:20:35 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]) {
 
 		Lexer lexer(std::string(argv[1]), source);
 		Parser parser(lexer);
-		std::vector<Server> servers_config;
+		std::vector<ServerConfig> servers_config;
 
 		try {
 			servers_config = parser.parse();
@@ -55,11 +55,7 @@ int main(int argc, char const *argv[]) {
 			std::cout << serv << std::endl;
 		}
 
-		std::cout
-			<< COLOR(YELLOW,
-					 "                     ~~~~~~~~ GET request TEST ~~~~~~~~")
-			<< std::endl
-			<< std::endl;
+		std::cout << COLOR(YELLOW, "                     ~~~~~~~~ GET request TEST ~~~~~~~~") << std::endl << std::endl;
 
 		std::string getRequestWithQueryString =
 			"GET /test/scripts/test.py?size=large&format=png HTTP/1.1\n"
@@ -76,11 +72,8 @@ int main(int argc, char const *argv[]) {
 
 		std::cout << std::endl << std::endl << std::endl << std::endl;
 
-		std::cout
-			<< COLOR(YELLOW,
-					 "                     ~~~~~~~~ POST request TEST ~~~~~~~~")
-			<< std::endl
-			<< std::endl;
+		std::cout << COLOR(YELLOW, "                     ~~~~~~~~ POST request TEST ~~~~~~~~") << std::endl
+				  << std::endl;
 
 		std::string postRequestWithBodyString =
 			"POST /test/scripts/test.py HTTP/1.1\n"

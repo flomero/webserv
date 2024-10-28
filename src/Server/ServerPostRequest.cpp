@@ -6,13 +6,13 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/15 14:58:20 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "ServerConfig.hpp"
 
-int Server::handlePostRequest(HttpRequest &request) {
+int ServerConfig::handlePostRequest(HttpRequest &request) {
 	std::string contentType = request.getHeader("Content-Type");
 	if (contentType == "application/x-www-form-urlencoded") {
 		LOG_INFO("application/x-www-form-urlencoded");
@@ -24,7 +24,7 @@ int Server::handlePostRequest(HttpRequest &request) {
 	return 415;
 }
 
-int Server::handlePostMultipart(HttpRequest &request) {
+int ServerConfig::handlePostMultipart(HttpRequest &request) {
 	std::string contentType = request.getHeader("Content-Type");
 	std::size_t boundaryPos = contentType.find("boundary=");
 	if (boundaryPos == std::string::npos) {
@@ -78,8 +78,7 @@ int Server::handlePostMultipart(HttpRequest &request) {
 	return Http::OK;
 }
 
-int Server::handleFileUpload(const std::string &part,
-							 const std::string &contentDisposition) {
+int ServerConfig::handleFileUpload(const std::string &part, const std::string &contentDisposition) {
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {
@@ -87,8 +86,7 @@ int Server::handleFileUpload(const std::string &part,
 		filename = filename.substr(0, filename.find("\""));
 	}
 	if (filename.empty()) {
-		LOG_ERROR("Invalid filename in Content-Disposition header: " +
-				  contentDisposition);
+		LOG_ERROR("Invalid filename in Content-Disposition header: " + contentDisposition);
 		return Http::BAD_REQUEST;
 	}
 	std::string fileContent;

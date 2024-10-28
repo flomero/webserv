@@ -40,7 +40,7 @@ SRCS     := main.cpp \
 			Lexer.cpp \
 			Parser.cpp \
 			Route.cpp \
-			Server.cpp \
+			ServerConfig.cpp \
 			ServerRequestLogic.cpp \
 			ServerRequestCGI.cpp \
 			ServerRequestCGIExecution.cpp \
@@ -54,7 +54,7 @@ HDRS     := webserv.hpp \
 			Logger.hpp \
 			Lexer.hpp \
 			Parser.hpp \
-			Server.hpp \
+			ServerConfig.hpp \
 			ParsingErrors.hpp \
 			ft_iomanip.hpp
 

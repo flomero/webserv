@@ -3,19 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   ServerRequestCGIExecution.cpp                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/22 12:08:30 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Logger.hpp"
-#include "Server.hpp"
+#include "ServerConfig.hpp"
 
-void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
-	std::string cgiPath =
-		route.getCgiHandlers().at(request.getRessourceExtension());
+void ServerConfig::handleRequestCGIExecution(HttpRequest& request, Route& route) {
+	std::string cgiPath = route.getCgiHandlers().at(request.getRessourceExtension());
 
 	// Create environment variables for CGI
 	LOG_INFO("Create environment variables for CGI");
@@ -65,8 +64,7 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 		dup2(pipeOut[1], STDOUT_FILENO);  // Redirect stdout to pipeOut
 
 		// Execute CGI
-		char* argv[] = {strdup(cgiPath.c_str()),
-						strdup(request.getServerSidePath().c_str()), nullptr};
+		char* argv[] = {strdup(cgiPath.c_str()), strdup(request.getServerSidePath().c_str()), nullptr};
 		if (execve(argv[0], argv, envp) == -1) {
 			// Print error message if execve fails
 			perror("execve failed");
@@ -84,8 +82,7 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 
 		// Write POST data to the CGI process if it's a POST request
 		if (request.getMethod() == "POST")
-			write(pipeIn[1], request.getBody().c_str(),
-				  request.getBody().size());
+			write(pipeIn[1], request.getBody().c_str(), request.getBody().size());
 
 		close(pipeIn[1]);  // Close write end of input pipe
 
@@ -93,8 +90,7 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 		char buffer[4096];
 		ssize_t bytesRead;
 		std::string response;
-		while ((bytesRead = read(pipeOut[0], buffer, sizeof(buffer))) > 0)
-			response.append(buffer, bytesRead);
+		while ((bytesRead = read(pipeOut[0], buffer, sizeof(buffer))) > 0) response.append(buffer, bytesRead);
 
 		close(pipeOut[0]);
 		LOG_DEBUG("response:\n" + response + "\n");
@@ -105,8 +101,7 @@ void Server::handleRequestCGIExecution(HttpRequest& request, Route& route) {
 		size_t headerEnd = response.find("\r\n\r\n");
 		if (headerEnd != std::string::npos) {
 			std::string headers = response.substr(0, headerEnd);
-			std::string body = response.substr(
-				headerEnd + 4);	 // Body starts after the "\r\n\r\n"
+			std::string body = response.substr(headerEnd + 4);	// Body starts after the "\r\n\r\n"
 
 			LOG_DEBUG("Headers: " + headers);
 			LOG_DEBUG("Body: " + body);

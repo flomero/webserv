@@ -1,7 +1,8 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   ServerConfig.hpp                                         :+:      :+: :+:
+ */
 /*                                                    +:+ +:+         +:+     */
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -31,7 +32,7 @@
 #include "Route.hpp"
 #include "misc/ft_iomanip.hpp"
 
-class Server {
+class ServerConfig {
 	private:
 		int _port;
 
@@ -49,7 +50,7 @@ class Server {
 
 	public:
 		// Constructor
-		Server();
+		ServerConfig();
 
 		// Getters
 		[[nodiscard]] int getPort() const;
@@ -75,8 +76,8 @@ class Server {
 		void setRoutes(const std::vector<Route>& routes);
 		void setErrorPages(const std::map<int, std::string>& pages);
 
-		// Overload "<<" operator to print Server details
-		friend std::ostream& operator<<(std::ostream& os, const Server& server);
+		// Overload "<<" operator to print ServerConfig details
+		friend std::ostream& operator<<(std::ostream& os, const ServerConfig& server);
 
 		// Main request logic
 		void handleRequest(HttpRequest& request);
@@ -89,8 +90,7 @@ class Server {
 		// POST request handlers
 		int handlePostRequest(HttpRequest& request);
 		int handlePostMultipart(HttpRequest& request);
-		int handleFileUpload(const std::string& part,
-							 const std::string& contentDisposition);
+		int handleFileUpload(const std::string& part, const std::string& contentDisposition);
 
 		// Autoindex handler
 		void handleAutoindex(HttpRequest& request, const std::string& path);
