@@ -51,34 +51,33 @@ enum eTokenType {
 	TOKEN_INVALID
 };
 
-const std::map<eTokenType, std::string> tokenToString = {
-	{TOKEN_HTTP, "http"},
-	{TOKEN_SERVER, "server"},
-	{TOKEN_LOCATION, "location"},
-	{TOKEN_LISTEN, "listen"},
-	{TOKEN_SERVER_NAME, "server_name"},
-	{TOKEN_ROOT, "root"},
-	{TOKEN_INDEX, "index"},
-	{TOKEN_CLIENT_BODY_SIZE, "client_max_body_size"},
-	{TOKEN_UPLOAD_DIR, "upload_dir"},
-	{TOKEN_REQUEST_TIMEOUT, "request_timeout"},
-	{TOKEN_ERROR_PAGE, "error_page"},
-	{TOKEN_ALLOW_METHODS, "allow_methods"},
-	{TOKEN_ALIAS, "alias"},
-	{TOKEN_AUTOINDEX, "autoindex"},
-	{TOKEN_CGI, "cgi"},
-	{TOKEN_RETURN, "return"},
+const std::map<eTokenType, std::string> tokenToString = {{TOKEN_HTTP, "http"},
+														 {TOKEN_SERVER, "server"},
+														 {TOKEN_LOCATION, "location"},
+														 {TOKEN_LISTEN, "listen"},
+														 {TOKEN_SERVER_NAME, "server_name"},
+														 {TOKEN_ROOT, "root"},
+														 {TOKEN_INDEX, "index"},
+														 {TOKEN_CLIENT_BODY_SIZE, "client_max_body_size"},
+														 {TOKEN_UPLOAD_DIR, "upload_dir"},
+														 {TOKEN_REQUEST_TIMEOUT, "request_timeout"},
+														 {TOKEN_ERROR_PAGE, "error_page"},
+														 {TOKEN_ALLOW_METHODS, "allow_methods"},
+														 {TOKEN_ALIAS, "alias"},
+														 {TOKEN_AUTOINDEX, "autoindex"},
+														 {TOKEN_CGI, "cgi"},
+														 {TOKEN_RETURN, "return"},
 
-	{TOKEN_IP_V4, "ip_v4"},
-	{TOKEN_NUMBER, "number"},
-	{TOKEN_ON, "on"},
-	{TOKEN_OFF, "off"},
+														 {TOKEN_IP_V4, "ip_v4"},
+														 {TOKEN_NUMBER, "number"},
+														 {TOKEN_ON, "on"},
+														 {TOKEN_OFF, "off"},
 
-	{TOKEN_OPEN_BRACE, "{"},
-	{TOKEN_CLOSE_BRACE, "}"},
-	{TOKEN_SEMICOLON, ";"},
+														 {TOKEN_OPEN_BRACE, "{"},
+														 {TOKEN_CLOSE_BRACE, "}"},
+														 {TOKEN_SEMICOLON, ";"},
 
-	{TOKEN_EOF, "EOF"}};
+														 {TOKEN_EOF, "EOF"}};
 
 struct Token {
 		eTokenType type;
@@ -106,8 +105,7 @@ class Lexer {
 		Token parseKeywordOrString();
 
 	public:
-		Lexer(const std::string& source_name,
-			  const std::string& source_content);
+		Lexer(const std::string& source_name, const std::string& source_content);
 		Token nextToken();
 		Token nextTokenWhitespace();
 

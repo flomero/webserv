@@ -17,9 +17,7 @@
 
 #include "HttpStatus.hpp"
 
-HttpResponse::HttpResponse(int status) : _status(status) {
-	setDefaultHeaders();
-}
+HttpResponse::HttpResponse(int status) : _status(status) { setDefaultHeaders(); }
 
 void HttpResponse::setStatus(int status) { _status = status; }
 
@@ -44,8 +42,7 @@ void HttpResponse::setDefaultHeaders() {
 }
 
 std::string HttpResponse::toString() const {
-	std::string str = _httpVersion + " " + std::to_string(_status) + " " +
-					  getStatusMessage(_status) + "\r\n";
+	std::string str = _httpVersion + " " + std::to_string(_status) + " " + getStatusMessage(_status) + "\r\n";
 	for (const auto &[key, value] : _headers) {
 		str += key + ": " + value + "\r\n";
 	}

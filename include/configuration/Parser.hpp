@@ -42,7 +42,6 @@ class Parser {
 		Parser(Lexer& lexer);
 		std::vector<ServerConfig> parse();
 
-		void reportError(eParsingErrors error, std::string expected,
-						 std::string found);
+		void reportError(eParsingErrors error, std::string expected, std::string found);
 		void flushErrors() const;
 };

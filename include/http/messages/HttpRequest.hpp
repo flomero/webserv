@@ -43,25 +43,19 @@ class HttpRequest : public HttpMessage {
 		// Error 400
 		class BadRequest : public std::exception {
 			public:
-				const char *what() const noexcept override {
-					return "Bad request - invalid HTTP request line";
-				}
+				const char *what() const noexcept override { return "Bad request - invalid HTTP request line"; }
 		};
 
 		// Error 501
 		class NotImplemented : public std::exception {
 			public:
-				const char *what() const noexcept override {
-					return "Method not implemented";
-				}
+				const char *what() const noexcept override { return "Method not implemented"; }
 		};
 
 		// Error 505
 		class InvalidVersion : public std::exception {
 			public:
-				const char *what() const noexcept override {
-					return "HTTP version not supported";
-				}
+				const char *what() const noexcept override { return "HTTP version not supported"; }
 		};
 
 	private:

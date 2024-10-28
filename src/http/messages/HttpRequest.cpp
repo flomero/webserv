@@ -14,15 +14,13 @@
 
 #include <sstream>
 
-const std::vector<std::string> HttpRequest::_supportedMethods = {"GET", "POST",
-																 "DELETE"};
+const std::vector<std::string> HttpRequest::_supportedMethods = {"GET", "POST", "DELETE"};
 
 // used to differentiate between 501 and 400
-const std::vector<std::string> HttpRequest::_unsupportedMethods = {
-	"HEAD", "PUT", "CONNECT", "OPTIONS", "TRACE", "PATCH"};
+const std::vector<std::string> HttpRequest::_unsupportedMethods = {"HEAD",	  "PUT",   "CONNECT",
+																   "OPTIONS", "TRACE", "PATCH"};
 
-const std::vector<std::string> HttpRequest::_supportedVersions = {"HTTP/1.0",
-																  "HTTP/1.1"};
+const std::vector<std::string> HttpRequest::_supportedVersions = {"HTTP/1.0", "HTTP/1.1"};
 
 HttpRequest::HttpRequest(const std::string &rawRequest) {
 	std::istringstream requestStream(rawRequest);
@@ -62,16 +60,13 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 }
 
 void HttpRequest::validate() const {
-	if (std::find(_supportedMethods.begin(), _supportedMethods.end(),
-				  _method) == _supportedMethods.end()) {
-		if (std::find(_unsupportedMethods.begin(), _unsupportedMethods.end(),
-					  _method) != _unsupportedMethods.end()) {
+	if (std::find(_supportedMethods.begin(), _supportedMethods.end(), _method) == _supportedMethods.end()) {
+		if (std::find(_unsupportedMethods.begin(), _unsupportedMethods.end(), _method) != _unsupportedMethods.end()) {
 			throw NotImplemented();
 		}
 		throw BadRequest();
 	}
-	if (std::find(_supportedVersions.begin(), _supportedVersions.end(),
-				  _httpVersion) == _supportedVersions.end()) {
+	if (std::find(_supportedVersions.begin(), _supportedVersions.end(), _httpVersion) == _supportedVersions.end()) {
 		throw InvalidVersion();
 	}
 }
@@ -118,21 +113,15 @@ std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
 
 bool HttpRequest::getIsFile() const { return _isFile; }
 
-std::string HttpRequest::getRessourceExtension() const {
-	return _ressourceExtension;
-}
+std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
 
 std::string HttpRequest::getQueryString() const { return _queryString; }
 
 void HttpRequest::setMethod(const std::string &method) { _method = method; }
 
-void HttpRequest::setRequestUri(const std::string &requestUri) {
-	_requestUri = requestUri;
-}
+void HttpRequest::setRequestUri(const std::string &requestUri) { _requestUri = requestUri; }
 
-void HttpRequest::setServerSidePath(const std::string &serverSidePath) {
-	_serverSidePath = serverSidePath;
-}
+void HttpRequest::setServerSidePath(const std::string &serverSidePath) { _serverSidePath = serverSidePath; }
 
 void HttpRequest::setIsFile(bool isFile) { _isFile = isFile; }
 
@@ -140,13 +129,10 @@ void HttpRequest::setRessourceExtension(const std::string &ressourceExtension) {
 	_ressourceExtension = ressourceExtension;
 }
 
-void HttpRequest::setQueryString(const std::string &queryString) {
-	_queryString = queryString;
-}
+void HttpRequest::setQueryString(const std::string &queryString) { _queryString = queryString; }
 
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
-	os << request.getMethod() << " " << request.getRequestUri() << " "
-	   << request.getHttpVersion() << "\r\n";
+	os << request.getMethod() << " " << request.getRequestUri() << " " << request.getHttpVersion() << "\r\n";
 	for (const auto &header : request.getHeaders()) {
 		os << header.first << ": " << header.second << "\r\n";
 	}
