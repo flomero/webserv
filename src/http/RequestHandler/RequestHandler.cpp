@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 16:14:10 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:45:00 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,7 @@
  * @param request
  * @param serverConfig
  */
-RequestHandler::RequestHandler(HttpRequest& request, ServerConfig& serverConfig)
-	: _request(request), _serverConfig(serverConfig) {
+RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serverConfig) {
 	LOG_INFO("RequestHandler created");
 }
 
@@ -36,7 +35,21 @@ RequestHandler::RequestHandler(HttpRequest& request, ServerConfig& serverConfig)
  *
  * @param request
  */
-void RequestHandler::handleRequest() {
+HttpResponse RequestHandler::handleRequest(std::string raw_request) {
+	LOG_INFO("Handling request");
+	try {
+		_request = HttpRequest(raw_request);
+	} catch (HttpRequest::BadRequest& e) {
+		LOG_ERROR("Bad request - invalid HTTP request line");
+		return HttpResponse(400);
+	} catch (HttpRequest::NotImplemented& e) {
+		LOG_ERROR("Method not implemented");
+		return HttpResponse(501);
+	} catch (HttpRequest::InvalidVersion& e) {
+		LOG_ERROR("HTTP version not supported");
+		return HttpResponse(505);
+	}
+
 	// Extract the location from the URI
 	LOG_INFO("Extracting location path from URI");
 	std::string uri = _request.getRequestUri();
@@ -86,8 +99,8 @@ void RequestHandler::handleRequest() {
 		matchedRoute.getCgiHandlers().size() > 0) {	 // Check only if not POST or POST w/ CGI
 		LOG_INFO("Checking ressource existence");
 		if (!std::filesystem::exists(serverSidePath))
-			return;	 // Early return if ressource doesn't exist (TODO: any error
-					 // code for this ?)
+			return HttpResponse(500);  // TODO: Early return if ressource doesn't exist (TODO: any error
+									   // code for this ?)
 		_request.setIsFile(std::filesystem::is_regular_file(serverSidePath));
 
 		LOG_DEBUG("  |- Ressource exists");
@@ -113,4 +126,6 @@ void RequestHandler::handleRequest() {
 		handleRequestCGI(matchedRoute);
 	else
 		LOG_INFO("Did not enter handleRequestCGI");
+
+	return _response;
 }

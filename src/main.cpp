@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 16:05:54 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:40:08 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,10 @@ int main(int argc, char const *argv[]) {
 			"Connection: keep-alive\n"
 			"Cache-Control: no-cache\n"
 			"\r\n";	 // End of headers (denoted by empty line)
-		HttpRequest getRequestWithQuery(getRequestWithQueryString);
 
 		LOG_INFO(getRequestWithQueryString);
-		RequestHandler handler(getRequestWithQuery, servers_config.at(0));
-		handler.handleRequest();
+		RequestHandler handler(servers_config.at(0));
+		handler.handleRequest(getRequestWithQueryString);
 
 		std::cout << std::endl << std::endl << std::endl << std::endl;
 
@@ -85,11 +84,10 @@ int main(int argc, char const *argv[]) {
 			"Connection: keep-alive\n"
 			"\r\n"								   // End of headers
 			"name=John+Doe&age=30&city=New+York";  // Body content
-		HttpRequest postRequestWithBody(postRequestWithBodyString);
 
 		LOG_INFO(postRequestWithBodyString);
-		RequestHandler handler2(postRequestWithBody, servers_config.at(0));
-		handler2.handleRequest();
+		RequestHandler handler2(servers_config.at(0));
+		handler2.handleRequest(postRequestWithBodyString);
 	}
 
 	return 0;
