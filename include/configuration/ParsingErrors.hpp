@@ -25,8 +25,7 @@ enum eParsingErrors {
 #define ERROR_NAME 0
 #define ERROR_TEXT 1
 
-const std::map<eParsingErrors, std::vector<std::string> >
-	parsingErrorsMessages = {
-		{UNEXPECTED_TOKEN, {"UNEXPECTED_TOKEN", "expected: "}},
+const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages = {
+	{UNEXPECTED_TOKEN, {"UNEXPECTED_TOKEN", "expected: "}},
 
-		{LISTEN_MISSING_VALUES, {"LISTEN_MISSING_VALUES", "expected: "}}};
+	{LISTEN_MISSING_VALUES, {"LISTEN_MISSING_VALUES", "expected: "}}};

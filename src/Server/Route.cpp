@@ -23,25 +23,19 @@ const std::string& Route::getRoot() const { return _root; }
 const std::string& Route::getIndex() const { return _index; }
 bool Route::isAutoindex() const { return _autoindex; }
 const std::string& Route::getUploadDir() const { return _uploadDir; }
-const std::map<std::string, std::string>& Route::getCgiHandlers() const {
-	return _cgiHandlers;
-}
+const std::map<std::string, std::string>& Route::getCgiHandlers() const { return _cgiHandlers; }
 int Route::getCode() const { return _code; }
 const std::string& Route::getRedirect() const { return _redirect; }
 
 // Setters
 void Route::setPath(const std::string& path) { _path = path; }
 void Route::setAlias(const std::string& alias) { _alias = alias; }
-void Route::setMethods(const std::vector<std::string>& methods) {
-	_methods = methods;
-}
+void Route::setMethods(const std::vector<std::string>& methods) { _methods = methods; }
 void Route::setRoot(const std::string& root) { _root = root; }
 void Route::setIndex(const std::string& index) { _index = index; }
 void Route::setAutoindex(bool autoindex) { _autoindex = autoindex; }
 void Route::setUploadDir(const std::string& dir) { _uploadDir = dir; }
-void Route::setCgiHandlers(const std::map<std::string, std::string>& handlers) {
-	_cgiHandlers = handlers;
-}
+void Route::setCgiHandlers(const std::map<std::string, std::string>& handlers) { _cgiHandlers = handlers; }
 void Route::setCode(int code) { _code = code; }
 void Route::setRedirect(const std::string& redirect) { _redirect = redirect; }
 
@@ -50,8 +44,7 @@ std::ostream& operator<<(std::ostream& os, const Route& route) {
 	os << "path: " << COLOR(BLUE, route.getPath()) << "\n";
 
 	if (route.getAlias() != "") {
-		os << std::left << std::setw(24)
-		   << "      |- alias: " << route.getAlias() << "\n";
+		os << std::left << std::setw(24) << "      |- alias: " << route.getAlias() << "\n";
 	}
 	if (route.getMethods().size() != 0) {
 		os << std::left << std::setw(24) << "      |- methods: ";
@@ -60,37 +53,29 @@ std::ostream& operator<<(std::ostream& os, const Route& route) {
 	}
 
 	if (route.getRoot() != "") {
-		os << std::left << std::setw(24) << "      |- root: " << route.getRoot()
-		   << "\n";
+		os << std::left << std::setw(24) << "      |- root: " << route.getRoot() << "\n";
 	}
 	if (route.getIndex() != "") {
-		os << std::left << std::setw(24)
-		   << "      |- index: " << route.getIndex() << "\n";
+		os << std::left << std::setw(24) << "      |- index: " << route.getIndex() << "\n";
 	}
 
-	os << std::left << std::setw(24)
-	   << "      |- autoindex: " << (route.isAutoindex() ? "on" : "off")
-	   << "\n";
+	os << std::left << std::setw(24) << "      |- autoindex: " << (route.isAutoindex() ? "on" : "off") << "\n";
 
 	if (route.getUploadDir() != "") {
-		os << std::left << std::setw(24)
-		   << "      |- upload dir: " << route.getUploadDir() << "\n";
+		os << std::left << std::setw(24) << "      |- upload dir: " << route.getUploadDir() << "\n";
 	}
 
 	if (route.getCgiHandlers().size() != 0) {
 		os << "      |- cgi handlers: \n";
 		for (const auto& handler : route.getCgiHandlers())
-			os << "        |- " << std::left << std::setw(6)
-			   << (handler.first + ": ") << handler.second << "\n";
+			os << "        |- " << std::left << std::setw(6) << (handler.first + ": ") << handler.second << "\n";
 	}
 
 	if (route.getCode() != 0) {
-		os << std::left << std::setw(24) << "      |- code: " << RED
-		   << route.getCode() << RESET_COLOR << "\n";
+		os << std::left << std::setw(24) << "      |- code: " << RED << route.getCode() << RESET_COLOR << "\n";
 	}
 	if (route.getRedirect() != "") {
-		os << std::left << std::setw(24)
-		   << "      |- redirect/content: " << route.getRedirect() << "\n";
+		os << std::left << std::setw(24) << "      |- redirect/content: " << route.getRedirect() << "\n";
 	}
 	return os;
 }

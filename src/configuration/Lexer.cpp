@@ -13,11 +13,7 @@
 #include "../../include/configuration/Lexer.hpp"
 
 Lexer::Lexer(const std::string& source_name, const std::string& source_content)
-	: _source_name(source_name),
-	  _source_content(source_content),
-	  _currentPos(0),
-	  _line(1),
-	  _column(0) {}
+	: _source_name(source_name), _source_content(source_content), _currentPos(0), _line(1), _column(0) {}
 
 char Lexer::peekChar() {
 	if (_currentPos >= _source_content.size())
@@ -85,8 +81,7 @@ Token Lexer::nextTokenWhitespace() {
 	char currentChar = peekChar();
 
 	// Continue looping until we find one of the delimiters
-	while (currentChar != '\0' && currentChar != ';' && currentChar != '{' &&
-		   currentChar != '}') {
+	while (currentChar != '\0' && currentChar != ';' && currentChar != '{' && currentChar != '}') {
 		value += getChar();	 // Consume the current character
 		currentChar = peekChar();
 	}
@@ -139,9 +134,8 @@ Token Lexer::parseIp_v4(std::string value, int count) {
 Token Lexer::parseString(std::string value) {
 	while (isalnum(peekChar()) || (peekChar() >= '<' && peekChar() <= '@') ||
 		   (peekChar() >= '-' && peekChar() <= '/') || (peekChar() == '!') ||
-		   (peekChar() >= '$' && peekChar() <= '&') ||
-		   (peekChar() >= '*' && peekChar() <= '+') || (peekChar() == '_') ||
-		   (peekChar() == ':'))
+		   (peekChar() >= '$' && peekChar() <= '&') || (peekChar() >= '*' && peekChar() <= '+') ||
+		   (peekChar() == '_') || (peekChar() == ':'))
 		value += getChar();
 
 	return {TOKEN_STRING, value, _line, _column};
@@ -151,9 +145,8 @@ Token Lexer::parseKeywordOrString() {
 	std::string value;
 	while (isalnum(peekChar()) || (peekChar() >= '<' && peekChar() <= '@') ||
 		   (peekChar() >= '-' && peekChar() <= '/') || (peekChar() == '!') ||
-		   (peekChar() >= '$' && peekChar() <= '&') ||
-		   (peekChar() >= '*' && peekChar() <= '+') || (peekChar() == '_') ||
-		   (peekChar() == ':'))
+		   (peekChar() >= '$' && peekChar() <= '&') || (peekChar() >= '*' && peekChar() <= '+') ||
+		   (peekChar() == '_') || (peekChar() == ':'))
 		value += getChar();
 
 	if (value == "http")
@@ -193,8 +186,7 @@ Token Lexer::parseKeywordOrString() {
 	if (value == "off")
 		return {TOKEN_OFF, value, _line, _column};
 
-	return {TOKEN_STRING, value, _line,
-			_column};  // Default to string if not a keyword
+	return {TOKEN_STRING, value, _line, _column};  // Default to string if not a keyword
 }
 
 std::string Lexer::getErrorPrefix() const {

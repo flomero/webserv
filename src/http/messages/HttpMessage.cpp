@@ -14,9 +14,7 @@
 
 std::string HttpMessage::getHttpVersion() const { return _httpVersion; }
 
-std::map<std::string, std::string> HttpMessage::getHeaders() const {
-	return _headers;
-}
+std::map<std::string, std::string> HttpMessage::getHeaders() const { return _headers; }
 
 std::string HttpMessage::getHeader(const std::string &key) const {
 	if (_headers.find(key) != _headers.end()) {
@@ -27,14 +25,9 @@ std::string HttpMessage::getHeader(const std::string &key) const {
 
 std::string HttpMessage::getBody() const { return _body; }
 
-void HttpMessage::setHttpVersion(const std::string &httpVersion) {
-	_httpVersion = httpVersion;
-}
+void HttpMessage::setHttpVersion(const std::string &httpVersion) { _httpVersion = httpVersion; }
 
-void HttpMessage::setHeaders(
-	const std::map<std::string, std::string> &headers) {
-	_headers = headers;
-}
+void HttpMessage::setHeaders(const std::map<std::string, std::string> &headers) { _headers = headers; }
 
 void HttpMessage::setBody(const std::string &body) { _body = body; }
 
@@ -44,9 +37,7 @@ void HttpMessage::setBody(const std::string &body) { _body = body; }
  * @param key The header key
  * @param value The header value
  */
-void HttpMessage::addHeader(const std::string &key, const std::string &value) {
-	_headers[key] = value;
-}
+void HttpMessage::addHeader(const std::string &key, const std::string &value) { _headers[key] = value; }
 
 /**
  * @brief Add a header to the message. Only adds the header if the key does not
@@ -54,8 +45,7 @@ void HttpMessage::addHeader(const std::string &key, const std::string &value) {
  * @param key The header key
  * @param value The header value
  */
-void HttpMessage::addHeaderIfNew(const std::string &key,
-								 const std::string &value) {
+void HttpMessage::addHeaderIfNew(const std::string &key, const std::string &value) {
 	if (_headers.find(key) == _headers.end()) {
 		_headers[key] = value;
 	}

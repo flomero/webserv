@@ -35,13 +35,11 @@ void Logger::setOutputToConsole() {
 void Logger::log(const std::string& msg, LogLevel level) {
 	std::time_t now = std::time(nullptr);
 	if (outputToFile) {
-		logFile << std::left << std::put_time(std::localtime(&now), "%F %T")
-				<< " " << std::left << std::setw(20) << level << " " << msg
-				<< std::endl;
+		logFile << std::left << std::put_time(std::localtime(&now), "%F %T") << " " << std::left << std::setw(20)
+				<< level << " " << msg << std::endl;
 	} else {
-		std::cout << std::left << std::put_time(std::localtime(&now), "%F %T")
-				  << " " << std::left << std::setw(20) << level << " " << msg
-				  << std::endl;
+		std::cout << std::left << std::put_time(std::localtime(&now), "%F %T") << " " << std::left << std::setw(20)
+				  << level << " " << msg << std::endl;
 	}
 }
 

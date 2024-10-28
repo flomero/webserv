@@ -3,33 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/14 14:48:06 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 
-Parser::Parser(Lexer& lexer)
-	: _lexer(lexer), _currentToken(lexer.nextToken()) {}
+Parser::Parser(Lexer& lexer) : _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
 void Parser::expect(eTokenType type) {
 	if (_currentToken.type != type)
-		reportError(UNEXPECTED_TOKEN, tokenToString.at(type),
-					tokenToString.at(_currentToken.type));
+		reportError(UNEXPECTED_TOKEN, tokenToString.at(type), tokenToString.at(_currentToken.type));
 
 	_currentToken = _lexer.nextToken();
 }
 
-std::vector<Server> Parser::parse() {
-	std::vector<Server> servers;
+std::vector<ServerConfig> Parser::parse() {
+	std::vector<ServerConfig> servers;
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);
 
-	while (_currentToken.type != TOKEN_CLOSE_BRACE)
-		servers.push_back(parseServer());
+	while (_currentToken.type != TOKEN_CLOSE_BRACE) servers.push_back(parseServer());
 
 	expect(TOKEN_CLOSE_BRACE);
 
@@ -39,11 +36,11 @@ std::vector<Server> Parser::parse() {
 	return servers;
 }
 
-Server Parser::parseServer() {
+ServerConfig Parser::parseServer() {
 	expect(TOKEN_SERVER);
 	expect(TOKEN_OPEN_BRACE);
 
-	Server server;
+	ServerConfig server;
 
 	while (_currentToken.type != TOKEN_CLOSE_BRACE) {
 		switch (_currentToken.type) {
@@ -53,19 +50,15 @@ Server Parser::parseServer() {
 					server.setHost(_currentToken.value);
 					_currentToken = _lexer.nextToken();	 // Consume IP
 
-					if (_currentToken.type == TOKEN_STRING &&
-						_currentToken.value[0] == ':') {  // In the form ":8080"
-						server.setPort(std::stoi(_currentToken.value.substr(
-							1, _currentToken.value.size() - 1)));
+					if (_currentToken.type == TOKEN_STRING && _currentToken.value[0] == ':') {	// In the form ":8080"
+						server.setPort(std::stoi(_currentToken.value.substr(1, _currentToken.value.size() - 1)));
 						_currentToken = _lexer.nextToken();
 					}
 				} else if (_currentToken.type == TOKEN_NUMBER) {
 					server.setPort(std::stoi(_currentToken.value));
 					_currentToken = _lexer.nextToken();	 // Consume port
 				} else {
-					reportError(LISTEN_MISSING_VALUES,
-								"listen [host|port] or listen [host]:[port]",
-								"listen [ ]");
+					reportError(LISTEN_MISSING_VALUES, "listen [host|port] or listen [host]:[port]", "listen [ ]");
 				}
 
 				expect(TOKEN_SEMICOLON);
@@ -113,8 +106,7 @@ Server Parser::parseServer() {
 							mbValue *= 1024 * 1024 * 1024;
 							break;
 					}
-					_currentToken =
-						_lexer.nextToken();	 // Moves past the suffix
+					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
 					if (_currentToken.type != TOKEN_NUMBER)
 						break;
@@ -139,10 +131,7 @@ Server Parser::parseServer() {
 			case TOKEN_REQUEST_TIMEOUT: {
 				expect(TOKEN_REQUEST_TIMEOUT);
 				size_t timeout = 0;
-				size_t msValue =
-					1000 *
-					std::stoul(
-						_currentToken.value);  // By default, read in seconds
+				size_t msValue = 1000 * std::stoul(_currentToken.value);  // By default, read in seconds
 				expect(TOKEN_NUMBER);
 				while (_currentToken.type == TOKEN_STRING) {
 					if (_currentToken.value == "ms")  // 1/1000th of a second
@@ -160,8 +149,7 @@ Server Parser::parseServer() {
 					else if (_currentToken.value == "y")  // 365 days
 						msValue *= 365 * 24 * 60 * 60;
 
-					_currentToken =
-						_lexer.nextToken();	 // Moves past the suffix
+					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
 					if (_currentToken.type != TOKEN_NUMBER)
 						break;
@@ -270,8 +258,7 @@ Route Parser::parseRoute() {
 
 				_currentToken = _lexer.nextTokenWhitespace();
 				if (_currentToken.type == TOKEN_STRING) {
-					route.setRedirect(_currentToken.value.substr(
-						1, _currentToken.value.size() - 1));
+					route.setRedirect(_currentToken.value.substr(1, _currentToken.value.size() - 1));
 					_currentToken = _lexer.nextToken();
 					expect(TOKEN_SEMICOLON);
 				} else if (_currentToken.type == TOKEN_SEMICOLON) {
@@ -293,16 +280,13 @@ Route Parser::parseRoute() {
 	return route;
 }
 
-void Parser::reportError(eParsingErrors error, std::string expected,
-						 std::string found) {
+void Parser::reportError(eParsingErrors error, std::string expected, std::string found) {
 	std::ostringstream errorMsg;
 
-	errorMsg << COLOR(BLUE, _lexer.getErrorPrefix())
-			 << COLOR(RED, parsingErrorsMessages.at(error).at(ERROR_NAME))
+	errorMsg << COLOR(BLUE, _lexer.getErrorPrefix()) << COLOR(RED, parsingErrorsMessages.at(error).at(ERROR_NAME))
 			 << std::endl
 			 << std::endl
-			 << std::left << std::setw(12)
-			 << parsingErrorsMessages.at(error).at(ERROR_TEXT);
+			 << std::left << std::setw(12) << parsingErrorsMessages.at(error).at(ERROR_TEXT);
 
 	switch (error) {
 		case UNEXPECTED_TOKEN:
@@ -314,8 +298,7 @@ void Parser::reportError(eParsingErrors error, std::string expected,
 			break;
 	}
 
-	errorMsg << std::endl
-			 << std::left << std::setw(12) << "got: " << found << std::endl;
+	errorMsg << std::endl << std::left << std::setw(12) << "got: " << found << std::endl;
 
 	_parsingErrors.push_back(errorMsg.str());
 }
