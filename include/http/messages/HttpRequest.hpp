@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/21 16:15:20 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/28 16:42:49 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
  */
 class HttpRequest : public HttpMessage {
 	public:
+		HttpRequest() = default;
 		HttpRequest(const std::string &rawRequest);
 		virtual ~HttpRequest() = default;
 
@@ -44,29 +45,22 @@ class HttpRequest : public HttpMessage {
 		// Error 400
 		class BadRequest : public std::exception {
 			public:
-				const char *what() const noexcept override {
-					return "Bad request - invalid HTTP request line";
-				}
+				const char *what() const noexcept override { return "Bad request - invalid HTTP request line"; }
 		};
 
 		// Error 501
 		class NotImplemented : public std::exception {
 			public:
-				const char *what() const noexcept override {
-					return "Method not implemented";
-				}
+				const char *what() const noexcept override { return "Method not implemented"; }
 		};
 
 		// Error 505
 		class InvalidVersion : public std::exception {
 			public:
-				const char *what() const noexcept override {
-					return "HTTP version not supported";
-				}
+				const char *what() const noexcept override { return "HTTP version not supported"; }
 		};
 
 	private:
-		HttpRequest() = default;
 		std::string _method;
 		std::string _requestUri;
 		std::string _rawRequest;

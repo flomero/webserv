@@ -73,10 +73,8 @@ const std::unordered_map<std::string, std::string> mimeTypes = {
 	{"pptx",
 	 "application/"
 	 "vnd.openxmlformats-officedocument.presentationml.presentation"},
-	{"xlsx",
-	 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
-	{"docx",
-	 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+	{"xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+	{"docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
 	{"wmlc", "application/vnd.wap.wmlc"},
 	{"wasm", "application/wasm"},
 	{"7z", "application/x-7z-compressed"},
@@ -152,8 +150,7 @@ std::string getFileExtension(const std::string& fileName) {
 std::string getMimeType(const std::string& fileName) {
 	std::string extension = getFileExtension(fileName);
 
-	std::transform(extension.begin(), extension.end(), extension.begin(),
-				   ::tolower);
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
 	auto it = mimeTypes.find(extension);
 	if (it != mimeTypes.end()) {
