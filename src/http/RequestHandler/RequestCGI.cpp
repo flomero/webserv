@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerRequestCGI.cpp                               :+:      :+:    :+:   */
+/*   RequestCGI.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:21 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:11:27 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Logger.hpp"
-#include "ServerConfig.hpp"
+#include "RequestHandler.hpp"
 
 /**
  * @brief Main logic:
@@ -23,21 +23,21 @@
  * @param request
  * @param route
  */
-void ServerConfig::handleRequestCGI(HttpRequest& request, Route& route) {
+void RequestHandler::handleRequestCGI(Route& route) {
 	LOG_INFO("Entered handleRequestCGI");
 
-	if (request.getIsFile()) {
+	if (_request.getIsFile()) {
 		LOG_INFO("Handling file CGI");
 
 		// Checks if this extensions has to be handled by a CGI
 		LOG_INFO("Checks if this extension has to be handled by a CGI");
 
-		if (route.getCgiHandlers().at(request.getRessourceExtension()).empty())
-			LOG_DEBUG("  |- No CGI handlers found for extension:  " + request.getRessourceExtension() + "\n");
+		if (route.getCgiHandlers().at(_request.getRessourceExtension()).empty())
+			LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getRessourceExtension() + "\n");
 		else {
-			LOG_DEBUG("  |- Found:            " + request.getRessourceExtension());
-			LOG_DEBUG("  |- Executable path:  " + route.getCgiHandlers().at(request.getRessourceExtension()) + "\n");
-			handleRequestCGIExecution(request, route);
+			LOG_DEBUG("  |- Found:            " + _request.getRessourceExtension());
+			LOG_DEBUG("  |- Executable path:  " + route.getCgiHandlers().at(_request.getRessourceExtension()) + "\n");
+			handleRequestCGIExecution(route);
 		}
 
 	} else {

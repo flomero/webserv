@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 15:20:35 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:05:54 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,8 @@ int main(int argc, char const *argv[]) {
 		HttpRequest getRequestWithQuery(getRequestWithQueryString);
 
 		LOG_INFO(getRequestWithQueryString);
-		servers_config.at(0).handleRequest(getRequestWithQuery);
+		RequestHandler handler(getRequestWithQuery, servers_config.at(0));
+		handler.handleRequest();
 
 		std::cout << std::endl << std::endl << std::endl << std::endl;
 
@@ -87,7 +88,8 @@ int main(int argc, char const *argv[]) {
 		HttpRequest postRequestWithBody(postRequestWithBodyString);
 
 		LOG_INFO(postRequestWithBodyString);
-		servers_config.at(0).handleRequest(postRequestWithBody);
+		RequestHandler handler2(postRequestWithBody, servers_config.at(0));
+		handler2.handleRequest();
 	}
 
 	return 0;

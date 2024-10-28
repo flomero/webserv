@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerRequestAutoindex.cpp                         :+:      :+:    :+:   */
+/*   RequestAutoindex.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:25:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:07:36 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
-#include "ServerConfig.hpp"
+#include "RequestHandler.hpp"
 
 std::string humanReadableSize(uintmax_t size) {
 	constexpr uintmax_t KB = 1024;
@@ -136,18 +136,15 @@ std::string buildDirectoryListingHTML(const std::string& path) {
 	return html.str();
 }
 
-void ServerConfig::handleAutoindex(HttpRequest& request, const std::string& path) {
-	HttpResponse response;
-
+void RequestHandler::handleAutoindex(const std::string& path) {
 	if (std::filesystem::is_directory(path)) {
-		response.setStatus(Http::OK);
-		response.setBody(buildDirectoryListingHTML(path));
-		response.addHeader("Content-Type", "text/html");
+		_response.setStatus(Http::OK);
+		_response.setBody(buildDirectoryListingHTML(path));
+		_response.addHeader("Content-Type", "text/html");
 	} else {
-		response.setStatus(Http::NOT_FOUND);
+		_response.setStatus(Http::NOT_FOUND);
 	}
 
 	// TODO: send response
-	(void)request;
-	std::cout << response.toString() << std::endl;
+	std::cout << _response.toString() << std::endl;
 }

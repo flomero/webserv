@@ -78,20 +78,4 @@ class ServerConfig {
 
 		// Overload "<<" operator to print ServerConfig details
 		friend std::ostream& operator<<(std::ostream& os, const ServerConfig& server);
-
-		// Main request logic
-		void handleRequest(HttpRequest& request);
-
-		// CGI handler
-		void handleRequestCGI(HttpRequest& request, Route& route);
-		void handleRequestCGIExecution(HttpRequest& request, Route& route);
-
-		// Request handlers
-		// POST request handlers
-		int handlePostRequest(HttpRequest& request);
-		int handlePostMultipart(HttpRequest& request);
-		int handleFileUpload(const std::string& part, const std::string& contentDisposition);
-
-		// Autoindex handler
-		void handleAutoindex(HttpRequest& request, const std::string& path);
 };

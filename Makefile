@@ -13,6 +13,7 @@ OBJ_DIR  := obj
 SRCS_DIR := src \
 			src/http/messages \
 			src/http/status \
+			src/http/RequestHandler \
 			src/files \
 			src/log \
 			src/configuration \
@@ -21,6 +22,7 @@ SRCS_DIR := src \
 # Header directories
 HDRS_DIR := include/ \
 			include/Server \
+			include/http \
 			include/http/messages \
 			include/http/status \
 			include/log \
@@ -36,15 +38,15 @@ SRCS     := main.cpp \
 			HttpStatus.cpp \
 			mimetypes.cpp \
 			Logger.cpp \
-			ServerPostRequest.cpp \
 			Lexer.cpp \
 			Parser.cpp \
 			Route.cpp \
 			ServerConfig.cpp \
-			ServerRequestLogic.cpp \
-			ServerRequestCGI.cpp \
-			ServerRequestCGIExecution.cpp \
-			ServerRequestAutoindex.cpp \
+			RequestHandler.cpp \
+			PostRequest.cpp \
+			RequestCGI.cpp \
+			RequestCGIExecution.cpp \
+			RequestAutoindex.cpp \
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \
@@ -55,6 +57,7 @@ HDRS     := webserv.hpp \
 			Lexer.hpp \
 			Parser.hpp \
 			ServerConfig.hpp \
+			RequestHandler.hpp \
 			ParsingErrors.hpp \
 			ft_iomanip.hpp
 

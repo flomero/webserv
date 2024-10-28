@@ -1,31 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerPostRequest.cpp                              :+:      :+:    :+:   */
+/*   PostRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 16:10:33 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerConfig.hpp"
+#include "RequestHandler.hpp"
 
-int ServerConfig::handlePostRequest(HttpRequest &request) {
-	std::string contentType = request.getHeader("Content-Type");
+int RequestHandler::handlePostRequest() {
+	std::string contentType = _request.getHeader("Content-Type");
 	if (contentType == "application/x-www-form-urlencoded") {
 		LOG_INFO("application/x-www-form-urlencoded");
 		// TODO: not sure if needed
 	} else if (contentType == "multipart/form-data")
-		return handlePostMultipart(request);
+		return handlePostMultipart();
 
 	LOG_ERROR("Unsupported content type: " + contentType);
 	return 415;
 }
 
-int ServerConfig::handlePostMultipart(HttpRequest &request) {
-	std::string contentType = request.getHeader("Content-Type");
+int RequestHandler::handlePostMultipart() {
+	std::string contentType = _request.getHeader("Content-Type");
 	std::size_t boundaryPos = contentType.find("boundary=");
 	if (boundaryPos == std::string::npos) {
 		LOG_ERROR("Invalid Content-Type header: " + contentType);
@@ -40,7 +40,7 @@ int ServerConfig::handlePostMultipart(HttpRequest &request) {
 	std::string boundaryEnd = boundaryDelimiter + "--";
 	std::size_t pos = 0;
 
-	std::string body = request.getBody();
+	std::string body = _request.getBody();
 	while ((pos = body.find(boundaryDelimiter, pos)) != std::string::npos) {
 		pos += boundaryDelimiter.length();
 		if (pos == body.length())
@@ -78,7 +78,7 @@ int ServerConfig::handlePostMultipart(HttpRequest &request) {
 	return Http::OK;
 }
 
-int ServerConfig::handleFileUpload(const std::string &part, const std::string &contentDisposition) {
+int RequestHandler::handleFileUpload(const std::string &part, const std::string &contentDisposition) {
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {
