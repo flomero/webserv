@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 16:42:40 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 20:01:38 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@ class RequestHandler {
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
+
+		// Error handlers
+		HttpResponse buildErrorResponse(Http::Status code);
 
 	public:
 		explicit RequestHandler(ServerConfig& serverConfig);

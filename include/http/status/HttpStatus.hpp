@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 11:07:27 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:11:53 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 20:33:18 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,9 @@
 
 #include <string>
 
-std::string getStatusMessage(int statusCode);
-
 namespace Http {
 enum Status {
+	NONE = 0,
 	// Informational
 	CONTINUE = 100,
 	SWITCHING_PROTOCOLS = 101,
@@ -91,4 +90,7 @@ enum Status {
 	NOT_EXTENDED = 510,
 	NETWORK_AUTHENTICATION_REQUIRED = 511
 };
-};
+
+std::string getStatusMessage(Http::Status statusCode);
+
+};	// namespace Http
