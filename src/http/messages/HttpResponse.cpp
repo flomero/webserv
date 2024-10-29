@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/22 14:52:24 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:48:48 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,12 @@
 
 #include "HttpStatus.hpp"
 
-HttpResponse::HttpResponse(int status) : _status(status) { setDefaultHeaders(); }
+HttpResponse::HttpResponse(Http::Status status) : _status(status) { setDefaultHeaders(); }
+HttpResponse::HttpResponse(int status) : _status(static_cast<Http::Status>(status)) { setDefaultHeaders(); }
 
-void HttpResponse::setStatus(int status) { _status = status; }
+void HttpResponse::setStatus(Http::Status status) { _status = status; }
 
-int HttpResponse::getStatus() const { return _status; }
+Http::Status HttpResponse::getStatus() const { return _status; }
 
 std::string getCurrentDate() {
 	auto now = std::chrono::system_clock::now();
@@ -38,11 +39,11 @@ void HttpResponse::setDefaultHeaders() {
 	addHeaderIfNew("Connection", "close");
 	addHeaderIfNew("Content-Length", std::to_string(_body.length()));
 	addHeaderIfNew("Date", getCurrentDate());
-	// ToDo: Add more headers
+	// TODO: Add more headers
 }
 
 std::string HttpResponse::toString() const {
-	std::string str = _httpVersion + " " + std::to_string(_status) + " " + getStatusMessage(_status) + "\r\n";
+	std::string str = _httpVersion + " " + std::to_string(_status) + " " + Http::getStatusMessage(_status) + "\r\n";
 	for (const auto &[key, value] : _headers) {
 		str += key + ": " + value + "\r\n";
 	}

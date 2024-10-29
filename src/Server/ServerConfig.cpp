@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:56:20 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 15:17:56 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 20:37:43 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 // Constructor
 ServerConfig::ServerConfig() : _port(80), _requestTimeout(60), _clientMaxBodySize(1048576), _host("127.0.0.1") {}
 
-// Getters
+// Simple Getters
 int ServerConfig::getPort() const { return _port; }
 size_t ServerConfig::getRequestTimeout() const { return _requestTimeout; }
 size_t ServerConfig::getClientMaxBodySize() const { return _clientMaxBodySize; }
@@ -26,6 +26,15 @@ const std::string& ServerConfig::getUploadDir() const { return _uploadDir; }
 const std::string& ServerConfig::getServerName() const { return _serverName; }
 const std::vector<Route>& ServerConfig::getRoutes() const { return _routes; }
 const std::map<int, std::string>& ServerConfig::getErrorPages() const { return _errorPages; }
+
+// Custom Getters
+std::optional<std::string> ServerConfig::getErrorPage(Http::Status code) const {
+	auto it = _errorPages.find(code);
+	if (it == _errorPages.end()) {
+		return std::nullopt;
+	}
+	return it->second;
+}
 
 // Setters
 void ServerConfig::setPort(int port) { _port = port; }
