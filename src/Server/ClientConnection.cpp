@@ -1,103 +1,64 @@
 
 #include "ClientConnection.hpp"
 
+#include <arpa/inet.h>
+#include <sys/fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
+#include "Logger.hpp"
 
-ClientConnection::ClientConnection(int fd) : _clientFd(fd), _disconnected(false) {}
+ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr)
+	: _clientFd(clientFd), _disconnected(false), _clientAddr(clientAddr) {
+	if (fcntl(_clientFd, F_SETFL, O_NONBLOCK) == -1) {
+		LOG_ERROR("Failed to set client socket to non-blocking: " + std::string(strerror(errno)));
+		_disconnected = true;
+		close(_clientFd);
+	}
+	_requestBuffer.reserve(1024);
+	LOG_INFO("Address: " + std::string(inet_ntoa(_clientAddr.sin_addr)) +
+			 " Port: " + std::to_string(ntohs(_clientAddr.sin_port)));
+}
 
 ClientConnection::~ClientConnection() { close(_clientFd); }
 
-void ClientConnection::processRequest() {
-	while (!_disconnected) {
-		if (!receiveData())
-			break;
-
-		try {
-			while (isCompleteRequest(_requestBuffer)) {
-				HttpRequest request(_requestBuffer);
-
-				HttpResponse response;
-				response.setStatus(200);  // OK
-				response.setDefaultHeaders();
-
-				response.setBody("<html><body><h1>Success</h1></body></html>");
-
-				if (!sendData(response.toString())) {
-					break;
-				}
-
-				_requestBuffer.erase(0, request.getRequestLength());
-				if (request.getHeader("Connection") == "close") {
-					_disconnected = true;
-					break;
-				}
-			}
-		} catch (const HttpRequest::BadRequest& e) {
-			sendErrorResponse(400, "Bad Request");
-			_disconnected = true;
-			break;
-		} catch (const HttpRequest::NotImplemented& e) {
-			sendErrorResponse(501, "Not Implemented");
-			_disconnected = true;
-			break;
-		} catch (const HttpRequest::InvalidVersion& e) {
-			sendErrorResponse(505, "HTTP Version Not Supported");
-			_disconnected = true;
-			break;
-		}
-	}
-}
+void ClientConnection::processRequest() {}
 
 bool ClientConnection::isCompleteRequest(const std::string& buffer) {
-	// Simple check for the end of headers ("\r\n\r\n")
-	return buffer.find("\r\n\r\n") != std::string::npos;
+	(void)buffer;
+	return true;
 }
 
 bool ClientConnection::receiveData() {
-	char buffer[4096];
-	ssize_t bytesReceived = read(_clientFd, buffer, sizeof(buffer));
+	ssize_t bytesRead = recv(_clientFd, _requestBuffer.data(), _requestBuffer.capacity(), 0);
+	if (bytesRead == -1) {
+		if (errno != EAGAIN) {
+			LOG_ERROR("Failed to receive data: " + std::string(strerror(errno)));
+			_disconnected = true;
+		}
+		return false;
+	}
 
-	if (bytesReceived == 0) {
-		// Client closed the connection
-		_disconnected = true;
-		return false;
-	}
-	if (bytesReceived < 0) {
-		// Error occurred
-		perror("Read failed");
-		_disconnected = true;
-		return false;
-	}
-	// Append data to the request buffer
-	_requestBuffer.append(buffer, bytesReceived);
+	std::string request(_requestBuffer.data(), bytesRead);
+	LOG_INFO("Received request: " + request);
 	return true;
 }
 
 bool ClientConnection::sendData(const std::string& data) {
-	size_t totalSent = 0;
-	size_t dataSize = data.size();
-
-	while (totalSent < dataSize) {
-		ssize_t bytesSent = send(_clientFd, data.c_str() + totalSent, dataSize - totalSent, 0);
-		if (bytesSent <= 0) {
-			perror("Send failed");
-			_disconnected = true;
-			return false;
-		}
-		totalSent += bytesSent;
+	ssize_t bytesSent = send(_clientFd, data.data(), data.size(), 0);
+	if (bytesSent == -1) {
+		LOG_ERROR("Failed to send data: " + std::string(strerror(errno)));
+		_disconnected = true;
+		return false;
 	}
 	return true;
 }
 
 void ClientConnection::sendErrorResponse(int statusCode, const std::string& message) {
-	HttpResponse response(statusCode);
-	response.setDefaultHeaders();
-	response.setBody(message);
-	sendData(response.toString());
+	(void)statusCode;
+	(void)message;
 }
 
 bool ClientConnection::isDisconnected() const { return _disconnected; }

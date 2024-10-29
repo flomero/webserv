@@ -31,12 +31,14 @@ void MultiSocketWebserver::run() {
 		}
 
 		for (auto& [fd, events, revents] : _polls.getPolls()) {
-			if (revents & POLLIN) {
-				if (_polls.isServerFd(fd)) {
-					_acceptConnection(fd);
-				} else {
-					_handleClientData(fd);
-				}
+			// Check if there are any events to process
+			if (!(revents & POLLIN))
+				continue;
+
+			if (_polls.isServerFd(fd)) {
+				_acceptConnection(fd);
+			} else {
+				_handleClientData(fd);
 			}
 		}
 	}
@@ -45,48 +47,44 @@ void MultiSocketWebserver::run() {
 }
 
 void MultiSocketWebserver::_acceptConnection(const int server_fd) {
-	sockaddr_in clientAddr;
+	sockaddr_in clientAddr{};
 	socklen_t addrLen = sizeof(clientAddr);
-	const int clientFd = ::accept(server_fd, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
+	int clientFd = ::accept(server_fd, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
 
 	if (clientFd == -1) {
 		LOG_ERROR("Accept failed: " + std::string(strerror(errno)));
 		return;
 	}
 
-	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1) {
-		LOG_ERROR("Failed to set client socket to non-blocking: " + std::string(strerror(errno)));
+	try {
+		_clients.emplace(clientFd, std::make_unique<ClientConnection>(clientFd, clientAddr));
+		_polls.addFd(clientFd);
+		LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) + " on socket " +
+				 std::to_string(clientFd));
+	} catch (const std::exception& e) {
+		LOG_ERROR("Failed to create ClientConnection: " + std::string(e.what()));
 		close(clientFd);
-		return;
 	}
-
-	_polls.addFd(clientFd);
-	LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) + " on socket " +
-			 std::to_string(clientFd));
 }
 
 void MultiSocketWebserver::_handleClientData(const int client_fd) {
-	char buffer[4096];
-	ssize_t bytesReceived = recv(client_fd, buffer, sizeof(buffer), 0);
-	if (bytesReceived <= 0) {
-		if (bytesReceived == 0 || (bytesReceived == -1 && errno != EAGAIN)) {
-			close(client_fd);
-			_polls.removeFd(client_fd);
-		}
+	auto it = _clients.find(client_fd);
+	if (it == _clients.end()) {
+		LOG_ERROR("Client not found in map");
 		return;
 	}
 
-	std::string request(buffer, bytesReceived);
-	LOG_INFO("Received request: " + request);
+	ClientConnection& client = *it->second;
+	if (!client.receiveData()) {
+		return;
+	}
+	if (client.isDisconnected()) {
+		_clients.erase(it);
+		_polls.removeFd(client_fd);
+		return;
+	}
 
-	std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
-	send(client_fd, response.c_str(), response.size(), 0);
-
-	close(client_fd);
+	client.sendData("HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!");
+	_clients.erase(it);
 	_polls.removeFd(client_fd);
-}
-
-bool MultiSocketWebserver::_isServerSocket(int fd) {
-	return std::find_if(_sockets.begin(), _sockets.end(), [fd](const Socket& s) { return s.getSocketFd() == fd; }) !=
-		   _sockets.end();
 }
