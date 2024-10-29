@@ -12,9 +12,8 @@ MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_con
 void MultiSocketWebserver::initSockets() {
 	_sockets.reserve(_servers_config.size());
 	for (const auto& serv : _servers_config) {
-		_sockets.emplace_back(serv.getPort());
-		const int server_fd = _sockets.back().getSocketFd();
-		_polls.addFd(server_fd);
+		auto& newSocket = _sockets.emplace_back(serv.getPort());
+		_polls.addServerFd(newSocket.getSocketFd());
 	}
 }
 
@@ -33,7 +32,7 @@ void MultiSocketWebserver::run() {
 
 		for (auto& [fd, events, revents] : _polls.getPolls()) {
 			if (revents & POLLIN) {
-				if (_isServerSocket(fd)) {
+				if (_polls.isServerFd(fd)) {
 					_acceptConnection(fd);
 				} else {
 					_handleClientData(fd);
