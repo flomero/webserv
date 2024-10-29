@@ -65,6 +65,7 @@ class ServerConfig {
 		[[nodiscard]] const std::string& getServerName() const;
 		[[nodiscard]] const std::vector<Route>& getRoutes() const;
 		[[nodiscard]] const std::map<int, std::string>& getErrorPages() const;
+		[[nodiscard]] std::optional<std::string> getErrorPage(Http::Status code) const;
 
 		// Setters
 		void setPort(int port);

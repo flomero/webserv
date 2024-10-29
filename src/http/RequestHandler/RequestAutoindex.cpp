@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:25:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 16:07:36 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:50:39 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,10 @@ std::string buildDirectoryListingHTML(const std::string& path) {
 	return html.str();
 }
 
+/**
+ * @brief Handle a request for a directory listing.
+ * @param path The path to the directory
+ */
 void RequestHandler::handleAutoindex(const std::string& path) {
 	if (std::filesystem::is_directory(path)) {
 		_response.setStatus(Http::OK);

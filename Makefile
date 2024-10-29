@@ -50,6 +50,8 @@ SRCS     := main.cpp \
 			Socket.cpp \
 			ClientConnection.cpp \
 			MultiSocketWebserver.cpp \
+			ResponseBuilder.cpp \
+
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \
