@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/29 10:32:02 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 13:47:26 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,20 +35,8 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serve
  *
  * @param request
  */
-HttpResponse RequestHandler::handleRequest(std::string raw_request) {
-	LOG_INFO("Handling request");
-	try {
-		_request = HttpRequest(raw_request);
-	} catch (HttpRequest::BadRequest& e) {
-		LOG_ERROR("Bad request - invalid HTTP request line");
-		return buildDefaultResponse(Http::BAD_REQUEST);
-	} catch (HttpRequest::NotImplemented& e) {
-		LOG_ERROR("Method not implemented");
-		return buildDefaultResponse(Http::NOT_IMPLEMENTED);
-	} catch (HttpRequest::InvalidVersion& e) {
-		LOG_ERROR("HTTP version not supported");
-		return buildDefaultResponse(Http::HTTP_VERSION_NOT_SUPPORTED);
-	}
+HttpResponse RequestHandler::handleRequest(HttpRequest& request) {
+	_request = request;
 
 	// Extract the location from the URI
 	LOG_INFO("Extracting location path from URI");

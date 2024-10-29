@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/21 16:16:20 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/10/29 15:06:15 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,10 @@ const std::vector<std::string> HttpRequest::_unsupportedMethods = {"HEAD",	  "PU
 
 const std::vector<std::string> HttpRequest::_supportedVersions = {"HTTP/1.0", "HTTP/1.1"};
 
+/**
+ * @brief Constructs an HttpRequest object from a raw HTTP request (w/o body)
+ * @param rawRequest The raw HTTP request
+ */
 HttpRequest::HttpRequest(const std::string &rawRequest) {
 	std::istringstream requestStream(rawRequest);
 	std::string line;
@@ -31,7 +35,7 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 	if (_method.empty() || _requestUri.empty() || _httpVersion.empty()) {
 		throw BadRequest();
 	}
-	validate();
+	validateRequestLine();
 	while (std::getline(requestStream, line)) {
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back();
@@ -44,22 +48,11 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 		std::getline(headerStream, value);
 		addHeader(key, value);
 	}
-	if (getHeader("Transfer-Encoding") == "chunked") {
-		parseChunkedBody(requestStream);
-	} else {
-		auto contentLengthHeader = getHeader("Content-Length");
-		if (!contentLengthHeader.empty()) {
-			std::size_t contentLength = std::stoul(contentLengthHeader);
-			std::string body(contentLength, '\0');
-			requestStream.read(&body[0], contentLength);
-			setBody(body);
-		} else {
-			setBody("");
-		}
-	}
+	validateHeaders();
+	setBody("");
 }
 
-void HttpRequest::validate() const {
+void HttpRequest::validateRequestLine() const {
 	if (std::find(_supportedMethods.begin(), _supportedMethods.end(), _method) == _supportedMethods.end()) {
 		if (std::find(_unsupportedMethods.begin(), _unsupportedMethods.end(), _method) != _unsupportedMethods.end()) {
 			throw NotImplemented();
@@ -71,6 +64,15 @@ void HttpRequest::validate() const {
 	}
 }
 
+void HttpRequest::validateHeaders() const {
+	// TODO: check if Host header is required
+	// TODO: check if other stuff is required
+	if (_method == "POST" && getHeader("Content-Length").empty() && getHeader("Transfer-Encoding") != "chunked") {
+		throw BadRequest();
+	}
+}
+
+// TODO: move somewhere else
 void HttpRequest::parseChunkedBody(std::istringstream &requestStream) {
 	std::vector<char> body;
 	std::string line;
@@ -105,36 +107,30 @@ void HttpRequest::parseChunkedBody(std::istringstream &requestStream) {
 	setBody(std::string(body.begin(), body.end()));
 }
 
+#pragma region Getters
 std::string HttpRequest::getMethod() const { return _method; }
-
 std::string HttpRequest::getRequestUri() const { return _requestUri; }
-
 std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
-
 bool HttpRequest::getIsFile() const { return _isFile; }
-
 std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
-
 std::string HttpRequest::getQueryString() const { return _queryString; }
-
 int HttpRequest::getRequestLength() const {
 	return _rawRequest.length() + getBody().length();  // Todo: check if this is correct
 }
+#pragma endregion
 
+#pragma region Setters
 void HttpRequest::setMethod(const std::string &method) { _method = method; }
-
 void HttpRequest::setRequestUri(const std::string &requestUri) { _requestUri = requestUri; }
-
 void HttpRequest::setServerSidePath(const std::string &serverSidePath) { _serverSidePath = serverSidePath; }
-
 void HttpRequest::setIsFile(bool isFile) { _isFile = isFile; }
-
 void HttpRequest::setRessourceExtension(const std::string &ressourceExtension) {
 	_ressourceExtension = ressourceExtension;
 }
-
 void HttpRequest::setQueryString(const std::string &queryString) { _queryString = queryString; }
+#pragma endregion
 
+#pragma region Print
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
 	os << request.getMethod() << " " << request.getRequestUri() << " " << request.getHttpVersion() << "\r\n";
 	for (const auto &header : request.getHeaders()) {
@@ -143,3 +139,4 @@ std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
 	os << "\r\n" << request.getBody();
 	return os;
 }
+#pragma endregion
