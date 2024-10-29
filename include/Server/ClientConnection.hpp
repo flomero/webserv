@@ -3,22 +3,41 @@
 
 #include <string>
 
+#include "HttpRequest.hpp"
+#include "HttpResponse.hpp"
+#include "RequestHandler.hpp"
+
 class ClientConnection {
 	public:
-		explicit ClientConnection(int clientFd, sockaddr_in clientAddr);
+		enum class Status {
+			HEADER,
+			BODY,
+			COMPLETE,
+		};
+
+		explicit ClientConnection(int clientFd, sockaddr_in clientAddr, ServerConfig& config);
 		~ClientConnection();
 
-		void processRequest();
+		void handleClient();
+
 		[[nodiscard]] bool isDisconnected() const;
-		bool receiveData();
-		bool sendData(const std::string& data);
 
 	private:
 		int _clientFd;
 		bool _disconnected;
 		sockaddr_in _clientAddr;
-		std::string _requestBuffer;
+		std::string _headerBuffer;
+		std::string _bodyBuffer;
+		RequestHandler _requestHandler;
+
+		Status _status = Status::HEADER;
+		HttpRequest _request = HttpRequest();
+		HttpResponse _response = HttpResponse();
+
+		void processRequest();
+		bool receiveHeader();
+		bool sendData(const std::string& data);
 
 		void sendErrorResponse(int statusCode, const std::string& message);
-		static bool isCompleteRequest(const std::string& buffer);
+		static bool isCompleteHeader(const std::string& buffer);
 };

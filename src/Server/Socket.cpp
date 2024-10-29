@@ -7,10 +7,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
+#include <utility>
 
 #include "Logger.hpp"
+#include "ServerConfig.hpp"
 
-Socket::Socket(int port) : _port(port) {
+Socket::Socket(int port, ServerConfig& config) : _socketFd(-1), _port(port), _config(config) {
 	LOG_INFO("Creating socket on port " + std::to_string(port));
 	_socketFd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -76,3 +78,4 @@ void Socket::setSocketOpt() const {
 		throw std::runtime_error("Setsockopt failed: " + std::string(strerror(errno)));
 	}
 }
+ServerConfig& Socket::getConfig() const { return _config; }

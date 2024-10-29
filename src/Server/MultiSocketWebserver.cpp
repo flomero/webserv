@@ -11,15 +11,17 @@ MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_con
 
 void MultiSocketWebserver::initSockets() {
 	_sockets.reserve(_servers_config.size());
-	for (const auto& serv : _servers_config) {
-		auto& newSocket = _sockets.emplace_back(serv.getPort());
-		_polls.addServerFd(newSocket.getSocketFd());
+	for (ServerConfig& serv : _servers_config) {
+		auto newSocket = std::make_unique<Socket>(serv.getPort(), serv);
+		int socketFd = newSocket->getSocketFd();
+		_sockets.emplace(socketFd, std::move(newSocket));
+		_polls.addFd(socketFd);
 	}
 }
 
 MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
-	for (const auto& socket : _sockets) {
-		close(socket.getSocketFd());
+	for (const auto& [fd, _] : _sockets) {
+		close(fd);
 	}
 }
 
@@ -35,7 +37,7 @@ void MultiSocketWebserver::run() {
 			if (!(revents & POLLIN))
 				continue;
 
-			if (_polls.isServerFd(fd)) {
+			if (isServerFd(fd)) {
 				_acceptConnection(fd);
 			} else {
 				_handleClientData(fd);
@@ -57,7 +59,8 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 	}
 
 	try {
-		_clients.emplace(clientFd, std::make_unique<ClientConnection>(clientFd, clientAddr));
+		_clients.emplace(
+			clientFd, std::make_unique<ClientConnection>(clientFd, clientAddr, _sockets.at(server_fd)->getConfig()));
 		_polls.addFd(clientFd);
 		LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) + " on socket " +
 				 std::to_string(clientFd));
@@ -75,16 +78,13 @@ void MultiSocketWebserver::_handleClientData(const int client_fd) {
 	}
 
 	ClientConnection& client = *it->second;
-	if (!client.receiveData()) {
-		return;
-	}
-	if (client.isDisconnected()) {
-		_clients.erase(it);
-		_polls.removeFd(client_fd);
-		return;
-	}
+	client.handleClient();
 
-	client.sendData("HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!");
-	_clients.erase(it);
-	_polls.removeFd(client_fd);
+	if (client.isDisconnected()) {
+		_clients.erase(client_fd);
+		_polls.removeFd(client_fd);
+		LOG_DEBUG("Client disconnected from socket " + std::to_string(client_fd));
+	}
 }
+
+bool MultiSocketWebserver::isServerFd(int fd) const { return _sockets.find(fd) != _sockets.end(); }

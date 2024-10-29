@@ -13,6 +13,7 @@
 #include "RequestHandler.hpp"
 
 #include "Logger.hpp"
+#include "ServerConfig.hpp"
 
 /**
  * @brief Construct a new Request Handler:: Request Handler object

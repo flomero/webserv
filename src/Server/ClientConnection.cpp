@@ -10,39 +10,82 @@
 #include "HttpResponse.hpp"
 #include "Logger.hpp"
 
-ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr)
-	: _clientFd(clientFd), _disconnected(false), _clientAddr(clientAddr) {
+ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr, ServerConfig& config)
+	: _clientFd(clientFd), _disconnected(false), _clientAddr(clientAddr), _requestHandler(config) {
 	if (fcntl(_clientFd, F_SETFL, O_NONBLOCK) == -1) {
 		LOG_ERROR("Failed to set client socket to non-blocking: " + std::string(strerror(errno)));
 		_disconnected = true;
 		close(_clientFd);
 	}
-	_requestBuffer.reserve(1024);
+	_headerBuffer.reserve(1024);
+	_bodyBuffer.reserve(1024);
 	LOG_INFO("Address: " + std::string(inet_ntoa(_clientAddr.sin_addr)) +
 			 " Port: " + std::to_string(ntohs(_clientAddr.sin_port)));
 }
 
 ClientConnection::~ClientConnection() { close(_clientFd); }
 
-void ClientConnection::processRequest() {}
-
-bool ClientConnection::isCompleteRequest(const std::string& buffer) {
-	(void)buffer;
-	return true;
+void ClientConnection::handleClient() {
+	switch (_status) {
+		case Status::HEADER:
+			if (!receiveHeader()) {
+				return;
+			}
+			if (isCompleteHeader(_headerBuffer)) {
+				_status = Status::COMPLETE;
+			}
+			break;
+		case Status::BODY:
+			break;
+		case Status::COMPLETE:
+			processRequest();
+			break;
+	}
 }
 
-bool ClientConnection::receiveData() {
-	ssize_t bytesRead = recv(_clientFd, _requestBuffer.data(), _requestBuffer.capacity(), 0);
+void ClientConnection::processRequest() {}
+
+bool ClientConnection::isCompleteHeader(const std::string& buffer) {
+	return buffer.find("\r\n\r\n") != std::string::npos;
+}
+
+bool ClientConnection::receiveHeader() {
+	ssize_t bytesRead = recv(_clientFd, _headerBuffer.data(), _headerBuffer.capacity(), 0);
+	if (bytesRead == 0) {
+		LOG_INFO("Client disconnected");
+		_disconnected = true;
+		return false;
+	}
 	if (bytesRead == -1) {
-		if (errno != EAGAIN) {
-			LOG_ERROR("Failed to receive data: " + std::string(strerror(errno)));
-			_disconnected = true;
-		}
+		LOG_ERROR("Failed to receive data: " + std::string(strerror(errno)));
+		_disconnected = true;
+		return false;
+	}
+	std::string request(_headerBuffer.data(), bytesRead);
+
+	if (!isCompleteHeader(request)) {
+		LOG_ERROR("Header buffer is not complete");
 		return false;
 	}
 
-	std::string request(_requestBuffer.data(), bytesRead);
-	LOG_INFO("Received request: " + request);
+	std::string header = request.substr(0, request.find("\r\n\r\n"));
+	_bodyBuffer = request.substr(request.find("\r\n\r\n") + 4);
+
+	try {
+		_request = HttpRequest(header);
+	} catch (const HttpRequest::BadRequest& e) {
+		_response = _requestHandler.buildDefaultResponse(Http::BAD_REQUEST);
+		_status = Status::COMPLETE;
+	} catch (const HttpRequest::NotImplemented& e) {
+		_response = _requestHandler.buildDefaultResponse(Http::NOT_IMPLEMENTED);
+		_status = Status::COMPLETE;
+	} catch (const HttpRequest::InvalidVersion& e) {
+		_response = _requestHandler.buildDefaultResponse(Http::HTTP_VERSION_NOT_SUPPORTED);
+		_status = Status::COMPLETE;
+	}
+
+	LOG_DEBUG("Received header: " + _request.getMethod() + " " + _request.getRequestUri() + " " +
+			  _request.getHttpVersion());
 	return true;
 }
 

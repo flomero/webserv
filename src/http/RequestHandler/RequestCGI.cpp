@@ -13,6 +13,8 @@
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 
+#include "Route.hpp"
+
 /**
  * @brief Main logic:
  * @brief   - If file => Extract file extension

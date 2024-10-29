@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Logger.hpp"
 #include "RequestHandler.hpp"
 
 HttpResponse RequestHandler::handlePostRequest() {
