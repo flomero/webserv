@@ -12,7 +12,6 @@
 
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
-
 #include "Route.hpp"
 
 /**

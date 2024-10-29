@@ -59,8 +59,8 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 	}
 
 	try {
-		_clients.emplace(
-			clientFd, std::make_unique<ClientConnection>(clientFd, clientAddr, _sockets.at(server_fd)->getConfig()));
+		_clients.emplace(clientFd,
+						 std::make_unique<ClientConnection>(clientFd, clientAddr, _sockets.at(server_fd)->getConfig()));
 		_polls.addFd(clientFd);
 		LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) + " on socket " +
 				 std::to_string(clientFd));
