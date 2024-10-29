@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX      := c++
-CXXFLAGS := -Wall -Werror -Wextra -std=c++17 -pthread
+CXXFLAGS := -Wall -Werror -Wextra -std=c++17
 DEPFLAGS := -MMD -MP
 
 # Target name
@@ -48,7 +48,8 @@ SRCS     := main.cpp \
 			RequestCGIExecution.cpp \
 			RequestAutoindex.cpp \
 			Socket.cpp \
-            ClientConnection.cpp \
+			ClientConnection.cpp \
+			MultiSocketWebserver.cpp \
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \
@@ -63,7 +64,8 @@ HDRS     := webserv.hpp \
 			Socket.hpp \
 			ClientConnection.hpp \
 			ParsingErrors.hpp \
-			ft_iomanip.hpp
+			ft_iomanip.hpp \
+			MultiSocketWebserver.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)

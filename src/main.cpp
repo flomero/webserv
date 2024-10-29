@@ -19,6 +19,7 @@
 #include <sstream>
 #include <unordered_set>
 
+#include "MultiSocketWebserver.hpp"
 #include "webserv.hpp"
 
 std::string readFile(const std::string &filename) {
@@ -58,77 +59,9 @@ int main(int argc, char const *argv[]) {
 			std::cout << serv << std::endl;
 		}
 
-		std::vector<Socket> sockets;
-		std::vector<pollfd> pollFds;
-		std::unordered_set<int> serverSockets;	// Track which fds are server sockets
-
-		sockets.reserve(servers_config.size());
-		for (const auto &serv : servers_config) {
-			sockets.emplace_back(serv.getPort());
-			int server_fd = sockets.back().getSocketFd();
-			pollFds.emplace_back(pollfd{server_fd, POLLIN, 0});
-			serverSockets.insert(server_fd);  // Mark as a server socket
-		}
-
-		while (true) {
-			int eventCount = poll(pollFds.data(), pollFds.size(), -1);
-			if (eventCount == -1) {
-				perror("Poll failed");
-				return 1;
-			}
-
-			for (size_t i = 0; i < pollFds.size(); ++i) {
-				int fd = pollFds[i].fd;
-				short revents = pollFds[i].revents;
-
-				if (revents & POLLIN) {
-					if (serverSockets.count(fd)) {
-						// Handle new incoming connection on server socket
-						sockaddr_in clientAddr;
-						socklen_t addrLen = sizeof(clientAddr);
-						int clientFd = ::accept(fd, reinterpret_cast<sockaddr *>(&clientAddr), &addrLen);
-
-						if (clientFd == -1) {
-							LOG_ERROR("Accept failed: " + std::string(strerror(errno)));
-							continue;
-						}
-
-						if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1) {
-							LOG_ERROR("Failed to set client socket to non-blocking: " + std::string(strerror(errno)));
-							close(clientFd);
-							continue;  // Handle error and continue
-						}
-
-						pollFds.emplace_back(pollfd{clientFd, POLLIN, 0});
-						LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) +
-								 " on socket " + std::to_string(clientFd));
-
-					} else {
-						// Handle data from a client socket
-						char buffer[4096];
-						ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), 0);
-						if (bytesReceived <= 0) {
-							if (bytesReceived == 0 || (bytesReceived == -1 && errno != EAGAIN)) {
-								close(fd);
-								pollFds.erase(pollFds.begin() + i);
-								--i;
-							}
-							continue;
-						}
-
-						std::string request(buffer, bytesReceived);
-						LOG_INFO("Received request: " + request);
-
-						std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
-						send(fd, response.c_str(), response.size(), 0);
-
-						close(fd);
-						pollFds.erase(pollFds.begin() + i);
-						--i;
-					}
-				}
-			}
-		}
+		MultiSocketWebserver server(servers_config);
+		server.initSockets();
+		server.run();
 
 		// pollFds[0].revents = POLLIN;
 
