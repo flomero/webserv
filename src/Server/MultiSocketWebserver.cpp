@@ -2,7 +2,9 @@
 
 #include <arpa/inet.h>
 
-MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_config) {
+#include "PollFdManager.hpp"
+
+MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_config) : _polls(PollFdManager::getInstance()) {
 	_servers_config = std::move(servers_config);
 }
 
@@ -11,7 +13,7 @@ void MultiSocketWebserver::initSockets() {
 	for (const auto& serv : _servers_config) {
 		_sockets.emplace_back(serv.getPort());
 		const int server_fd = _sockets.back().getSocketFd();
-		_pollFds.emplace_back(pollfd{server_fd, POLLIN, 0});
+		_polls.addFd(server_fd);
 	}
 }
 
@@ -23,12 +25,12 @@ MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
 
 void MultiSocketWebserver::run() {
 	while (true) {
-		if (const int eventCount = poll(_pollFds.data(), _pollFds.size(), -1); eventCount == -1) {
+		if (const int eventCount = poll(_polls.data(), _polls.size(), -1); eventCount == -1) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;
 		}
 
-		for (auto& [fd, events, revents] : _pollFds) {
+		for (auto& [fd, events, revents] : _polls.getPolls()) {
 			if (revents & POLLIN) {
 				if (_isServerSocket(fd)) {
 					_acceptConnection(fd);
@@ -58,7 +60,7 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 		return;
 	}
 
-	_pollFds.emplace_back(pollfd{clientFd, POLLIN, 0});
+	_polls.addFd(clientFd);
 	LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) + " on socket " +
 			 std::to_string(clientFd));
 }
@@ -69,7 +71,7 @@ void MultiSocketWebserver::_handleClientData(const int client_fd) {
 	if (bytesReceived <= 0) {
 		if (bytesReceived == 0 || (bytesReceived == -1 && errno != EAGAIN)) {
 			close(client_fd);
-			_deleteFd(client_fd);
+			_polls.removeFd(client_fd);
 		}
 		return;
 	}
@@ -81,15 +83,10 @@ void MultiSocketWebserver::_handleClientData(const int client_fd) {
 	send(client_fd, response.c_str(), response.size(), 0);
 
 	close(client_fd);
-	_deleteFd(client_fd);
+	_polls.removeFd(client_fd);
 }
 
 bool MultiSocketWebserver::_isServerSocket(int fd) {
 	return std::find_if(_sockets.begin(), _sockets.end(), [fd](const Socket& s) { return s.getSocketFd() == fd; }) !=
 		   _sockets.end();
-}
-
-void MultiSocketWebserver::_deleteFd(int fd) {
-	_pollFds.erase(std::remove_if(_pollFds.begin(), _pollFds.end(), [fd](const pollfd& pfd) { return pfd.fd == fd; }),
-				   _pollFds.end());
 }
