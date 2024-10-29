@@ -10,11 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <arpa/inet.h>
+#include <poll.h>
+
 #include <exception>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
 
+#include "MultiSocketWebserver.hpp"
 #include "webserv.hpp"
 
 std::string readFile(const std::string &filename) {
@@ -50,44 +55,50 @@ int main(int argc, char const *argv[]) {
 		} catch (std::exception &e) {
 			parser.flushErrors();
 		}
-
-		for (auto serv : servers_config) {
+		for (const auto &serv : servers_config) {
 			std::cout << serv << std::endl;
 		}
 
-		std::cout << COLOR(YELLOW, "                     ~~~~~~~~ GET request TEST ~~~~~~~~") << std::endl << std::endl;
+		MultiSocketWebserver server(servers_config);
+		server.initSockets();
+		server.run();
 
-		std::string getRequestWithQueryString =
-			"GET /test/scripts/test.py?size=large&format=png HTTP/1.1\n"
-			"Host: www.example.com\n"
-			"User-Agent: curl/7.68.0\n"
-			"Accept: */*\n"
-			"Connection: keep-alive\n"
-			"Cache-Control: no-cache\n"
-			"\r\n";	 // End of headers (denoted by empty line)
+		// pollFds[0].revents = POLLIN;
 
-		LOG_INFO(getRequestWithQueryString);
-		RequestHandler handler(servers_config.at(0));
-		handler.handleRequest(getRequestWithQueryString);
-
-		std::cout << std::endl << std::endl << std::endl << std::endl;
-
-		std::cout << COLOR(YELLOW, "                     ~~~~~~~~ POST request TEST ~~~~~~~~") << std::endl
-				  << std::endl;
-
-		std::string postRequestWithBodyString =
-			"POST /test/scripts/test.py HTTP/1.1\n"
-			"Host: www.example.com\n"
-			"User-Agent: curl/7.68.0\n"
-			"Content-Type: application/x-www-form-urlencoded\n"
-			"Content-Length: 34\n"
-			"Connection: keep-alive\n"
-			"\r\n"								   // End of headers
-			"name=John+Doe&age=30&city=New+York";  // Body content
-
-		LOG_INFO(postRequestWithBodyString);
-		RequestHandler handler2(servers_config.at(0));
-		handler2.handleRequest(postRequestWithBodyString);
+		// std::cout << COLOR(YELLOW, "                     ~~~~~~~~ GET request TEST ~~~~~~~~") << std::endl <<
+		// std::endl;
+		//
+		// std::string getRequestWithQueryString =
+		// 	"GET /test/scripts/test.py?size=large&format=png HTTP/1.1\n"
+		// 	"Host: www.example.com\n"
+		// 	"User-Agent: curl/7.68.0\n"
+		// 	"Accept: */*\n"
+		// 	"Connection: keep-alive\n"
+		// 	"Cache-Control: no-cache\n"
+		// 	"\r\n";	 // End of headers (denoted by empty line)
+		//
+		// LOG_INFO(getRequestWithQueryString);
+		// RequestHandler handler(servers_config.at(0));
+		// handler.handleRequest(getRequestWithQueryString);
+		//
+		// std::cout << std::endl << std::endl << std::endl << std::endl;
+		//
+		// std::cout << COLOR(YELLOW, "                     ~~~~~~~~ POST request TEST ~~~~~~~~") << std::endl
+		// 		  << std::endl;
+		//
+		// std::string postRequestWithBodyString =
+		// 	"POST /test/scripts/test.py HTTP/1.1\n"
+		// 	"Host: www.example.com\n"
+		// 	"User-Agent: curl/7.68.0\n"
+		// 	"Content-Type: application/x-www-form-urlencoded\n"
+		// 	"Content-Length: 34\n"
+		// 	"Connection: keep-alive\n"
+		// 	"\r\n"								   // End of headers
+		// 	"name=John+Doe&age=30&city=New+York";  // Body content
+		//
+		// LOG_INFO(postRequestWithBodyString);
+		// RequestHandler handler2(servers_config.at(0));
+		// handler2.handleRequest(postRequestWithBodyString);
 	}
 
 	return 0;

@@ -25,11 +25,13 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "ClientConnection.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "HttpStatus.hpp"
 #include "Logger.hpp"
 #include "Route.hpp"
+#include "Socket.hpp"
 #include "misc/ft_iomanip.hpp"
 
 class ServerConfig {

@@ -47,7 +47,11 @@ SRCS     := main.cpp \
 			RequestCGI.cpp \
 			RequestCGIExecution.cpp \
 			RequestAutoindex.cpp \
+			Socket.cpp \
+			ClientConnection.cpp \
+			MultiSocketWebserver.cpp \
 			ResponseBuilder.cpp \
+
 
 HDRS     := webserv.hpp \
 			HttpMessage.hpp \
@@ -59,8 +63,11 @@ HDRS     := webserv.hpp \
 			Parser.hpp \
 			ServerConfig.hpp \
 			RequestHandler.hpp \
+			Socket.hpp \
+			ClientConnection.hpp \
 			ParsingErrors.hpp \
-			ft_iomanip.hpp
+			ft_iomanip.hpp \
+			MultiSocketWebserver.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
