@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 16:42:49 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 14:52:44 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,8 @@ class HttpRequest : public HttpMessage {
 		std::string _ressourceExtension;
 		std::string _queryString;
 
-		void validate() const;
+		void validateRequestLine() const;
+		void validateHeaders() const;
 		void parseChunkedBody(std::istringstream &requestStream);
 
 		static const std::vector<std::string> _supportedMethods;

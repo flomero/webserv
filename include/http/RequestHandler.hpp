@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 10:32:02 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 13:47:12 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,6 @@ class RequestHandler {
 
 	public:
 		explicit RequestHandler(ServerConfig& serverConfig);
-		HttpResponse handleRequest(std::string raw_request);
+		HttpResponse handleRequest(HttpRequest& request);
 		~RequestHandler() = default;
 };
