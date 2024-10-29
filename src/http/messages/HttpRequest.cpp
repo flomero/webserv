@@ -116,8 +116,9 @@ bool HttpRequest::getIsFile() const { return _isFile; }
 std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
 
 std::string HttpRequest::getQueryString() const { return _queryString; }
+
 int HttpRequest::getRequestLength() const {
-	return _rawRequest.length() + getBody().length(); //Todo: check if this is correct
+	return _rawRequest.length() + getBody().length();  // Todo: check if this is correct
 }
 
 void HttpRequest::setMethod(const std::string &method) { _method = method; }

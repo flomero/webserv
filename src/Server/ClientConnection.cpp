@@ -7,8 +7,7 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 
-ClientConnection::ClientConnection(int fd)
-	: _clientFd(fd), _disconnected(false) {}
+ClientConnection::ClientConnection(int fd) : _clientFd(fd), _disconnected(false) {}
 
 ClientConnection::~ClientConnection() { close(_clientFd); }
 
@@ -21,20 +20,18 @@ void ClientConnection::processRequest() {
 			while (isCompleteRequest(_requestBuffer)) {
 				HttpRequest request(_requestBuffer);
 
-
-
 				HttpResponse response;
-				response.setStatus(200); // OK
+				response.setStatus(200);  // OK
 				response.setDefaultHeaders();
 
 				response.setBody("<html><body><h1>Success</h1></body></html>");
 
-				if(!sendData(response.toString())) {
-					break;;
+				if (!sendData(response.toString())) {
+					break;
 				}
 
 				_requestBuffer.erase(0, request.getRequestLength());
-				if(request.getHeader("Connection") == "close") {
+				if (request.getHeader("Connection") == "close") {
 					_disconnected = true;
 					break;
 				}
@@ -52,7 +49,6 @@ void ClientConnection::processRequest() {
 			_disconnected = true;
 			break;
 		}
-
 	}
 }
 
@@ -104,6 +100,4 @@ void ClientConnection::sendErrorResponse(int statusCode, const std::string& mess
 	sendData(response.toString());
 }
 
-bool ClientConnection::isDisconnected() const {
-	return _disconnected;
-}
+bool ClientConnection::isDisconnected() const { return _disconnected; }
