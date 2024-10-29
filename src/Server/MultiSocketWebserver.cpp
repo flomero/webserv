@@ -4,7 +4,8 @@
 
 #include "PollFdManager.hpp"
 
-MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_config) : _polls(PollFdManager::getInstance()) {
+MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_config)
+	: _polls(PollFdManager::getInstance()) {
 	_servers_config = std::move(servers_config);
 }
 
