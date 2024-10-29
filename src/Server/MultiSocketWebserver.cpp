@@ -28,10 +28,8 @@ void MultiSocketWebserver::run() {
 			break;
 		}
 
-		for (auto& pollFd : _pollFds) {
-			const int fd = pollFd.fd;
-
-			if (pollFd.revents & POLLIN) {
+		for (auto& [fd, events, revents] : _pollFds) {
+			if (revents & POLLIN) {
 				if (_isServerSocket(fd)) {
 					_acceptConnection(fd);
 				} else {

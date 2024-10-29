@@ -10,12 +10,12 @@ class ClientConnection {
 		[[nodiscard]] bool isDisconnected() const;
 
 	private:
-	int _clientFd;
-	bool _disconnected;
-	std::string _requestBuffer;
+		int _clientFd;
+		bool _disconnected;
+		std::string _requestBuffer;
 
-	bool receiveData();
-	bool sendData(const std::string& data);
-	void sendErrorResponse(int statusCode, const std::string& message);
-	static bool isCompleteRequest(const std::string& buffer);
+		bool receiveData();
+		bool sendData(const std::string& data);
+		void sendErrorResponse(int statusCode, const std::string& message);
+		static bool isCompleteRequest(const std::string& buffer);
 };
