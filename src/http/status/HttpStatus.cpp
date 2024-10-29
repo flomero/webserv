@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 11:11:49 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:09:34 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/28 20:16:58 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /**
  * @brief Get the status message from the status code
  */
-std::string getStatusMessage(int statusCode) {
+std::string Http::getStatusMessage(Http::Status statusCode) {
 	switch (statusCode) {
 		case 100:
 			return "Continue";

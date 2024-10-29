@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 16:42:40 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:32:02 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,15 @@ class RequestHandler {
 
 		// Request handlers
 		// POST request handlers
-		int handlePostRequest();
-		int handlePostMultipart();
-		int handleFileUpload(const std::string& part, const std::string& contentDisposition);
+		[[nodiscard]] HttpResponse handlePostRequest();
+		[[nodiscard]] HttpResponse handlePostMultipart();
+		[[nodiscard]] HttpResponse handleFileUpload(const std::string& part, const std::string& contentDisposition);
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
+
+		// Error handlers
+		HttpResponse buildDefaultResponse(Http::Status code);
 
 	public:
 		explicit RequestHandler(ServerConfig& serverConfig);
