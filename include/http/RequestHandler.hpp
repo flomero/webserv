@@ -14,7 +14,9 @@
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
-#include "ServerConfig.hpp"
+
+class ServerConfig;
+class Route;
 
 class RequestHandler {
 	private:
@@ -22,7 +24,7 @@ class RequestHandler {
 		RequestHandler& operator=(const RequestHandler& other) = delete;
 		HttpRequest _request;
 		HttpResponse _response;
-		ServerConfig _serverConfig;
+		ServerConfig& _serverConfig;
 
 		// Main request logic
 
@@ -40,9 +42,9 @@ class RequestHandler {
 		void handleAutoindex(const std::string& path);
 
 		// Error handlers
-		HttpResponse buildDefaultResponse(Http::Status code);
 
 	public:
+		HttpResponse buildDefaultResponse(Http::Status code);
 		explicit RequestHandler(ServerConfig& serverConfig);
 		HttpResponse handleRequest(HttpRequest& request);
 		~RequestHandler() = default;

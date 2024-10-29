@@ -10,8 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <unistd.h>
+
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
+#include "Route.hpp"
 
 void RequestHandler::handleRequestCGIExecution(Route& route) {
 	std::string cgiPath = route.getCgiHandlers().at(_request.getRessourceExtension());

@@ -12,6 +12,7 @@
 
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
+#include "Route.hpp"
 
 /**
  * @brief Main logic:

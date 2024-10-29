@@ -51,6 +51,7 @@ SRCS     := main.cpp \
 			ClientConnection.cpp \
 			MultiSocketWebserver.cpp \
 			ResponseBuilder.cpp \
+			PollFdManager.cpp \
 
 
 HDRS     := webserv.hpp \
@@ -68,6 +69,7 @@ HDRS     := webserv.hpp \
 			ParsingErrors.hpp \
 			ft_iomanip.hpp \
 			MultiSocketWebserver.hpp \
+			PollFdManager.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)

@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "RequestHandler.hpp"
-
+#include "ServerConfig.hpp"
 /**
  * @brief Builds a default response for a given status code
  * @param code The status code

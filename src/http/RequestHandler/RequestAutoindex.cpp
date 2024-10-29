@@ -10,6 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <filesystem>
+#include <iomanip>
+#include <sstream>
+
 #include "HttpResponse.hpp"
 #include "RequestHandler.hpp"
 
