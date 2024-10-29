@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 11:07:27 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 20:33:18 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:46:00 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 #include <string>
 
 namespace Http {
+
+/**
+ * @brief HTTP status codes
+ * @note use `Http::getStatusMessage(code)` to get the status message for a given status code
+ */
 enum Status {
 	NONE = 0,
 	// Informational
@@ -91,6 +96,9 @@ enum Status {
 	NETWORK_AUTHENTICATION_REQUIRED = 511
 };
 
+/**
+ * @brief Get the status message for a given status code
+ */
 std::string getStatusMessage(Http::Status statusCode);
 
 };	// namespace Http

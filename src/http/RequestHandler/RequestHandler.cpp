@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 20:45:30 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:32:02 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,13 @@ HttpResponse RequestHandler::handleRequest(std::string raw_request) {
 		_request = HttpRequest(raw_request);
 	} catch (HttpRequest::BadRequest& e) {
 		LOG_ERROR("Bad request - invalid HTTP request line");
-		return HttpResponse(400);
+		return buildDefaultResponse(Http::BAD_REQUEST);
 	} catch (HttpRequest::NotImplemented& e) {
 		LOG_ERROR("Method not implemented");
-		return HttpResponse(501);
+		return buildDefaultResponse(Http::NOT_IMPLEMENTED);
 	} catch (HttpRequest::InvalidVersion& e) {
 		LOG_ERROR("HTTP version not supported");
-		return HttpResponse(505);
+		return buildDefaultResponse(Http::HTTP_VERSION_NOT_SUPPORTED);
 	}
 
 	// Extract the location from the URI

@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 20:43:08 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/29 10:48:48 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void HttpResponse::setDefaultHeaders() {
 	addHeaderIfNew("Connection", "close");
 	addHeaderIfNew("Content-Length", std::to_string(_body.length()));
 	addHeaderIfNew("Date", getCurrentDate());
-	// ToDo: Add more headers
+	// TODO: Add more headers
 }
 
 std::string HttpResponse::toString() const {
