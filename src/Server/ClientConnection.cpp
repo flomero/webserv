@@ -9,6 +9,7 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Logger.hpp"
+#include "ServerConfig.hpp"
 
 ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr, ServerConfig& config)
 	: _clientFd(clientFd), _disconnected(false), _clientAddr(clientAddr), _requestHandler(config) {
@@ -17,8 +18,8 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 		_disconnected = true;
 		close(_clientFd);
 	}
-	_headerBuffer.reserve(1024);
-	_bodyBuffer.reserve(1024);
+	_headerBuffer.reserve(config.getClientMaxHeaderSize());
+	_bodyBuffer.reserve(config.getClientBodyBufferSize());
 	LOG_INFO("Address: " + std::string(inet_ntoa(_clientAddr.sin_addr)) +
 			 " Port: " + std::to_string(ntohs(_clientAddr.sin_port)));
 }
@@ -31,11 +32,18 @@ void ClientConnection::handleClient() {
 			if (!receiveHeader()) {
 				return;
 			}
-			if (isCompleteHeader(_headerBuffer)) {
+
+			_status = Status::BODY;
+
+			if (_bodyBuffer.size() ==
+				static_cast<std::string::size_type>(std::stoi(_request.getHeader("Content-Length")))) {
 				_status = Status::COMPLETE;
+				LOG_INFO("Body is complete");
+				LOG_INFO("Body: " + _bodyBuffer);
 			}
 			break;
 		case Status::BODY:
+			LOG_INFO("Hier sollte der Body verarbeitet werden");
 			break;
 		case Status::COMPLETE:
 			processRequest();
@@ -44,10 +52,6 @@ void ClientConnection::handleClient() {
 }
 
 void ClientConnection::processRequest() {}
-
-bool ClientConnection::isCompleteHeader(const std::string& buffer) {
-	return buffer.find("\r\n\r\n") != std::string::npos;
-}
 
 bool ClientConnection::receiveHeader() {
 	ssize_t bytesRead = recv(_clientFd, _headerBuffer.data(), _headerBuffer.capacity(), 0);
@@ -65,6 +69,8 @@ bool ClientConnection::receiveHeader() {
 
 	if (!isCompleteHeader(request)) {
 		LOG_ERROR("Header buffer is not complete");
+		_response = _requestHandler.buildDefaultResponse(Http::REQUEST_HEADER_FIELDS_TOO_LARGE);
+		_status = Status::COMPLETE;
 		return false;
 	}
 
@@ -105,3 +111,7 @@ void ClientConnection::sendErrorResponse(int statusCode, const std::string& mess
 }
 
 bool ClientConnection::isDisconnected() const { return _disconnected; }
+
+bool ClientConnection::isCompleteHeader(const std::string& buffer) {
+	return buffer.find("\r\n\r\n") != std::string::npos;
+}
