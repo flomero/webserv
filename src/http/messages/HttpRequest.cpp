@@ -6,13 +6,15 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 15:06:15 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/31 16:05:43 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
 
 #include <sstream>
+
+#include "Logger.hpp"
 
 const std::vector<std::string> HttpRequest::_supportedMethods = {"GET", "POST", "DELETE"};
 
@@ -49,6 +51,7 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 		addHeader(key, value);
 	}
 	validateHeaders();
+	parseURI();
 	setBody("");
 }
 
@@ -69,6 +72,24 @@ void HttpRequest::validateHeaders() const {
 	// TODO: check if other stuff is required
 	if (_method == "POST" && getHeader("Content-Length").empty() && getHeader("Transfer-Encoding") != "chunked") {
 		throw BadRequest();
+	}
+}
+
+void HttpRequest::parseURI() {
+	// set location
+	_location = "/";
+	std::size_t pathStart = _requestUri.find_first_of('/');
+	if (pathStart != _requestUri.npos) {
+		_location = _requestUri.substr(pathStart, _requestUri.size());
+	}
+	LOG_DEBUG("  |- Location:            " + _location);
+	// parse query string
+	size_t queryStart = _location.find_first_of('?');
+	if (queryStart != _requestUri.npos) {
+		LOG_DEBUG("  |- Query string found:  " + _location);
+		_queryString = _location.substr(queryStart + 1, _location.back());
+		_location = _location.substr(0, queryStart);
+		LOG_DEBUG("  |- Query string:        " + _queryString);
 	}
 }
 
@@ -114,9 +135,7 @@ std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
 bool HttpRequest::getIsFile() const { return _isFile; }
 std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
 std::string HttpRequest::getQueryString() const { return _queryString; }
-int HttpRequest::getRequestLength() const {
-	return _rawRequest.length() + getBody().length();  // Todo: check if this is correct
-}
+std::string HttpRequest::getLocation() const { return _location; }
 #pragma endregion
 
 #pragma region Setters
@@ -128,6 +147,7 @@ void HttpRequest::setRessourceExtension(const std::string &ressourceExtension) {
 	_ressourceExtension = ressourceExtension;
 }
 void HttpRequest::setQueryString(const std::string &queryString) { _queryString = queryString; }
+void HttpRequest::setLocation(const std::string &location) { _location = location; }
 #pragma endregion
 
 #pragma region Print

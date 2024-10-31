@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 13:47:12 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/31 16:03:21 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,22 @@
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
+#include "Route.hpp"
 
 class ServerConfig;
-class Route;
 
 class RequestHandler {
 	private:
-		RequestHandler(const RequestHandler& other) = delete;
-		RequestHandler& operator=(const RequestHandler& other) = delete;
 		HttpRequest _request;
 		HttpResponse _response;
 		ServerConfig& _serverConfig;
+		Route _matchedRoute;
 
-		// Main request logic
+		RequestHandler(const RequestHandler& other) = delete;
+		RequestHandler& operator=(const RequestHandler& other) = delete;
+
+		// General Functions
+		void findMatchingRoute();
 
 		// CGI handler
 		void handleRequestCGI(Route& route);
@@ -41,11 +44,10 @@ class RequestHandler {
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
 
-		// Error handlers
-
 	public:
-		HttpResponse buildDefaultResponse(Http::Status code);
 		explicit RequestHandler(ServerConfig& serverConfig);
-		HttpResponse handleRequest(HttpRequest& request);
 		~RequestHandler() = default;
+
+		HttpResponse handleRequest(HttpRequest& request);
+		HttpResponse buildDefaultResponse(Http::Status code);
 };

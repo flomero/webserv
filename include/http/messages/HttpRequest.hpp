@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 14:52:44 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/31 15:54:27 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class HttpRequest : public HttpMessage {
 		[[nodiscard]] bool getIsFile() const;
 		[[nodiscard]] std::string getRessourceExtension() const;
 		[[nodiscard]] std::string getQueryString() const;
-		[[nodiscard]] int getRequestLength() const;
+		[[nodiscard]] std::string getLocation() const;
 
 		// Setters
 		void setMethod(const std::string &method);
@@ -41,6 +41,7 @@ class HttpRequest : public HttpMessage {
 		void setIsFile(bool isFile);
 		void setRessourceExtension(const std::string &ressourceExtension);
 		void setQueryString(const std::string &queryString);
+		void setLocation(const std::string &location);
 
 		// Error 400
 		class BadRequest : public std::exception {
@@ -66,9 +67,11 @@ class HttpRequest : public HttpMessage {
 		std::string _rawRequest;
 		std::string _serverSidePath;
 		bool _isFile;
+		std::string _location;
 		std::string _ressourceExtension;
 		std::string _queryString;
 
+		void parseURI();
 		void validateRequestLine() const;
 		void validateHeaders() const;
 		void parseChunkedBody(std::istringstream &requestStream);

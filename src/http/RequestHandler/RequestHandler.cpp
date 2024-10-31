@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/29 13:47:26 by flfische         ###   ########.fr       */
+/*   Updated: 2024/10/31 16:11:03 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,32 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serve
 }
 
 /**
+ * @brief get closest matching route and save it in _matchedRoute
+ */
+void RequestHandler::findMatchingRoute() {
+	// Match to the server's possible locations
+	LOG_INFO("Getting best match for the corresponding location path");
+	// Track the best match
+	Route matchedRoute;
+	size_t longestMatchLength = 0;
+	for (auto route : _serverConfig.getRoutes()) {
+		// Check if the current route is a prefix of the path
+		if (_request.getLocation().find(route.getPath()) == 0) {  // Route is a prefix of the path
+			size_t routeLength = route.getPath().size();
+
+			// Select this route if it's the longest match so far
+			if (routeLength > longestMatchLength) {
+				matchedRoute = route;
+				longestMatchLength = routeLength;
+			}
+		}
+	}
+	_matchedRoute = matchedRoute;
+	LOG_DEBUG("  |- best match:   " + _matchedRoute.getPath() + "\n");
+}
+
+/**
  * @brief Main logic:
- * @brief   - Extract the location from the URI
  * @brief     -> Check if the location has cgi defined: handle cgi logic
  * @brief   - Build the server path to the ressource
  * @brief   - Verify it's type by trying to open it (can be saved in the
@@ -38,54 +62,20 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serve
  */
 HttpResponse RequestHandler::handleRequest(HttpRequest& request) {
 	_request = request;
+	_request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
 
-	// Extract the location from the URI
-	LOG_INFO("Extracting location path from URI");
-	std::string uri = _request.getRequestUri();
-
-	size_t pathStart = uri.find_first_of('/');
-	std::string location("/");	// Defaults to "/" if empty
-	if (pathStart != uri.npos)
-		location = uri.substr(pathStart, uri.size());
-	size_t queryStart = location.find_first_of('?');
-	if (queryStart != uri.npos) {
-		LOG_DEBUG("  |- Query string found:  " + location);
-		_request.setQueryString(location.substr(queryStart + 1, location.back()));
-		location = location.substr(0, queryStart);
-		LOG_DEBUG("  |- Query string:        " + _request.getQueryString());
-	}
-	_request.setServerSidePath("." + _serverConfig.getRoot() + location);
-
-	LOG_DEBUG("  |- uri:                     " + uri);
-	LOG_DEBUG("  |- location:                " + location);
+	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
+	LOG_DEBUG("  |- location:                " + _request.getLocation());
 	LOG_DEBUG("  |- server side path:        " + _request.getServerSidePath());
 	std::filesystem::path serverSidePath(_request.getServerSidePath());
 	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
-	// Match to the server's possible locations
-	LOG_INFO("Getting best match for the corresponding location path");
-	// Track the best match
-	Route matchedRoute;
-	size_t longestMatchLength = 0;
-	for (auto route : _serverConfig.getRoutes()) {
-		// Check if the current route is a prefix of the path
-		if (location.find(route.getPath()) == 0) {	// Route is a prefix of the path
-			size_t routeLength = route.getPath().size();
-
-			// Select this route if it's the longest match so far
-			if (routeLength > longestMatchLength) {
-				matchedRoute = route;
-				longestMatchLength = routeLength;
-			}
-		}
-	}
-
-	LOG_DEBUG("  |- location:     " + location);
-	LOG_DEBUG("  |- best match:   " + matchedRoute.getPath() + "\n");
+	// Find the best matching route
+	findMatchingRoute();
 
 	// Check ressource existence
 	if (_request.getMethod() != "POST" ||
-		matchedRoute.getCgiHandlers().size() > 0) {	 // Check only if not POST or POST w/ CGI
+		_matchedRoute.getCgiHandlers().size() > 0) {  // Check only if not POST or POST w/ CGI
 		LOG_INFO("Checking ressource existence");
 		if (!std::filesystem::exists(serverSidePath))
 			return HttpResponse(500);  // TODO: Early return if ressource doesn't exist (TODO: any error
@@ -111,8 +101,8 @@ HttpResponse RequestHandler::handleRequest(HttpRequest& request) {
 
 	// Check for CGI on the Route
 	LOG_INFO("Checking for route's informations: CGI");
-	if (matchedRoute.getCgiHandlers().size() > 0)
-		handleRequestCGI(matchedRoute);
+	if (_matchedRoute.getCgiHandlers().size() > 0)
+		handleRequestCGI(_matchedRoute);
 	else
 		LOG_INFO("Did not enter handleRequestCGI");
 
