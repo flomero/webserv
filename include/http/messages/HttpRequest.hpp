@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/31 15:54:27 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 16:29:39 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
  */
 class HttpRequest : public HttpMessage {
 	public:
+		enum class BodyType { NO_BODY, CHUNKED, CONTENT_LENGTH };
+
 		HttpRequest() = default;
 		HttpRequest(const std::string &rawRequest);
 		virtual ~HttpRequest() = default;
@@ -33,6 +35,8 @@ class HttpRequest : public HttpMessage {
 		[[nodiscard]] std::string getRessourceExtension() const;
 		[[nodiscard]] std::string getQueryString() const;
 		[[nodiscard]] std::string getLocation() const;
+		[[nodiscard]] BodyType getBodyType() const { return _bodyType; }
+		[[nodiscard]] size_t getContentLength() const { return _contentLength; }
 
 		// Setters
 		void setMethod(const std::string &method);
@@ -68,13 +72,17 @@ class HttpRequest : public HttpMessage {
 		std::string _serverSidePath;
 		bool _isFile;
 		std::string _location;
+		BodyType _bodyType;
 		std::string _ressourceExtension;
 		std::string _queryString;
+		size_t _contentLength = 0;
 
 		void parseURI();
 		void validateRequestLine() const;
+		void _validateRequestLine() const;
 		void validateHeaders() const;
 		void parseChunkedBody(std::istringstream &requestStream);
+		void _initBodyType();
 
 		static const std::vector<std::string> _supportedMethods;
 		static const std::vector<std::string> _unsupportedMethods;

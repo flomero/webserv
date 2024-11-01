@@ -12,7 +12,7 @@ class ClientConnection {
 		enum class Status {
 			HEADER,
 			BODY,
-			COMPLETE,
+			READY_TO_SEND,
 		};
 
 		explicit ClientConnection(int clientFd, sockaddr_in clientAddr, ServerConfig& config);
@@ -21,6 +21,7 @@ class ClientConnection {
 		void handleClient();
 
 		[[nodiscard]] bool isDisconnected() const;
+		void handleWrite();
 
 	private:
 		int _clientFd;
@@ -35,6 +36,7 @@ class ClientConnection {
 		HttpResponse _response = HttpResponse();
 
 		void processRequest();
+		bool _readDataInBuffer(int fd, std::string& buffer, size_t bytesToRead);
 		bool receiveHeader();
 		bool sendData(const std::string& data);
 

@@ -47,6 +47,14 @@ void ServerConfig::setUploadDir(const std::string& dir) { _uploadDir = dir; }
 void ServerConfig::setServerName(const std::string& name) { _serverName = name; }
 void ServerConfig::setRoutes(const std::vector<Route>& routes) { _routes = routes; }
 void ServerConfig::setErrorPages(const std::map<int, std::string>& pages) { _errorPages = pages; }
+size_t ServerConfig::getClientBodyBufferSize() const { return _clientBodyBufferSize; }
+void ServerConfig::setClientBodyBufferSize(const size_t client_body_buffer_size) {
+	_clientBodyBufferSize = client_body_buffer_size;
+}
+size_t ServerConfig::getClientMaxHeaderSize() const { return _clientMaxHeaderSize; }
+void ServerConfig::setClientMaxHeaderSize(const size_t client_max_header_size) {
+	_clientMaxHeaderSize = client_max_header_size;
+}
 
 // Overload "<<" operator
 std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {

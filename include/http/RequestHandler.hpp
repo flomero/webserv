@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/31 16:49:17 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 16:28:46 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class RequestHandler {
 		void handleAutoindex(const std::string& path);
 
 	public:
+		[[nodiscard]] ServerConfig& getConfig() const;
 		explicit RequestHandler(ServerConfig& serverConfig);
 		~RequestHandler() = default;
 
