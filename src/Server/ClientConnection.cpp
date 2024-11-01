@@ -105,7 +105,7 @@ bool ClientConnection::receiveHeader() {
 
 	LOG_DEBUG("Received header: " + _request.getMethod() + " " + _request.getRequestUri() + " " +
 			  _request.getHttpVersion());
-	if(_request.getBodyType() != HttpRequest::BodyType::NO_BODY) {
+	if (_request.getBodyType() != HttpRequest::BodyType::NO_BODY) {
 		LOG_DEBUG("Received body: " + _request.getBody());
 	}
 	LOG_DEBUG("Status: " + std::to_string(static_cast<int>(_status)));
