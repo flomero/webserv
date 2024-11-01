@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/31 16:11:03 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 12:36:14 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,11 @@ HttpResponse RequestHandler::handleRequest(HttpRequest& request) {
 	LOG_INFO("Checking for route's informations: CGI");
 	if (_matchedRoute.getCgiHandlers().size() > 0)
 		handleRequestCGI(_matchedRoute);
-	else
-		LOG_INFO("Did not enter handleRequestCGI");
+	else if (_request.getMethod() == "GET")
+		_response = handleGetRequest();
+	else if (_request.getMethod() == "POST")
+		_response = handlePostRequest();
 
+	_response.setDefaultHeaders();
 	return _response;
 }
