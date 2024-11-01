@@ -134,12 +134,14 @@ void ClientConnection::handleWrite() {
 		// LOG_ERROR("Response is not complete");
 		return;
 	}
+	if (!_response.getStatus())
+		_response = _requestHandler.handleRequest(_request);
 	LOG_INFO("Sending response");
-	_response = _requestHandler.handleRequest(_request);
 	LOG_DEBUG("Response: \n" + _response.toString());
 	if (!sendData(_response.toString())) {
 		return;
 	}
+	_response = HttpResponse();
 	_disconnected = true;
 }
 

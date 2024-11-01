@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 19:57:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 17:48:21 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:33:29 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,15 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 	// Check if there's a configured error page for this status code
 	std::optional<std::string> errorPage = _serverConfig.getErrorPage(code);
 	if (errorPage.has_value()) {
-		int fd = open(errorPage.value().c_str(), O_RDONLY);
+		//  TODO: check if this is correct
+		// build path to error page
+		std::string path = "." + _serverConfig.getRoot();
+		if (path.back() != '/') {
+			path += '/';
+		}
+		path += errorPage.value();
+		LOG_DEBUG("Error page path: " + path);
+		int fd = open(path.c_str(), O_RDONLY);
 		if (fd != -1) {
 			struct pollfd pfd;
 			pfd.fd = fd;
@@ -41,7 +49,7 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 
 			int ret = poll(&pfd, 1, timeout);
 			if (ret > 0 && (pfd.revents & POLLIN)) {
-				std::ifstream file(errorPage.value());
+				std::ifstream file(path);
 				if (file.is_open()) {
 					std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 					response.setBody(content);
@@ -49,6 +57,8 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 				}
 			}
 			close(fd);
+		} else {
+			LOG_ERROR("Failed to open error page: " + std::string(strerror(errno)));
 		}
 	}
 
