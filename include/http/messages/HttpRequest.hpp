@@ -6,12 +6,13 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 16:29:39 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:17:07 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <unordered_set>
 #include <vector>
 
 #include "HttpMessage.hpp"
@@ -86,9 +87,9 @@ class HttpRequest : public HttpMessage {
 		void parseChunkedBody(std::istringstream &requestStream);
 		void _initBodyType();
 
-		static const std::vector<std::string> _supportedMethods;
-		static const std::vector<std::string> _unsupportedMethods;
-		static const std::vector<std::string> _supportedVersions;
+		std::unordered_set<std::string> _supportedMethods = {"GET", "POST", "DELETE"};
+		std::unordered_set<std::string> _unsupportedMethods = {"PUT", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH"};
+		std::unordered_set<std::string> _supportedVersions = {"HTTP/1.0", "HTTP/1.1"};
 };
 
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request);

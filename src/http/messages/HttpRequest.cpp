@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/31 16:05:43 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:18:40 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,6 @@
 #include <sstream>
 
 #include "Logger.hpp"
-
-const std::vector<std::string> HttpRequest::_supportedMethods = {"GET", "POST", "DELETE"};
-
-// used to differentiate between 501 and 400
-const std::vector<std::string> HttpRequest::_unsupportedMethods = {"HEAD",	  "PUT",   "CONNECT",
-																   "OPTIONS", "TRACE", "PATCH"};
-
-const std::vector<std::string> HttpRequest::_supportedVersions = {"HTTP/1.0", "HTTP/1.1"};
 
 /**
  * @brief Constructs an HttpRequest object from a raw HTTP request (w/o body)
@@ -70,13 +62,16 @@ void HttpRequest::_initBodyType() {
 }
 
 void HttpRequest::_validateRequestLine() const {
-	if (std::find(_supportedMethods.begin(), _supportedMethods.end(), _method) == _supportedMethods.end()) {
-		if (std::find(_unsupportedMethods.begin(), _unsupportedMethods.end(), _method) != _unsupportedMethods.end()) {
+	if (_supportedMethods.find(_method) == _supportedMethods.end()) {
+		if (_unsupportedMethods.find(_method) != _unsupportedMethods.end()) {
+			LOG_WARN("Unsupported method: " + _method);
 			throw NotImplemented();
 		}
+		LOG_WARN("Invalid method: " + _method);
 		throw BadRequest();
 	}
-	if (std::find(_supportedVersions.begin(), _supportedVersions.end(), _httpVersion) == _supportedVersions.end()) {
+	if (_supportedVersions.find(_httpVersion) == _supportedVersions.end()) {
+		LOG_WARN("Unsupported HTTP version: " + _httpVersion);
 		throw InvalidVersion();
 	}
 }

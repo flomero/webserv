@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/31 14:35:29 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 16:36:07 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 17:53:39 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,10 +87,12 @@ HttpResponse RequestHandler::handleGetDirectory() {
 	}
 
 	// autoindex
+	LOG_DEBUG("Autoindex is " + std::string(_matchedRoute.isAutoindex() ? "enabled" : "disabled"));
+	LOG_DEBUG(_matchedRoute.getPath());
 	if (_matchedRoute.isAutoindex()) {
 		handleAutoindex(_request.getServerSidePath());
 		return _response;
 	}
-
-	return buildDefaultResponse(Http::Status::FORBIDDEN);
+	LOG_INFO("Directory listing is disabled");
+	return buildDefaultResponse(Http::FORBIDDEN);
 }

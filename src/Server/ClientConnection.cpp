@@ -178,7 +178,8 @@ void ClientConnection::sendResponse() {
 		// LOG_ERROR("Response is not complete");
 		return;
 	}
-	_response = _requestHandler.handleRequest(_request);
+	if (!_response.getStatus())
+		_response = _requestHandler.handleRequest(_request);
 	LOG_INFO("Sending response");
 	LOG_DEBUG("Response: \n" + _response.toString());
 	if (!_sendDataToClient(_response.toString())) {

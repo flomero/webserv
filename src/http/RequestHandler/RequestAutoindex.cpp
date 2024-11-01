@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:25:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 10:50:39 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:11:00 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ std::string formatTimestamp(std::time_t time) {
 	return ss.str();
 }
 
-std::string buildDirectoryListingHTML(const std::string& path) {
+std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) {
 	std::ostringstream html;
 
 	html << "<!DOCTYPE html>\n";
@@ -69,20 +69,25 @@ std::string buildDirectoryListingHTML(const std::string& path) {
 	for (const auto& entry : std::filesystem::directory_iterator(path)) {
 		std::string entryPath = entry.path().string();
 		std::string entryName = entry.path().filename().string();
+		if (entry.is_directory() && entryName.back() != '/') {
+			entryName += "/";
+		}
+
 		std::string entrySize =
 			entry.is_directory() ? "-" : humanReadableSize(std::filesystem::file_size(entry.path()));
 		std::time_t entryTime = decltype(entry.last_write_time())::clock::to_time_t(entry.last_write_time());
 		std::string entryTimeStr = formatTimestamp(entryTime);
-
-		html << "<tr>";
-		if (entry.is_directory()) {
-			html << "<td><a href=\"" << entryName << "/\">" << entryName << "/</a></td>";
-		} else {
-			html << "<td><a href=\"" << entryName << "\">" << entryName << "</a></td>";
+		std::string entryLink = _request.getLocation();
+		if (entry.is_directory() && entryLink.back() != '/') {
+			entryLink += "/";
 		}
-		html << "<td>" << entrySize << "</td>";
-		html << "<td>" << entryTimeStr << "</td>";
-		html << "</tr>\n";
+		entryLink += entryName;
+
+		html << "<tr>"
+			 << "<td><a href=\"" << entryLink << "\">" << entryName << "</a></td>"
+			 << "<td>" << entrySize << "</td>"
+			 << "<td>" << entryTimeStr << "</td>"
+			 << "</tr>\n";
 	}
 	html << "</table>\n";
 	html << "<hr>\n";
@@ -106,7 +111,7 @@ std::string buildDirectoryListingHTML(const std::string& path) {
 	html << "        }\n";
 	html << "    }\n";
 	html << "    body {\n";
-	html << "        font-family: 'Courier New', Courier, monospace;\n";
+	html << "        font-family: Courier, monospace;\n";
 	html << "        background-color: var(--background);\n";
 	html << "        color: var(--color);\n";
 	html << "    }\n";
