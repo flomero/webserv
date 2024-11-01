@@ -4,9 +4,7 @@ PollFdManager& PollFdManager::getInstance() {
 	static PollFdManager instance;
 	return instance;
 }
-void PollFdManager::addFd(const int fd) {
-	_pollFds.push_back({fd, static_cast<short>(POLLIN | POLLOUT), 0});
-}
+void PollFdManager::addFd(const int fd) { _pollFds.push_back({fd, static_cast<short>(POLLIN | POLLOUT), 0}); }
 
 void PollFdManager::removeFd(int fd) {
 	_pollFds.erase(std::remove_if(_pollFds.begin(), _pollFds.end(), [fd](const pollfd& pfd) { return pfd.fd == fd; }),
