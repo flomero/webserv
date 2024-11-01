@@ -39,3 +39,6 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 
 	return response;
 }
+ServerConfig& RequestHandler::getConfig() const {
+	return _serverConfig;
+}

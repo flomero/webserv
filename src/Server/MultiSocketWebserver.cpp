@@ -41,7 +41,7 @@ void MultiSocketWebserver::run() {
 					_handleClientData(fd);
 				}
 			} else if (revents & POLLOUT) {
-				LOG_INFO("Write event on socket " + std::to_string(fd));
+				// LOG_INFO("Write event on socket " + std::to_string(fd));
 				_handleClientWrite(fd);
 			} else if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
 			}
