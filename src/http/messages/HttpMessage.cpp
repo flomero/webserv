@@ -13,24 +13,34 @@
 #include "HttpMessage.hpp"
 
 #pragma region Getters
+
 std::string HttpMessage::getHttpVersion() const { return _httpVersion; }
+
 std::map<std::string, std::string> HttpMessage::getHeaders() const { return _headers; }
+
 std::string HttpMessage::getHeader(const std::string &key) const {
 	if (_headers.find(key) != _headers.end()) {
 		return _headers.at(key);
 	}
 	return "";
 }
+
 std::string HttpMessage::getBody() const { return _body; }
+
 #pragma endregion
 
 #pragma region Setters
+
 void HttpMessage::setHttpVersion(const std::string &httpVersion) { _httpVersion = httpVersion; }
+
 void HttpMessage::setHeaders(const std::map<std::string, std::string> &headers) { _headers = headers; }
+
 void HttpMessage::setBody(const std::string &body) { _body = body; }
+
 #pragma endregion
 
 #pragma region Header manipulation
+
 /**
  * @brief Add a header to the message. Overwrites the value if the key already
  * exists.
@@ -50,12 +60,15 @@ void HttpMessage::addHeaderIfNew(const std::string &key, const std::string &valu
 		_headers[key] = value;
 	}
 }
+
 #pragma endregion
 
 #pragma region Body manipulation
+
 /**
  * @brief Append data to the message body
  * @param newData The data to append
  */
 void HttpMessage::appendToBody(const std::string &newData) { _body += newData; }
+
 #pragma endregion

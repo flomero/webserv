@@ -100,7 +100,7 @@ void MultiSocketWebserver::_handleClientWrite(int fd) {
 	}
 
 	ClientConnection& client = *it->second;
-	client.handleWrite();
+	client.sendResponse();
 
 	if (client.isDisconnected()) {
 		_clients.erase(fd);

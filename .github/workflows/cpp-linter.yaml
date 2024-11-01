@@ -1,6 +1,6 @@
 name: C++ Linter
 
-on: [pull_request]
+on: [ pull_request ]
 
 jobs:
   build:
@@ -12,7 +12,4 @@ jobs:
       - name: clang-format Check
         uses: jidicula/clang-format-action@v4.13.0
         with:
-          source: "."
-          extensions: "hpp,cpp,tpp,ipp"
-          clangFormatVersion: 16
-          style: "Google"
+          clang-format-version: 16

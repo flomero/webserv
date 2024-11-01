@@ -26,7 +26,9 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serve
 }
 
 #pragma region Getters
+
 ServerConfig& RequestHandler::getConfig() const { return _serverConfig; }
+
 #pragma endregion
 
 /**
