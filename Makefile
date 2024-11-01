@@ -27,7 +27,8 @@ HDRS_DIR := include/ \
 			include/http/status \
 			include/log \
 			include/configuration \
-			include/misc
+			include/misc \
+			include/files \
 
 INCLUDES := $(addprefix -I, $(HDRS_DIR))
 
@@ -44,6 +45,7 @@ SRCS     := main.cpp \
 			ServerConfig.cpp \
 			RequestHandler.cpp \
 			PostRequest.cpp \
+			GetRequest.cpp \
 			RequestCGI.cpp \
 			RequestCGIExecution.cpp \
 			RequestAutoindex.cpp \
@@ -70,6 +72,7 @@ HDRS     := webserv.hpp \
 			ft_iomanip.hpp \
 			MultiSocketWebserver.hpp \
 			PollFdManager.hpp \
+			mimetypes.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
