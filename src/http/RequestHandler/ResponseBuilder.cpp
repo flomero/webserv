@@ -36,9 +36,6 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 	response.setBody(Http::getStatusMessage(code));
 
 	response.addHeader("Content-Length", std::to_string(response.getBody().size()));
-
 	return response;
 }
-ServerConfig& RequestHandler::getConfig() const {
-	return _serverConfig;
-}
+ServerConfig& RequestHandler::getConfig() const { return _serverConfig; }
