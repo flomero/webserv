@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 10:32:02 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 16:43:36 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "RequestHandler.hpp"
 
 HttpResponse RequestHandler::handlePostRequest() {
+	LOG_DEBUG("Handling POST request");
 	std::string contentType = _request.getHeader("Content-Type");
 	if (contentType == "application/x-www-form-urlencoded") {
 		LOG_INFO("application/x-www-form-urlencoded");

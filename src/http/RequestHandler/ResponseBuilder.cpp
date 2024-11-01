@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 19:57:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 16:31:29 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 16:32:35 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,4 +72,3 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 	response.addHeader("Content-Length", std::to_string(response.getBody().size()));
 	return response;
 }
-ServerConfig& RequestHandler::getConfig() const { return _serverConfig; }

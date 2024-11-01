@@ -135,10 +135,8 @@ void ClientConnection::handleWrite() {
 		return;
 	}
 	LOG_INFO("Sending response");
-	_response = _requestHandler.buildDefaultResponse(Http::UNAVAILABLE_FOR_LEGAL_REASONS);
-	LOG_DEBUG("Response: " + _response.toString());
-	_response.setBody(_bodyBuffer);
-	_response.addHeader("Content-Length", std::to_string(_response.getBody().size()));
+	_response = _requestHandler.handleRequest(_request);
+	LOG_DEBUG("Response: \n" + _response.toString());
 	if (!sendData(_response.toString())) {
 		return;
 	}

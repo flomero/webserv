@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/31 14:35:29 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 11:29:25 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 16:36:07 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "mimetypes.hpp"
 
 HttpResponse RequestHandler::handleGetRequest() {
+	LOG_DEBUG("Handling GET request");
 	HttpResponse response;
 
 	if (std::filesystem::is_directory(_request.getServerSidePath())) {

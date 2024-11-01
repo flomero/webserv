@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/01 12:36:14 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 16:33:31 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,10 @@
 RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serverConfig) {
 	LOG_INFO("RequestHandler created");
 }
+
+#pragma region Getters
+ServerConfig& RequestHandler::getConfig() const { return _serverConfig; }
+#pragma endregion
 
 /**
  * @brief get closest matching route and save it in _matchedRoute
