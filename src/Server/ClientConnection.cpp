@@ -34,7 +34,7 @@ void ClientConnection::handleClient() {
 			}
 			break;
 		case Status::BODY:
-			LOG_INFO("Hier sollte der Body verarbeitet werden");
+			receiveBody();
 			break;
 		case Status::READY_TO_SEND:
 			break;
@@ -82,12 +82,14 @@ bool ClientConnection::receiveHeader() {
 					_headerBuffer.erase(0, contentLength);
 					_request.setBody(_bodyBuffer);
 					_status = Status::READY_TO_SEND;
+					_logHeader();
 				} else {
 					// If partial body content, reserve space and wait for more
 					_bodyBuffer.reserve(contentLength);
 					_bodyBuffer = _headerBuffer;
 					_headerBuffer.clear();
 					_status = Status::BODY;
+					LOG_DEBUG("Body buffer: " + _bodyBuffer);
 				}
 			}
 			break;
@@ -98,8 +100,36 @@ bool ClientConnection::receiveHeader() {
 			break;
 	}
 
-	_logHeader();
 	return true;
+}
+
+void ClientConnection::receiveBody() {
+	switch (_request.getBodyType()) {
+		case HttpRequest::BodyType::CONTENT_LENGTH: {
+			const size_t contentLength = _request.getContentLength();
+			size_t remainingBodySize = contentLength - _bodyBuffer.size();
+			size_t bytesToRead = std::min(remainingBodySize, _requestHandler.getConfig().getClientBodyBufferSize());
+
+			if (!_readData(_clientFd, _bodyBuffer, bytesToRead)) {
+				return;
+			}
+
+			if (_bodyBuffer.size() == contentLength) {
+				_request.setBody(_bodyBuffer);
+				_logHeader();
+				_status = Status::READY_TO_SEND;
+			}
+			break;
+		}
+
+		case HttpRequest::BodyType::CHUNKED:
+			LOG_ERROR("Chunked body not implemented");
+			break;
+
+		case HttpRequest::BodyType::NO_BODY:
+			LOG_WARN("No body expected");
+			break;
+	}
 }
 
 bool ClientConnection::_processHttpRequest(const std::string& header) {
@@ -177,13 +207,15 @@ bool ClientConnection::isDisconnected() const { return _disconnected; }
 void ClientConnection::_logHeader() const {
 	LOG_DEBUG("\n");
 	LOG_DEBUG("=== Request Received ===");
-	LOG_DEBUG("Header:");
+	LOG_DEBUG("Request line:");
 	LOG_DEBUG(" |- Method: " + _request.getMethod());
 	LOG_DEBUG(" |- URI: " + _request.getRequestUri());
-	LOG_DEBUG(" |- Version: " + _request.getHttpVersion());
+	LOG_DEBUG("Headers:");
+	for (const auto& [key, value] : _request.getHeaders()) {
+		LOG_DEBUG(" |- " + key + ": " + value);
+	}
 	if (_request.getBodyType() != HttpRequest::BodyType::NO_BODY) {
 		LOG_DEBUG("Body: " + _request.getBody());
 	}
-
 	LOG_DEBUG("=======================\n");
 }

@@ -18,6 +18,7 @@ class ClientConnection {
 		explicit ClientConnection(int clientFd, sockaddr_in clientAddr, ServerConfig& config);
 		~ClientConnection();
 
+		void receiveBody();
 		void handleClient();
 		void sendResponse();
 		[[nodiscard]] bool isDisconnected() const;
