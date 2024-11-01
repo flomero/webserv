@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 16:28:46 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 18:01:57 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class RequestHandler {
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
+		std::string buildDirectoryListingHTML(const std::string& path);
 
 	public:
 		[[nodiscard]] ServerConfig& getConfig() const;

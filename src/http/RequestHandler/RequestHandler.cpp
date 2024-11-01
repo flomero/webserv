@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/01 16:33:31 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/01 17:41:04 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,7 @@ HttpResponse RequestHandler::handleRequest(HttpRequest& request) {
 		_matchedRoute.getCgiHandlers().size() > 0) {  // Check only if not POST or POST w/ CGI
 		LOG_INFO("Checking ressource existence");
 		if (!std::filesystem::exists(serverSidePath))
-			return HttpResponse(500);  // TODO: Early return if ressource doesn't exist (TODO: any error
-									   // code for this ?)
+			return buildDefaultResponse(Http::NOT_FOUND);
 		_request.setIsFile(std::filesystem::is_regular_file(serverSidePath));
 
 		LOG_DEBUG("  |- Ressource exists");
