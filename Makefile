@@ -73,6 +73,7 @@ HDRS     := webserv.hpp \
 			MultiSocketWebserver.hpp \
 			PollFdManager.hpp \
 			mimetypes.hpp \
+			ft_toString.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)

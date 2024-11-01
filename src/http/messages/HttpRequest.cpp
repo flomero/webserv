@@ -138,34 +138,53 @@ void HttpRequest::parseChunkedBody(std::istringstream &requestStream) {
 }
 
 #pragma region Getters
+
 std::string HttpRequest::getMethod() const { return _method; }
+
 std::string HttpRequest::getRequestUri() const { return _requestUri; }
+
 std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
+
 bool HttpRequest::getIsFile() const { return _isFile; }
+
 std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
+
 std::string HttpRequest::getQueryString() const { return _queryString; }
+
 std::string HttpRequest::getLocation() const { return _location; }
+
 #pragma endregion
 
 #pragma region Setters
+
 void HttpRequest::setMethod(const std::string &method) { _method = method; }
+
 void HttpRequest::setRequestUri(const std::string &requestUri) { _requestUri = requestUri; }
+
 void HttpRequest::setServerSidePath(const std::string &serverSidePath) { _serverSidePath = serverSidePath; }
+
 void HttpRequest::setIsFile(bool isFile) { _isFile = isFile; }
+
 void HttpRequest::setRessourceExtension(const std::string &ressourceExtension) {
 	_ressourceExtension = ressourceExtension;
 }
+
 void HttpRequest::setQueryString(const std::string &queryString) { _queryString = queryString; }
+
 void HttpRequest::setLocation(const std::string &location) { _location = location; }
+
 #pragma endregion
 
 #pragma region Print
+
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
 	os << request.getMethod() << " " << request.getRequestUri() << " " << request.getHttpVersion() << "\r\n";
 	for (const auto &header : request.getHeaders()) {
 		os << header.first << ": " << header.second << "\r\n";
 	}
-	os << "\r\n" << request.getBody();
+	os << "\r\n";
+	os << request.getBody();
 	return os;
 }
+
 #pragma endregion

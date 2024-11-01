@@ -18,6 +18,7 @@
 #include "HttpStatus.hpp"
 
 HttpResponse::HttpResponse(Http::Status status) : _status(status) { setDefaultHeaders(); }
+
 HttpResponse::HttpResponse(int status) : _status(static_cast<Http::Status>(status)) { setDefaultHeaders(); }
 
 void HttpResponse::setStatus(Http::Status status) { _status = status; }

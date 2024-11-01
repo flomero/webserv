@@ -18,28 +18,28 @@ class ClientConnection {
 		explicit ClientConnection(int clientFd, sockaddr_in clientAddr, ServerConfig& config);
 		~ClientConnection();
 
+		void receiveBody();
 		void handleClient();
-
+		void sendResponse();
 		[[nodiscard]] bool isDisconnected() const;
-		void handleWrite();
 
 	private:
 		int _clientFd;
 		bool _disconnected;
 		sockaddr_in _clientAddr;
-		std::string _headerBuffer;
-		std::string _bodyBuffer;
+		std::vector<char> _headerBuffer;
+		std::vector<char> _bodyBuffer;
 		RequestHandler _requestHandler;
 
 		Status _status = Status::HEADER;
 		HttpRequest _request = HttpRequest();
 		HttpResponse _response = HttpResponse();
 
-		void processRequest();
-		bool _readDataInBuffer(int fd, std::string& buffer, size_t bytesToRead);
+		bool _extractHeaderIfComplete(std::vector<char>& header);
+		void _logHeader() const;
+		bool _readData(int fd, std::vector<char>& buffer, size_t bytesToRead);
 		bool receiveHeader();
-		bool sendData(const std::string& data);
-
-		void sendErrorResponse(int statusCode, const std::string& message);
-		static bool isCompleteHeader(const std::string& buffer);
+		bool _processHttpRequest(const std::string& header);
+		bool _sendDataToClient(const std::string& data);
+		static std::optional<size_t> _findHeaderEnd(const std::vector<char>& buffer);
 };

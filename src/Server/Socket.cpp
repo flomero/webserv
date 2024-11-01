@@ -78,4 +78,5 @@ void Socket::setSocketOpt() const {
 		throw std::runtime_error("Setsockopt failed: " + std::string(strerror(errno)));
 	}
 }
+
 ServerConfig& Socket::getConfig() const { return _config; }
