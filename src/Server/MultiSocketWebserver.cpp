@@ -34,13 +34,16 @@ void MultiSocketWebserver::run() {
 
 		for (auto& [fd, events, revents] : _polls.getPolls()) {
 			// Check if there are any events to process
-			if (!(revents & POLLIN))
-				continue;
-
-			if (isServerFd(fd)) {
-				_acceptConnection(fd);
-			} else {
-				_handleClientData(fd);
+			if (revents & POLLIN) {
+				if (isServerFd(fd)) {
+					_acceptConnection(fd);
+				} else {
+					_handleClientData(fd);
+				}
+			} else if (revents & POLLOUT) {
+				// LOG_INFO("Write event on socket " + std::to_string(fd));
+				_handleClientWrite(fd);
+			} else if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
 			}
 		}
 	}
@@ -88,3 +91,20 @@ void MultiSocketWebserver::_handleClientData(const int client_fd) {
 }
 
 bool MultiSocketWebserver::isServerFd(int fd) const { return _sockets.find(fd) != _sockets.end(); }
+
+void MultiSocketWebserver::_handleClientWrite(int fd) {
+	auto it = _clients.find(fd);
+	if (it == _clients.end()) {
+		LOG_ERROR("Client not found in map");
+		return;
+	}
+
+	ClientConnection& client = *it->second;
+	client.handleWrite();
+
+	if (client.isDisconnected()) {
+		_clients.erase(fd);
+		_polls.removeFd(fd);
+		LOG_DEBUG("Client disconnected from socket " + std::to_string(fd));
+	}
+}

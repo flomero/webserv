@@ -21,6 +21,8 @@
  */
 class HttpRequest : public HttpMessage {
 	public:
+		enum class BodyType { NO_BODY, CHUNKED, CONTENT_LENGTH };
+
 		HttpRequest() = default;
 		HttpRequest(const std::string &rawRequest);
 		virtual ~HttpRequest() = default;
@@ -33,6 +35,8 @@ class HttpRequest : public HttpMessage {
 		[[nodiscard]] std::string getRessourceExtension() const;
 		[[nodiscard]] std::string getQueryString() const;
 		[[nodiscard]] int getRequestLength() const;
+		[[nodiscard]] BodyType getBodyType() const { return _bodyType; }
+		[[nodiscard]] size_t getContentLength() const { return _contentLength; }
 
 		// Setters
 		void setMethod(const std::string &method);
@@ -66,12 +70,15 @@ class HttpRequest : public HttpMessage {
 		std::string _rawRequest;
 		std::string _serverSidePath;
 		bool _isFile;
+		BodyType _bodyType;
 		std::string _ressourceExtension;
 		std::string _queryString;
+		size_t _contentLength = 0;
 
-		void validateRequestLine() const;
+		void _validateRequestLine() const;
 		void validateHeaders() const;
 		void parseChunkedBody(std::istringstream &requestStream);
+		void _initBodyType();
 
 		static const std::vector<std::string> _supportedMethods;
 		static const std::vector<std::string> _unsupportedMethods;

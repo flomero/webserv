@@ -23,6 +23,7 @@ class MultiSocketWebserver {
 		explicit MultiSocketWebserver(std::vector<ServerConfig> servers_config);
 		~MultiSocketWebserver();
 
+		void _handleClientWrite(int fd);
 		void run();
 		void initSockets();
 };

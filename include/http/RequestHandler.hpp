@@ -45,6 +45,7 @@ class RequestHandler {
 
 	public:
 		HttpResponse buildDefaultResponse(Http::Status code);
+		[[nodiscard]] ServerConfig& getConfig() const;
 		explicit RequestHandler(ServerConfig& serverConfig);
 		HttpResponse handleRequest(HttpRequest& request);
 		~RequestHandler() = default;

@@ -35,7 +35,7 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 	if (_method.empty() || _requestUri.empty() || _httpVersion.empty()) {
 		throw BadRequest();
 	}
-	validateRequestLine();
+	_validateRequestLine();
 	while (std::getline(requestStream, line)) {
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back();
@@ -48,11 +48,25 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 		std::getline(headerStream, value);
 		addHeader(key, value);
 	}
+
+	_initBodyType();
+
 	validateHeaders();
 	setBody("");
 }
 
-void HttpRequest::validateRequestLine() const {
+void HttpRequest::_initBodyType() {
+	if (getHeader("Transfer-Encoding") == "chunked") {
+		_bodyType = BodyType::CHUNKED;
+	} else if (!getHeader("Content-Length").empty()) {
+		_bodyType = BodyType::CONTENT_LENGTH;
+		_contentLength = std::stoul(getHeader("Content-Length"));
+	} else {
+		_bodyType = BodyType::NO_BODY;
+	}
+}
+
+void HttpRequest::_validateRequestLine() const {
 	if (std::find(_supportedMethods.begin(), _supportedMethods.end(), _method) == _supportedMethods.end()) {
 		if (std::find(_unsupportedMethods.begin(), _unsupportedMethods.end(), _method) != _unsupportedMethods.end()) {
 			throw NotImplemented();
@@ -67,7 +81,7 @@ void HttpRequest::validateRequestLine() const {
 void HttpRequest::validateHeaders() const {
 	// TODO: check if Host header is required
 	// TODO: check if other stuff is required
-	if (_method == "POST" && getHeader("Content-Length").empty() && getHeader("Transfer-Encoding") != "chunked") {
+	if (_method == "POST" && _bodyType == BodyType::NO_BODY) {
 		throw BadRequest();
 	}
 }

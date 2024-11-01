@@ -34,5 +34,8 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 
 	// TODO: add more sophisticated error pages
 	response.setBody(Http::getStatusMessage(code));
+
+	response.addHeader("Content-Length", std::to_string(response.getBody().size()));
 	return response;
 }
+ServerConfig& RequestHandler::getConfig() const { return _serverConfig; }
