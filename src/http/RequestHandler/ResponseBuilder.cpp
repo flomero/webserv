@@ -70,5 +70,6 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 	}
 
 	response.addHeader("Content-Length", std::to_string(response.getBody().size()));
+
 	return response;
 }

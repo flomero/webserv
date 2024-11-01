@@ -35,7 +35,9 @@ class HttpRequest : public HttpMessage {
 		[[nodiscard]] std::string getRessourceExtension() const;
 		[[nodiscard]] std::string getQueryString() const;
 		[[nodiscard]] std::string getLocation() const;
+
 		[[nodiscard]] BodyType getBodyType() const { return _bodyType; }
+
 		[[nodiscard]] size_t getContentLength() const { return _contentLength; }
 
 		// Setters

@@ -36,10 +36,10 @@ void ClientConnection::handleClient() {
 
 			break;
 		case Status::BODY:
-			// LOG_INFO("Hier sollte der Body verarbeitet werden");
+			LOG_INFO("Hier sollte der Body verarbeitet werden");
 			break;
 		case Status::READY_TO_SEND:
-			processRequest();
+			handleWrite();
 			break;
 	}
 }
@@ -129,6 +129,7 @@ void ClientConnection::sendErrorResponse(int statusCode, const std::string& mess
 }
 
 bool ClientConnection::isDisconnected() const { return _disconnected; }
+
 void ClientConnection::handleWrite() {
 	if (_status != Status::READY_TO_SEND) {
 		// LOG_ERROR("Response is not complete");

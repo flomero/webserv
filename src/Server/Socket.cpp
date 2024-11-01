@@ -61,8 +61,8 @@ int Socket::accept() const {
 	return clientFd;
 }
 
-int Socket::getSocketFd() const { return _socketFd; }
 
+int Socket::getSocketFd() const { return _socketFd; }
 void Socket::setupAddress() {
 	// Set address
 	memset(&_addr, 0, sizeof(_addr));
@@ -78,4 +78,5 @@ void Socket::setSocketOpt() const {
 		throw std::runtime_error("Setsockopt failed: " + std::string(strerror(errno)));
 	}
 }
+
 ServerConfig& Socket::getConfig() const { return _config; }
