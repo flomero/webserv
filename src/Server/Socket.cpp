@@ -61,8 +61,8 @@ int Socket::accept() const {
 	return clientFd;
 }
 
-
 int Socket::getSocketFd() const { return _socketFd; }
+
 void Socket::setupAddress() {
 	// Set address
 	memset(&_addr, 0, sizeof(_addr));

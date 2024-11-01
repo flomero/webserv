@@ -187,7 +187,8 @@ std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
 	for (const auto &header : request.getHeaders()) {
 		os << header.first << ": " << header.second << "\r\n";
 	}
-	os << "\r\n" << request.getBody();
+	os << "\r\n";
+	os << request.getBody();
 	return os;
 }
 

@@ -5,4 +5,4 @@ TabWidth: 4
 IndentWidth: 4
 IndentAccessModifiers: true
 AllowShortIfStatementsOnASingleLine: Never
-#SeparateDefinitionBlocks: Always
+SeparateDefinitionBlocks: Always
