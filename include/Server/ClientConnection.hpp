@@ -19,9 +19,8 @@ class ClientConnection {
 		~ClientConnection();
 
 		void handleClient();
-
+		void sendResponse();
 		[[nodiscard]] bool isDisconnected() const;
-		void handleWrite();
 
 	private:
 		int _clientFd;
@@ -35,11 +34,10 @@ class ClientConnection {
 		HttpRequest _request = HttpRequest();
 		HttpResponse _response = HttpResponse();
 
-		void processRequest();
-		bool _readDataInBuffer(int fd, std::string& buffer, size_t bytesToRead);
+		void _logHeader() const;
+		bool _readData(int fd, std::string& buffer, size_t bytesToRead);
 		bool receiveHeader();
-		bool sendData(const std::string& data);
-
-		void sendErrorResponse(int statusCode, const std::string& message);
-		static bool isCompleteHeader(const std::string& buffer);
+		bool _processHttpRequest(const std::string& header);
+		bool _sendDataToClient(const std::string& data);
+		static bool _isHeaderComplete(const std::string& buffer);
 };
