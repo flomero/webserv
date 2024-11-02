@@ -18,7 +18,6 @@ class ClientConnection {
 		explicit ClientConnection(int clientFd, sockaddr_in clientAddr, ServerConfig& config);
 		~ClientConnection();
 
-		void receiveBody();
 		void handleClient();
 		void sendResponse();
 		[[nodiscard]] bool isDisconnected() const;
@@ -35,11 +34,13 @@ class ClientConnection {
 		HttpRequest _request = HttpRequest();
 		HttpResponse _response = HttpResponse();
 
+		void _receiveBody();
 		bool _extractHeaderIfComplete(std::vector<char>& header);
 		void _logHeader() const;
 		bool _readData(int fd, std::vector<char>& buffer, size_t bytesToRead);
-		bool receiveHeader();
-		bool _processHttpRequest(const std::string& header);
+		bool _receiveHeader();
+		void _readRequestBodyIfContentLength();
+		bool _parseHttpRequestHeader(const std::string& header);
 		bool _sendDataToClient(const std::string& data);
 		static std::optional<size_t> _findHeaderEnd(const std::vector<char>& buffer);
 };

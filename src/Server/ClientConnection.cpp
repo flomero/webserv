@@ -30,19 +30,17 @@ ClientConnection::~ClientConnection() { close(_clientFd); }
 void ClientConnection::handleClient() {
 	switch (_status) {
 		case Status::HEADER:
-			if (!receiveHeader()) {
-				return;
-			}
+			_receiveHeader();
 			break;
 		case Status::BODY:
-			receiveBody();
+			_receiveBody();
 			break;
 		case Status::READY_TO_SEND:
 			break;
 	}
 }
 
-bool ClientConnection::receiveHeader() {
+bool ClientConnection::_receiveHeader() {
 	// Attempt to read data into the header buffer
 	size_t remainingHeaderSize = _requestHandler.getConfig().getClientMaxHeaderSize() - _headerBuffer.size();
 	if (!_readData(_clientFd, _headerBuffer, remainingHeaderSize)) {
@@ -54,7 +52,7 @@ bool ClientConnection::receiveHeader() {
 		return false;
 
 	// Process the HTTP request header; handle errors by setting status and returning
-	if (!_processHttpRequest(header.data())) {
+	if (!_parseHttpRequestHeader(header.data())) {
 		_status = Status::READY_TO_SEND;
 		return false;
 	}
@@ -84,7 +82,6 @@ bool ClientConnection::receiveHeader() {
 				_bodyBuffer = _headerBuffer;
 				_headerBuffer.clear();
 				_status = Status::BODY;
-				// LOG_DEBUG("Body buffer: " + _bodyBuffer);
 			}
 			break;
 		}
@@ -97,25 +94,10 @@ bool ClientConnection::receiveHeader() {
 	return true;
 }
 
-void ClientConnection::receiveBody() {
+void ClientConnection::_receiveBody() {
 	switch (_request.getBodyType()) {
 		case HttpRequest::BodyType::CONTENT_LENGTH: {
-			// Determine the remaining body size and the max bytes to read this iteration
-			const size_t contentLength = _request.getContentLength();
-			size_t remainingBodySize = contentLength - _bodyBuffer.size();
-			size_t bytesToRead = std::min(remainingBodySize, _requestHandler.getConfig().getClientBodyBufferSize());
-
-			// Read data into the body buffer; exit if read fails
-			if (!_readData(_clientFd, _bodyBuffer, bytesToRead)) {
-				return;
-			}
-
-			// Check if the entire body has been read
-			if (_bodyBuffer.size() == contentLength) {
-				_request.setBody(_bodyBuffer.data());  // Set the complete body in the request
-				_logHeader();						   // Log the completed header and body info
-				_status = Status::READY_TO_SEND;	   // Update status to ready
-			}
+			_readRequestBodyIfContentLength();
 			break;
 		}
 
@@ -131,11 +113,30 @@ void ClientConnection::receiveBody() {
 	}
 }
 
+void ClientConnection::_readRequestBodyIfContentLength() {
+	// Determine the remaining body size and the max bytes to read this iteration
+	const size_t contentLength = _request.getContentLength();
+	const size_t remainingBodySize = contentLength - _bodyBuffer.size();
+	const size_t bytesToRead = std::min(remainingBodySize, _requestHandler.getConfig().getClientBodyBufferSize());
+
+	// Read data into the body buffer; exit if read fails
+	if (!_readData(_clientFd, _bodyBuffer, bytesToRead)) {
+		return;
+	}
+
+	// Check if the entire body has been read
+	if (_bodyBuffer.size() == contentLength) {
+		_request.setBody(_bodyBuffer.data());  // Set the complete body in the request
+		_logHeader();						   // Log the completed header and body info
+		_status = Status::READY_TO_SEND;	   // Update status to ready
+	}
+}
+
 bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
 	// Check if header is complete and get the position of the end
-	const auto header_end_index = _findHeaderEnd(_headerBuffer);
+	const auto headerEndIndex = _findHeaderEnd(_headerBuffer);
 
-	if (!header_end_index) {
+	if (!headerEndIndex) {
 		// Header not complete
 		if (_headerBuffer.size() > _requestHandler.getConfig().getClientMaxHeaderSize()) {
 			LOG_ERROR("Header size exceeds maximum allowed size");
@@ -148,7 +149,7 @@ bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
 	}
 
 	// Convert header_end_index to the signed type required for vector operations
-	const auto header_end_pos = static_cast<std::vector<char>::difference_type>(*header_end_index);
+	const auto header_end_pos = static_cast<std::vector<char>::difference_type>(*headerEndIndex);
 
 	header = std::vector(_headerBuffer.begin(), _headerBuffer.begin() + header_end_pos);
 
@@ -157,7 +158,7 @@ bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
 	return true;
 }
 
-bool ClientConnection::_processHttpRequest(const std::string& header) {
+bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 	try {
 		_request = HttpRequest(header);
 	} catch (const HttpRequest::BadRequest& e) {
@@ -178,14 +179,17 @@ void ClientConnection::sendResponse() {
 		// LOG_ERROR("Response is not complete");
 		return;
 	}
-	if (!_response.getStatus())
+	if (!_response.getStatus()) {
 		_response = _requestHandler.handleRequest(_request);
+		// _response.addHeader("Connection", "keep-alive");  // TODO move this to  response builder
+	}
 	LOG_INFO("Sending response");
 	LOG_DEBUG("Response: \n" + _response.toString());
 	if (!_sendDataToClient(_response.toString())) {
 		return;
 	}
 	if (_request.getHeader("Connection") == "keep-alive") {
+		LOG_INFO("Connection is keep-alive");
 		_status = Status::HEADER;
 		_disconnected = false;
 	} else {
