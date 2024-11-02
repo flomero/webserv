@@ -86,7 +86,7 @@ void MultiSocketWebserver::_handleClientData(const int client_fd) {
 	if (client.isDisconnected()) {
 		_clients.erase(client_fd);
 		_polls.removeFd(client_fd);
-		LOG_DEBUG("Client disconnected from socket " + std::to_string(client_fd));
+		LOG_DEBUG("Client disconnected from socket " + std::to_string(client_fd) + " after read");
 	}
 }
 
@@ -105,6 +105,7 @@ void MultiSocketWebserver::_handleClientWrite(int fd) {
 	if (client.isDisconnected()) {
 		_clients.erase(fd);
 		_polls.removeFd(fd);
-		LOG_DEBUG("Client disconnected from socket " + std::to_string(fd));
+		LOG_DEBUG("Client disconnected from socket " + std::to_string(fd) + " after write");
+		;
 	}
 }
