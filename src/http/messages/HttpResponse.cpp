@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 10:48:48 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/02 16:41:56 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <string>
 
 #include "HttpStatus.hpp"
+#include "webserv.hpp"
 
 HttpResponse::HttpResponse(Http::Status status) : _status(status) { setDefaultHeaders(); }
 
@@ -35,12 +36,16 @@ std::string getCurrentDate() {
 }
 
 void HttpResponse::setDefaultHeaders() {
-	addHeaderIfNew("Server", "Webserv");
+	addHeaderIfNew("Server", SERVER_NAME);
 	addHeaderIfNew("Content-Type", "text/html");
-	addHeaderIfNew("Connection", "close");
+	if (_httpVersion == "HTTP/1.1") {
+		addHeaderIfNew("Connection", "keep-alive");
+	} else {
+		addHeaderIfNew("Connection", "keep-alive");
+	}
 	addHeaderIfNew("Content-Length", std::to_string(_body.length()));
 	addHeaderIfNew("Date", getCurrentDate());
-	// TODO: Add more headers
+	// TODO: Add more headers???
 }
 
 std::string HttpResponse::toString() const {

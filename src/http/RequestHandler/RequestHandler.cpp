@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/01 17:41:04 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/02 16:41:31 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,12 @@ HttpResponse RequestHandler::handleRequest(HttpRequest& request) {
 	else if (_request.getMethod() == "POST")
 		_response = handlePostRequest();
 
+	if (_request.getHttpVersion() == "HTTP/1.0")
+		_response.setHttpVersion("HTTP/1.0");
+	if (_request.getHeader("Connection") == "close")
+		_response.addHeader("Connection", "close");
+	else if (_request.getHeader("Connection") == "keep-alive")
+		_response.addHeader("Connection", "keep-alive");
 	_response.setDefaultHeaders();
 	return _response;
 }
