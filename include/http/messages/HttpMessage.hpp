@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:30:29 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 15:02:52 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/03 16:18:33 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class HttpMessage {
 		[[nodiscard]] std::map<std::string, std::string> getHeaders() const;
 		[[nodiscard]] std::string getHeader(const std::string &key) const;
 		[[nodiscard]] std::string getBody() const;
+		[[nodiscard]] bool hasHeader(const std::string &key) const;
 
 		// Setters
 		void setHttpVersion(const std::string &httpVersion);

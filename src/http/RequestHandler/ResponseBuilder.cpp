@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 19:57:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 18:33:29 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/03 16:19:07 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,12 @@
 #include <optional>
 #include <string>
 
-HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
+HttpResponse RequestHandler::buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request) {
 	HttpResponse response(code);
+
+	if (request.has_value()) {
+		_request = request.value();
+	}
 
 	// Check if there's a configured error page for this status code
 	std::optional<std::string> errorPage = _serverConfig.getErrorPage(code);
@@ -80,6 +84,13 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code) {
 	}
 
 	response.addHeader("Content-Length", std::to_string(response.getBody().size()));
+
+	if (_request.hasHeader("Connection")) {
+		response.addHeader("Connection", _request.getHeader("Connection"));
+	}
+	if (code >= 500) {
+		response.addHeader("Connection", "close");
+	}
 
 	return response;
 }

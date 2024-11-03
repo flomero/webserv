@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/02 16:41:56 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/03 16:21:52 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void HttpResponse::setDefaultHeaders() {
 	if (_httpVersion == "HTTP/1.1") {
 		addHeaderIfNew("Connection", "keep-alive");
 	} else {
-		addHeaderIfNew("Connection", "keep-alive");
+		addHeaderIfNew("Connection", "close");
 	}
 	addHeaderIfNew("Content-Length", std::to_string(_body.length()));
 	addHeaderIfNew("Date", getCurrentDate());
