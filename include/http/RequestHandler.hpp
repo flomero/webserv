@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 18:01:57 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/03 16:12:53 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,5 +56,5 @@ class RequestHandler {
 		~RequestHandler() = default;
 
 		HttpResponse handleRequest(HttpRequest& request);
-		HttpResponse buildDefaultResponse(Http::Status code);
+		HttpResponse buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request = std::nullopt);
 };

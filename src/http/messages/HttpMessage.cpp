@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:37:17 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/29 15:04:27 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/03 16:18:36 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ std::string HttpMessage::getHeader(const std::string &key) const {
 }
 
 std::string HttpMessage::getBody() const { return _body; }
+
+bool HttpMessage::hasHeader(const std::string &key) const { return _headers.find(key) != _headers.end(); }
 
 #pragma endregion
 
