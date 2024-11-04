@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 19:57:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/03 16:19:07 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/04 10:57:27 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code, std::option
 
 	if (response.getBody().empty()) {
 		std::ostringstream body;
-		body << "<html><head><title>404</title><meta charset=\"utf-8\">"
+		body << "<html><head><title>" << code << "</title><meta charset=\"utf-8\">"
 			 << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
 			 << "</head><body><h1>Error " << code << ": " << Http::getStatusMessage(code) << "</h1>"
 			 << "<img src=\"https://httpgoats.com/" << code << ".jpg\" alt=\"Goat\">"
