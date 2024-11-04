@@ -12,10 +12,18 @@ MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_con
 void MultiSocketWebserver::initSockets() {
 	_sockets.reserve(_servers_config.size());
 	for (ServerConfig& serv : _servers_config) {
-		auto newSocket = std::make_unique<Socket>(serv.getPort(), serv);
-		int socketFd = newSocket->getSocketFd();
-		_sockets.emplace(socketFd, std::move(newSocket));
-		_polls.addFd(socketFd);
+		try {
+			auto newSocket = std::make_unique<Socket>(serv.getPort(), serv);
+			int socketFd = newSocket->getSocketFd();
+			_sockets.emplace(socketFd, std::move(newSocket));
+			_polls.addFd(socketFd);
+		} catch (const std::exception& e) {
+			LOG_ERROR("Failed to create socket: " + std::string(e.what()));
+		}
+	}
+
+	if (_sockets.empty()) {
+		throw std::runtime_error("Failed to create any sockets");
 	}
 }
 

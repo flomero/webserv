@@ -38,6 +38,7 @@ int main(int argc, char const *argv[]) {
 
 	if (argc == 2) {
 		std::string source;
+		std::vector<ServerConfig> servers_config;
 
 		try {
 			source = readFile(argv[1]);
@@ -48,7 +49,6 @@ int main(int argc, char const *argv[]) {
 
 		Lexer lexer(std::string(argv[1]), source);
 		Parser parser(lexer);
-		std::vector<ServerConfig> servers_config;
 
 		try {
 			servers_config = parser.parse();
@@ -59,46 +59,14 @@ int main(int argc, char const *argv[]) {
 			std::cout << serv << std::endl;
 		}
 
-		MultiSocketWebserver server(servers_config);
-		server.initSockets();
-		server.run();
-
-		// pollFds[0].revents = POLLIN;
-
-		// std::cout << COLOR(YELLOW, "                     ~~~~~~~~ GET request TEST ~~~~~~~~") << std::endl <<
-		// std::endl;
-		//
-		// std::string getRequestWithQueryString =
-		// 	"GET /test/scripts/test.py?size=large&format=png HTTP/1.1\n"
-		// 	"Host: www.example.com\n"
-		// 	"User-Agent: curl/7.68.0\n"
-		// 	"Accept: */*\n"
-		// 	"Connection: keep-alive\n"
-		// 	"Cache-Control: no-cache\n"
-		// 	"\r\n";	 // End of headers (denoted by empty line)
-		//
-		// LOG_INFO(getRequestWithQueryString);
-		// RequestHandler handler(servers_config.at(0));
-		// handler.handleRequest(getRequestWithQueryString);
-		//
-		// std::cout << std::endl << std::endl << std::endl << std::endl;
-		//
-		// std::cout << COLOR(YELLOW, "                     ~~~~~~~~ POST request TEST ~~~~~~~~") << std::endl
-		// 		  << std::endl;
-		//
-		// std::string postRequestWithBodyString =
-		// 	"POST /test/scripts/test.py HTTP/1.1\n"
-		// 	"Host: www.example.com\n"
-		// 	"User-Agent: curl/7.68.0\n"
-		// 	"Content-Type: application/x-www-form-urlencoded\n"
-		// 	"Content-Length: 34\n"
-		// 	"Connection: keep-alive\n"
-		// 	"\r\n"								   // End of headers
-		// 	"name=John+Doe&age=30&city=New+York";  // Body content
-		//
-		// LOG_INFO(postRequestWithBodyString);
-		// RequestHandler handler2(servers_config.at(0));
-		// handler2.handleRequest(postRequestWithBodyString);
+		try {
+			MultiSocketWebserver server(servers_config);
+			server.initSockets();
+			server.run();
+		} catch (const std::exception &e) {
+			LOG_ERROR("Failed to start server: " + std::string(e.what()));
+			return 1;
+		}
 	}
 
 	return 0;
