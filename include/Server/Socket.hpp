@@ -12,7 +12,6 @@ class Socket {
 
 		void bind();
 		void listen() const;
-		[[nodiscard]] int accept() const;
 		[[nodiscard]] int getSocketFd() const;
 		[[nodiscard]] ServerConfig& getConfig() const;
 

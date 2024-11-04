@@ -12,7 +12,8 @@
 #include "Logger.hpp"
 #include "ServerConfig.hpp"
 
-Socket::Socket(int port, ServerConfig& config) : _socketFd(-1), _port(port), _config(config) {
+Socket::Socket(const int port, ServerConfig& config)
+	: _socketFd(-1), _port(port), _config(config), _addr(sockaddr_in{}) {
 	LOG_INFO("Creating socket on port " + std::to_string(port));
 	_socketFd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -46,29 +47,13 @@ void Socket::listen() const {
 	}
 }
 
-int Socket::accept() const {
-	sockaddr_in clientAddr;
-	socklen_t addrLen = sizeof(clientAddr);
-	int clientFd = ::accept(_socketFd, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
-
-	if (clientFd == -1) {
-		throw std::runtime_error("Accept failed: " + std::string(strerror(errno)));
-	}
-
-	LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) + " on socket " +
-			 std::to_string(clientFd));
-
-	return clientFd;
-}
-
 int Socket::getSocketFd() const { return _socketFd; }
 
 void Socket::setupAddress() {
-	// Set address
-	memset(&_addr, 0, sizeof(_addr));
+	_addr = sockaddr_in{};				 // Value-initialize sockaddr_in
 	_addr.sin_family = AF_INET;			 // IPv4
-	_addr.sin_addr.s_addr = INADDR_ANY;	 // allowing to bind to any available network interface
-	_addr.sin_port = htons(_port);		 // Convert to network byte order
+	_addr.sin_addr.s_addr = INADDR_ANY;	 // Bind to any available network interface
+	_addr.sin_port = htons(_port);		 // Convert port to network byte order
 }
 
 void Socket::setSocketOpt() const {
