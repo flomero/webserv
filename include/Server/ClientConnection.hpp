@@ -40,6 +40,7 @@ class ClientConnection {
 		bool _readData(int fd, std::vector<char>& buffer, size_t bytesToRead);
 		bool _receiveHeader();
 		void _readRequestBodyIfContentLength();
+		void _handleCompleteBodyRead();
 		bool _parseHttpRequestHeader(const std::string& header);
 		bool _sendDataToClient(const std::string& data);
 		static std::optional<size_t> _findHeaderEnd(const std::vector<char>& buffer);

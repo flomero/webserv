@@ -100,27 +100,17 @@ bool ClientConnection::_receiveHeader() {
 			LOG_DEBUG("Request has body with Content-Length: " + std::to_string(_request.getContentLength()));
 			// Handle cases with data already in buffer
 			const size_t contentLength = _request.getContentLength();
+			_bodyBuffer.clear();
+			_bodyBuffer.reserve(contentLength);
 			if (_headerBuffer.empty()) {
 				LOG_DEBUG("No additional data in header buffer");
-				_bodyBuffer.reserve(contentLength);
-				_status = Status::BODY;
-				break;
-			}
-			if (_headerBuffer.size() >= contentLength) {
-				// If buffer has full body content, set body and update status
-				_bodyBuffer.insert(_bodyBuffer.end(), _headerBuffer.begin(), _headerBuffer.begin() + contentLength);
-				_headerBuffer.erase(_headerBuffer.begin(), _headerBuffer.begin() + contentLength);
-				_request.setBody(_bodyBuffer.data());
-				_status = Status::READY_TO_SEND;
-				_logHeader();
 			} else {
-				// If partial body content, reserve space and wait for more
-				_bodyBuffer.reserve(contentLength);
-				_bodyBuffer = _headerBuffer;
-				_headerBuffer.clear();
-				_status = Status::BODY;
-				LOG_DEBUG("Partial body received, waiting for remaining data");
+				_bodyBuffer.insert(_bodyBuffer.end(), _headerBuffer.begin(), _headerBuffer.end());
+				LOG_DEBUG("Added " + std::to_string(_headerBuffer.size()) + " bytes from header buffer to body buffer");
 			}
+
+			_status = Status::BODY;
+			_receiveBody();
 			break;
 		}
 
@@ -156,28 +146,57 @@ void ClientConnection::_receiveBody() {
 }
 
 void ClientConnection::_readRequestBodyIfContentLength() {
-	// Determine the remaining body size and the max bytes to read this iteration
 	const size_t contentLength = _request.getContentLength();
-	const size_t remainingBodySize = contentLength - _bodyBuffer.size();
-	const size_t bytesToRead = std::min(remainingBodySize, _requestHandler.getConfig().getClientBodyBufferSize());
+	const size_t currentBodySize = _bodyBuffer.size();
+
+	if (currentBodySize >= contentLength) {
+		LOG_DEBUG("Body buffer is already complete or has extra data");
+		_handleCompleteBodyRead();
+		return;
+	}
+
+	// Calculate the remaining body size to read
+	const size_t remainingBodySize = contentLength - currentBodySize;
+
+	// Determine the maximum bytes to read in this iteration
+	const size_t maxReadSize = _requestHandler.getConfig().getClientBodyBufferSize();
+	const size_t bytesToRead = std::min(remainingBodySize, maxReadSize);
 
 	LOG_DEBUG("Attempting to read " + std::to_string(bytesToRead) + " bytes of body data");
 
 	// Read data into the body buffer; exit if read fails
 	if (!_readData(_clientFd, _bodyBuffer, bytesToRead)) {
+		// Read failed, return to try again later or handle error
 		return;
 	}
 
 	LOG_DEBUG("Body buffer size after read: " + std::to_string(_bodyBuffer.size()));
 
 	// Check if the entire body has been read
-	if (_bodyBuffer.size() == contentLength) {
-		_request.setBody(_bodyBuffer.data());  // Set the complete body in the request
-		_logHeader();						   // Log the completed header and body info
-		_status = Status::READY_TO_SEND;	   // Update status to ready
+	if (_bodyBuffer.size() >= contentLength) {
+		_handleCompleteBodyRead();
 	} else {
 		LOG_DEBUG("Partial body received, waiting for remaining data");
 	}
+}
+
+void ClientConnection::_handleCompleteBodyRead() {
+	// Handle any extra data read beyond content length
+	if (const size_t contentLength = _request.getContentLength(); _bodyBuffer.size() > contentLength) {
+		// Move extra data into the header buffer for potential next request
+		_headerBuffer.assign(_bodyBuffer.begin() + contentLength, _bodyBuffer.end());
+		// Resize body buffer to the exact content length
+		_bodyBuffer.resize(contentLength);
+	}
+
+	// Set the complete body in the request
+	_request.setBody(_bodyBuffer.data());
+
+	// Log the completed header and body info
+	_logHeader();
+
+	// Update status to ready
+	_status = Status::READY_TO_SEND;
 }
 
 bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
@@ -229,7 +248,7 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 
 void ClientConnection::sendResponse() {
 	if (_status != Status::READY_TO_SEND) {
-		LOG_ERROR("Response is not ready to be sent");
+		// LOG_ERROR("Response is not ready to be sent");
 		return;
 	}
 	if (!_response.getStatus()) {
