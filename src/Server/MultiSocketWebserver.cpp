@@ -35,6 +35,7 @@ MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
 
 void MultiSocketWebserver::run() {
 	while (true) {
+		//TODO timeout
 		if (const int eventCount = poll(_polls.data(), _polls.size(), -1); eventCount == -1) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;
@@ -45,13 +46,19 @@ void MultiSocketWebserver::run() {
 			if (revents & POLLIN) {
 				if (isServerFd(fd)) {
 					_acceptConnection(fd);
-				} else {
-					_handleClientData(fd);
+					break;
 				}
-			} else if (revents & POLLOUT) {
+				_handleClientData(fd);
+				break;
+			}
+			if (revents & POLLOUT) {
 				// LOG_INFO("Write event on socket " + std::to_string(fd));
 				_handleClientWrite(fd);
-			} else if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
+				break;
+			}
+			if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
+				LOG_ERROR("Error on socket " + std::to_string(fd));
+				_polls.removeFd(fd);
 			}
 		}
 	}
