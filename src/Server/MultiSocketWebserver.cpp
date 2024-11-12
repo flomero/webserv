@@ -35,7 +35,7 @@ MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
 
 void MultiSocketWebserver::run() {
 	while (true) {
-		//TODO timeout
+		// TODO timeout
 		if (const int eventCount = poll(_polls.data(), _polls.size(), -1); eventCount == -1) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;

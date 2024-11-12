@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <array>
+
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Logger.hpp"
@@ -12,7 +14,7 @@
 #include "ft_toString.hpp"
 
 namespace {
-std::string statusToString(ClientConnection::Status status) {
+std::string statusToString(const ClientConnection::Status status) {
 	switch (status) {
 		case ClientConnection::Status::HEADER:
 			return "HEADER";
@@ -106,7 +108,8 @@ bool ClientConnection::_receiveHeader() {
 				LOG_DEBUG(_log("No additional data in header buffer"));
 			} else {
 				_bodyBuffer.insert(_bodyBuffer.end(), _headerBuffer.begin(), _headerBuffer.end());
-				LOG_DEBUG(_log("Added " + std::to_string(_headerBuffer.size()) + " bytes from header buffer to body buffer"));
+				LOG_DEBUG(
+					_log("Added " + std::to_string(_headerBuffer.size()) + " bytes from header buffer to body buffer"));
 			}
 
 			_status = Status::BODY;
@@ -322,33 +325,9 @@ void ClientConnection::_logHeader() const {
 	LOG_DEBUG(_log("Request recieved:\n====================\n" + toString(_request) + "\n===================="));
 }
 
-std::string ClientConnection::_log(std::string msg) const {
-	std::string color;
-	int x = _clientFd % 6;
-
-	switch (x) {
-		case 0:
-			color = CYAN;
-			break;
-		case 1:
-			color = GREEN;
-			break;
-		case 2:
-			color = YELLOW;
-			break;
-		case 3:
-			color = BLUE;
-			break;
-		case 4:
-			color = MAGENTA;
-			break;
-		case 5:
-			color = ORANGE;
-			break;
-		default:
-			color = "";
-			break;
-	}
+std::string ClientConnection::_log(const std::string& msg) const {
+	static const std::array<std::string, 6> colors = {CYAN, GREEN, YELLOW, BLUE, MAGENTA, ORANGE};
+	const std::string& color = colors[_clientFd % colors.size()];
 
 	return COLOR(color, "ClientCon " + std::to_string(_clientFd)) + "\t | " + msg;
 }
