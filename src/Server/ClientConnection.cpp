@@ -90,42 +90,35 @@ bool ClientConnection::_receiveHeader() {
 	}
 	LOG_DEBUG(_log("Parsed HTTP request header successfully"));
 
-	// Determine body handling based on header body type
-	switch (_request.getBodyType()) {
-		case HttpRequest::BodyType::NO_BODY:
-			LOG_DEBUG(_log("Request has no body"));
-			_status = Status::READY_TO_SEND;
-			_logHeader();
-			break;
+	if (_request.getBodyType() == HttpRequest::BodyType::NO_BODY) {
+		LOG_DEBUG(_log("Request has no body"));
+		_status = Status::READY_TO_SEND;
+		_logHeader();
+		return true;
+	}
 
-		case HttpRequest::BodyType::CONTENT_LENGTH: {
-			LOG_DEBUG(_log("Request has body with Content-Length: " + std::to_string(_request.getContentLength())));
-			// Handle cases with data already in buffer
-			const size_t contentLength = _request.getContentLength();
-			_bodyBuffer.clear();
-			_bodyBuffer.reserve(contentLength);
-			if (_headerBuffer.empty()) {
-				LOG_DEBUG(_log("No additional data in header buffer"));
-			} else {
-				_bodyBuffer.insert(_bodyBuffer.end(), _headerBuffer.begin(), _headerBuffer.end());
-				LOG_DEBUG(
-					_log("Added " + std::to_string(_headerBuffer.size()) + " bytes from header buffer to body buffer"));
-			}
-
-			_status = Status::BODY;
-			_receiveBody();
-			break;
+	if (_request.getBodyType() == HttpRequest::BodyType::CHUNKED ||
+		_request.getBodyType() == HttpRequest::BodyType::CONTENT_LENGTH) {
+		LOG_DEBUG(_log("Request has body"));
+		// LOG_DEBUG(_log("Request has body with Content-Length: " + std::to_string(_request.getContentLength())));
+		// Handle cases with data already in buffer
+		_bodyBuffer.clear();
+		if (_headerBuffer.empty()) {
+			LOG_DEBUG(_log("No additional data in header buffer"));
+		} else {
+			_bodyBuffer.insert(_bodyBuffer.end(), _headerBuffer.begin(), _headerBuffer.end());
+			// LOG_DEBUG(
+			// 	_log("Added " + std::to_string(_headerBuffer.size()) + " bytes from header buffer to body buffer"));
 		}
 
-		case HttpRequest::BodyType::CHUNKED:
-			LOG_ERROR(_log("Chunked body not implemented"));
-			_response = _requestHandler.buildDefaultResponse(Http::NOT_IMPLEMENTED);
-			_status = Status::READY_TO_SEND;
-			break;
+		_status = Status::BODY;
+		_receiveBody();
 	}
 
 	return true;
 }
+
+void ClientConnection::_readRequestBodyIfChunked() {}
 
 void ClientConnection::_receiveBody() {
 	LOG_DEBUG(_log("Receiving body from client"));
@@ -136,9 +129,7 @@ void ClientConnection::_receiveBody() {
 		}
 
 		case HttpRequest::BodyType::CHUNKED:
-			LOG_ERROR(_log("Chunked body not implemented"));
-			_response = _requestHandler.buildDefaultResponse(Http::NOT_IMPLEMENTED);
-			_status = Status::READY_TO_SEND;
+			_readRequestBodyIfChunked();
 			break;
 
 		case HttpRequest::BodyType::NO_BODY:
