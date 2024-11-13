@@ -34,6 +34,11 @@ class ClientConnection {
 		HttpRequest _request = HttpRequest();
 		HttpResponse _response = HttpResponse();
 
+		bool _readingChunkSize = true;
+		size_t _chunkSizeRemaining = 0;
+
+		// void _readRequestBodyIfChunked();
+		// bool _parseChunkSize();
 		void _receiveBody();
 		bool _extractHeaderIfComplete(std::vector<char>& header);
 		void _logHeader() const;

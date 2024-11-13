@@ -118,7 +118,85 @@ bool ClientConnection::_receiveHeader() {
 	return true;
 }
 
-void ClientConnection::_readRequestBodyIfChunked() {}
+// void ClientConnection::_readRequestBodyIfChunked() {
+// 	LOG_DEBUG(_log("Reading chunked request body"));
+//
+// 	// If we are currently reading the chunk size
+// 	if (_readingChunkSize) {
+// 		if (!_parseChunkSize()) {
+// 			// If we can't parse a full chunk size yet (need more data), return to avoid blocking.
+// 			return;
+// 		}
+//
+// 		if (_chunkSizeRemaining == 0) {
+// 			// Reached the final chunk (size = 0). The message body is complete.
+// 			_handleCompleteChunkedBodyRead();
+// 			return;
+// 		}
+//
+// 		// Now that we have a chunk size, move on to reading chunk data.
+// 		_readingChunkSize = false;
+// 	}
+//
+// 	// If we're reading chunk data (not the chunk size)
+// 	if (!_readingChunkSize && _chunkSizeRemaining > 0) {
+// 		if (!_readChunkData()) {
+// 			// If we haven't read all the chunk data yet, return and wait for more data.
+// 			return;
+// 		}
+//
+// 		// Once a chunk is fully read, it should be followed by a CRLF terminator.
+// 		if (!_readChunkTerminator()) {
+// 			// If the CRLF terminator isn't fully read yet, return and wait for more data.
+// 			return;
+// 		}
+//
+// 		// After successfully reading the chunk terminator, we should read the next chunk size.
+// 		_readingChunkSize = true;
+// 		// If `_readingChunkSize` is true, the next call to `_readRequestBodyIfChunked` will parse the next chunk size.
+// 	}
+// }
+//
+// bool ClientConnection::_parseChunkSize() {
+// 	LOG_DEBUG(_log("Parsing chunk size"));
+//
+// 	// Attempt to find the position of the CRLF that ends the chunk size line.
+// 	std::string bufferContent(_bodyBuffer.begin(), _bodyBuffer.end());
+// 	size_t pos = bufferContent.find("\r\n");
+// 	if (pos == std::string::npos) {
+// 		// We do not have a full chunk size line yet, attempt to read more data.
+//
+// 		// Try to read a minimal amount (e.g., 1 byte) to see if we can complete the chunk size line.
+// 		if (!_readData(_clientFd, _bodyBuffer, 1)) {
+// 			// If no data is read, it means we don't have enough data yet.
+// 			return false;
+// 		}
+//
+// 		// If after reading data, we still don't have a complete chunk size line, return false.
+// 		bufferContent.assign(_bodyBuffer.begin(), _bodyBuffer.end());
+// 		pos = bufferContent.find("\r\n");
+// 		if (pos == std::string::npos) {
+// 			return false;
+// 		}
+// 	}
+//
+// 	// Extract the chunk size line
+// 	std::string chunkSizeLine = bufferContent.substr(0, pos);
+//
+// 	// Remove the chunk size line and the CRLF from _bodyBuffer
+// 	_bodyBuffer.erase(_bodyBuffer.begin(), _bodyBuffer.begin() + pos + 2);
+//
+// 	// Parse the chunk size (in hex)
+// 	size_t chunkSize;
+// 	std::stringstream ss;
+// 	ss << std::hex << chunkSizeLine;
+// 	ss >> chunkSize;
+//
+// 	_chunkSizeRemaining = chunkSize;
+// 	LOG_DEBUG(_log("Parsed chunk size: " + std::to_string(chunkSize)));
+//
+// 	return true;
+// }
 
 void ClientConnection::_receiveBody() {
 	LOG_DEBUG(_log("Receiving body from client"));
@@ -129,7 +207,7 @@ void ClientConnection::_receiveBody() {
 		}
 
 		case HttpRequest::BodyType::CHUNKED:
-			_readRequestBodyIfChunked();
+			// _readRequestBodyIfChunked();
 			break;
 
 		case HttpRequest::BodyType::NO_BODY:
