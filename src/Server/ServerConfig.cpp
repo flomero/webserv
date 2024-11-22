@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:56:20 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 20:37:43 by flfische         ###   ########.fr       */
+/*   Updated: 2024/11/22 09:57:07 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ int ServerConfig::getPort() const { return _port; }
 size_t ServerConfig::getRequestTimeout() const { return _requestTimeout; }
 
 size_t ServerConfig::getClientMaxBodySize() const { return _clientMaxBodySize; }
+
+size_t ServerConfig::getClientBodyBufferSize() const { return _clientBodyBufferSize; }
+
+size_t ServerConfig::getClientHeaderBufferSize() const { return _clientHeaderBufferSize; }
 
 const std::string& ServerConfig::getHost() const { return _host; }
 
@@ -52,6 +56,10 @@ void ServerConfig::setRequestTimeout(size_t timeout) { _requestTimeout = timeout
 
 void ServerConfig::setClientMaxBodySize(size_t size) { _clientMaxBodySize = size; }
 
+void ServerConfig::setClientBodyBufferSize(const size_t size) { _clientBodyBufferSize = size; }
+
+void ServerConfig::setClientHeaderBufferSize(const size_t size) { _clientHeaderBufferSize = size; }
+
 void ServerConfig::setHost(const std::string& host) { _host = host; }
 
 void ServerConfig::setIndex(const std::string& index) { _index = index; }
@@ -65,18 +73,6 @@ void ServerConfig::setServerName(const std::string& name) { _serverName = name; 
 void ServerConfig::setRoutes(const std::vector<Route>& routes) { _routes = routes; }
 
 void ServerConfig::setErrorPages(const std::map<int, std::string>& pages) { _errorPages = pages; }
-
-size_t ServerConfig::getClientBodyBufferSize() const { return _clientBodyBufferSize; }
-
-void ServerConfig::setClientBodyBufferSize(const size_t client_body_buffer_size) {
-	_clientBodyBufferSize = client_body_buffer_size;
-}
-
-size_t ServerConfig::getClientMaxHeaderSize() const { return _clientMaxHeaderSize; }
-
-void ServerConfig::setClientMaxHeaderSize(const size_t client_max_header_size) {
-	_clientMaxHeaderSize = client_max_header_size;
-}
 
 // Overload "<<" operator
 std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
@@ -94,6 +90,10 @@ std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
 	}
 
 	os << std::left << std::setw(32) << "  |- client max body size: " << server.getClientMaxBodySize() << " bytes\n";
+	os << std::left << std::setw(32) << "  |- client body buffer size: " << server.getClientBodyBufferSize()
+	   << " bytes\n";
+	os << std::left << std::setw(32) << "  |- client header buffer size: " << server.getClientHeaderBufferSize()
+	   << " bytes\n";
 	os << std::left << std::setw(32) << "  |- request timeout: " << server.getRequestTimeout() << " ms\n";
 
 	if (server.getErrorPages().size() != 0) {
