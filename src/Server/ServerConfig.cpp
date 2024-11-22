@@ -56,13 +56,9 @@ void ServerConfig::setRequestTimeout(size_t timeout) { _requestTimeout = timeout
 
 void ServerConfig::setClientMaxBodySize(size_t size) { _clientMaxBodySize = size; }
 
-void ServerConfig::setClientBodyBufferSize(const size_t size) {
-	_clientBodyBufferSize = size;
-}
+void ServerConfig::setClientBodyBufferSize(const size_t size) { _clientBodyBufferSize = size; }
 
-void ServerConfig::setClientHeaderBufferSize(const size_t size) {
-	_clientHeaderBufferSize = size;
-}
+void ServerConfig::setClientHeaderBufferSize(const size_t size) { _clientHeaderBufferSize = size; }
 
 void ServerConfig::setHost(const std::string& host) { _host = host; }
 
@@ -77,8 +73,6 @@ void ServerConfig::setServerName(const std::string& name) { _serverName = name; 
 void ServerConfig::setRoutes(const std::vector<Route>& routes) { _routes = routes; }
 
 void ServerConfig::setErrorPages(const std::map<int, std::string>& pages) { _errorPages = pages; }
-
-
 
 // Overload "<<" operator
 std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
@@ -96,8 +90,10 @@ std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
 	}
 
 	os << std::left << std::setw(32) << "  |- client max body size: " << server.getClientMaxBodySize() << " bytes\n";
-	os << std::left << std::setw(32) << "  |- client body buffer size: " << server.getClientBodyBufferSize() << " bytes\n";
-	os << std::left << std::setw(32) << "  |- client header buffer size: " << server.getClientHeaderBufferSize() << " bytes\n";
+	os << std::left << std::setw(32) << "  |- client body buffer size: " << server.getClientBodyBufferSize()
+	   << " bytes\n";
+	os << std::left << std::setw(32) << "  |- client header buffer size: " << server.getClientHeaderBufferSize()
+	   << " bytes\n";
 	os << std::left << std::setw(32) << "  |- request timeout: " << server.getRequestTimeout() << " ms\n";
 
 	if (server.getErrorPages().size() != 0) {

@@ -121,7 +121,6 @@ ServerConfig Parser::parseServer() {
 				break;
 			}
 
-
 			case TOKEN_CLIENT_BODY_BUFFER_SIZE: {
 				expect(TOKEN_CLIENT_BODY_BUFFER_SIZE);
 				size_t bodyBufferSize = 0;
@@ -157,7 +156,6 @@ ServerConfig Parser::parseServer() {
 				break;
 			}
 
-
 			case TOKEN_CLIENT_HEADER_BUFFER_SIZE: {
 				expect(TOKEN_CLIENT_HEADER_BUFFER_SIZE);
 				size_t headerBufferSize = 0;
@@ -192,7 +190,6 @@ ServerConfig Parser::parseServer() {
 				expect(TOKEN_SEMICOLON);
 				break;
 			}
-
 
 			case TOKEN_UPLOAD_DIR:
 				expect(TOKEN_UPLOAD_DIR);
