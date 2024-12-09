@@ -40,7 +40,7 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 		LOG_DEBUG(_log("Client socket set to non-blocking mode"));
 	}
 
-	_headerBuffer.reserve(config.getClientMaxHeaderSize());
+	_headerBuffer.reserve(config.getClientHeaderBufferSize());
 	_bodyBuffer.reserve(config.getClientBodyBufferSize());
 }
 
@@ -67,7 +67,7 @@ void ClientConnection::handleClient() {
 bool ClientConnection::_receiveHeader() {
 	LOG_DEBUG(_log("Receiving header from client"));
 	// Attempt to read data into the header buffer
-	size_t remainingHeaderSize = _requestHandler.getConfig().getClientMaxHeaderSize() - _headerBuffer.size();
+	size_t remainingHeaderSize = _requestHandler.getConfig().getClientHeaderBufferSize() - _headerBuffer.size();
 	if (!_readData(_clientFd, _headerBuffer, remainingHeaderSize)) {
 		return false;
 	}
@@ -186,7 +186,7 @@ bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
 
 	if (!headerEndIndex) {
 		// Header not complete
-		if (_headerBuffer.size() > _requestHandler.getConfig().getClientMaxHeaderSize()) {
+		if (_headerBuffer.size() > _requestHandler.getConfig().getClientHeaderBufferSize()) {
 			LOG_ERROR(_log("Header size exceeds maximum allowed size"));
 			_response = _requestHandler.buildDefaultResponse(Http::REQUEST_HEADER_FIELDS_TOO_LARGE);
 			_disconnected = true;

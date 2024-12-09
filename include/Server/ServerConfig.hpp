@@ -40,9 +40,9 @@ class ServerConfig {
 
 		size_t _requestTimeout;
 
-		size_t _clientBodyBufferSize = 8192;
 		size_t _clientMaxBodySize = 0;
-		size_t _clientMaxHeaderSize = 1024;
+		size_t _clientBodyBufferSize = 8192;
+		size_t _clientHeaderBufferSize = 1024;
 
 		std::string _host;
 		std::string _index;
@@ -61,6 +61,8 @@ class ServerConfig {
 		[[nodiscard]] int getPort() const;
 		[[nodiscard]] size_t getRequestTimeout() const;
 		[[nodiscard]] size_t getClientMaxBodySize() const;
+		[[nodiscard]] size_t getClientBodyBufferSize() const;
+		[[nodiscard]] size_t getClientHeaderBufferSize() const;
 		[[nodiscard]] const std::string& getHost() const;
 		[[nodiscard]] const std::string& getIndex() const;
 		[[nodiscard]] const std::string& getRoot() const;
@@ -74,6 +76,8 @@ class ServerConfig {
 		void setPort(int port);
 		void setRequestTimeout(size_t timeout);
 		void setClientMaxBodySize(size_t size);
+		void setClientBodyBufferSize(size_t size);
+		void setClientHeaderBufferSize(size_t size);
 		void setHost(const std::string& host);
 		void setIndex(const std::string& index);
 		void setRoot(const std::string& root);
@@ -81,11 +85,6 @@ class ServerConfig {
 		void setServerName(const std::string& name);
 		void setRoutes(const std::vector<Route>& routes);
 		void setErrorPages(const std::map<int, std::string>& pages);
-
-		[[nodiscard]] size_t getClientBodyBufferSize() const;
-		void setClientBodyBufferSize(const size_t client_body_buffer_size);
-		[[nodiscard]] size_t getClientMaxHeaderSize() const;
-		void setClientMaxHeaderSize(const size_t client_max_header_size);
 
 		// Overload "<<" operator to print ServerConfig details
 		friend std::ostream& operator<<(std::ostream& os, const ServerConfig& server);
