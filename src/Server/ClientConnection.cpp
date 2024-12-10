@@ -200,7 +200,8 @@ bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
 	// Convert header_end_index to the signed type required for vector operations
 	const auto header_end_pos = static_cast<std::vector<char>::difference_type>(*headerEndIndex);
 
-	header = std::vector(_headerBuffer.begin(), _headerBuffer.begin() + header_end_pos);
+	header = std::vector(_headerBuffer.begin(), _headerBuffer.begin() + header_end_pos + 1);
+	header.push_back('\0');	 // Null-terminate the header
 
 	// Erase the header and the delimiter from _headerBuffer
 	_headerBuffer.erase(_headerBuffer.begin(), _headerBuffer.begin() + header_end_pos + 4);
