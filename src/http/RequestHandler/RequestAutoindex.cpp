@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:25:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 18:11:00 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 17:05:53 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) {
 	// TODO: check for server root
 	if (path != "/") {
 		html << "<tr><td><a "
-				"href=\"../\">../</a></td><td>-</td><td>-</td></tr>\n";
+				"href=\"..\">../</a></td><td>-</td><td>-</td></tr>\n";
 	}
 	for (const auto& entry : std::filesystem::directory_iterator(path)) {
 		std::string entryPath = entry.path().string();
@@ -78,7 +78,7 @@ std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) {
 		std::time_t entryTime = decltype(entry.last_write_time())::clock::to_time_t(entry.last_write_time());
 		std::string entryTimeStr = formatTimestamp(entryTime);
 		std::string entryLink = _request.getLocation();
-		if (entry.is_directory() && entryLink.back() != '/') {
+		if (entryLink.back() != '/' && entryLink != ".." && entryLink != "." && entryLink != "/") {
 			entryLink += "/";
 		}
 		entryLink += entryName;

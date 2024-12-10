@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/03 16:12:53 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 16:20:46 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class RequestHandler {
 	private:
 		HttpRequest _request;
 		HttpResponse _response;
+		bool _cgiExecuted = false;
 		ServerConfig& _serverConfig;
 		Route _matchedRoute;
 

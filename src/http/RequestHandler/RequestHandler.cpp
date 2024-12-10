@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/02 16:41:31 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 16:52:46 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,9 +106,15 @@ HttpResponse RequestHandler::handleRequest(HttpRequest& request) {
 
 	// Check for CGI on the Route
 	LOG_INFO("Checking for route's informations: CGI");
-	if (_matchedRoute.getCgiHandlers().size() > 0)
+	if (!_matchedRoute.getCgiHandlers().empty()) {
 		handleRequestCGI(_matchedRoute);
-	else if (_request.getMethod() == "GET")
+		if (_cgiExecuted)
+			return _response;
+		else
+			LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getRessourceExtension());
+	}
+	std::cout << "AAAAAAAAAAAAAAAA" << std::endl;
+	if (_request.getMethod() == "GET")
 		_response = handleGetRequest();
 	else if (_request.getMethod() == "POST")
 		_response = handlePostRequest();

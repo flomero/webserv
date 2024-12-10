@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2024/12/10 13:53:14 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 16:21:25 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ void RequestHandler::handleRequestCGIExecution(Route& route) {
 		LOG_DEBUG("response:\n" + response + "\n");
 
 		_response = HttpResponse(response);
+		_cgiExecuted = true;
 
 		// Wait for the child process to finish
 		waitpid(pid, nullptr, 0);

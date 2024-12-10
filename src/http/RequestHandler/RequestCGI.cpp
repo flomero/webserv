@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:21 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 16:11:27 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 16:54:01 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ void RequestHandler::handleRequestCGI(Route& route) {
 		// Checks if this extensions has to be handled by a CGI
 		LOG_INFO("Checks if this extension has to be handled by a CGI");
 
-		if (route.getCgiHandlers().at(_request.getRessourceExtension()).empty())
+		if (route.getCgiHandlers().find(_request.getRessourceExtension()) == route.getCgiHandlers().end() ||
+			route.getCgiHandlers().at(_request.getRessourceExtension()).empty())
 			LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getRessourceExtension() + "\n");
 		else {
 			LOG_DEBUG("  |- Found:            " + _request.getRessourceExtension());
