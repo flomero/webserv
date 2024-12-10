@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 16:11:45 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 13:53:14 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,6 @@ void RequestHandler::handleRequestCGIExecution(Route& route) {
 
 	env["CONTENT_TYPE"] = _request.getHeader("Content-Type");
 	LOG_DEBUG("  |- CONTENT_TYPE:      " + env["CONTENT_TYPE"] + "\n");
-
-	// env["REMOTE_ADDR"] = request.getClientIP(); TODO
 
 	// Prepare environment for execv
 	LOG_INFO("Prepare environment for execv");
@@ -98,23 +96,7 @@ void RequestHandler::handleRequestCGIExecution(Route& route) {
 		close(pipeOut[0]);
 		LOG_DEBUG("response:\n" + response + "\n");
 
-		// Process the response from the CGI script
-		// Here, you need to parse headers and body
-		// Check if headers were found, otherwise handle error
-		size_t headerEnd = response.find("\r\n\r\n");
-		if (headerEnd != std::string::npos) {
-			std::string headers = response.substr(0, headerEnd);
-			std::string body = response.substr(headerEnd + 4);	// Body starts after the "\r\n\r\n"
-
-			LOG_DEBUG("Headers: " + headers);
-			LOG_DEBUG("Body: " + body);
-
-			// Send headers and body to the client
-			std::cout << "Headers: " << headers << std::endl;
-			std::cout << "Body: " << body << std::endl;
-		} else {
-			LOG_ERROR("No headers found in the response.");
-		}
+		_response = HttpResponse(response);
 
 		// Wait for the child process to finish
 		waitpid(pid, nullptr, 0);
