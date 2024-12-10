@@ -45,17 +45,14 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code, std::option
 		}
 		path += errorPage.value();
 		LOG_DEBUG("Error page path: " + path);
-		int fd = open(path.c_str(), O_RDONLY);
-		if (fd != -1) {
-			struct pollfd pfd;
+		if (int fd = open(path.c_str(), O_RDONLY); fd != -1) {
+			struct pollfd pfd{};
 			pfd.fd = fd;
 			pfd.events = POLLIN;
 
-			int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
-			if (ret > 0 && (pfd.revents & POLLIN)) {
-				std::ifstream file(path);
-				if (file.is_open()) {
-					std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+			if (int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT); ret > 0 && pfd.revents & POLLIN) {
+				if (std::ifstream file(path); file.is_open()) {
+					std::string content((std::istreambuf_iterator(file)), std::istreambuf_iterator<char>());
 					response.setBody(content);
 					file.close();
 				}
@@ -69,9 +66,9 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code, std::option
 	if (response.getBody().empty()) {
 		std::ostringstream body;
 		body << "<html><head><title>" << code << "</title><meta charset=\"utf-8\">"
-			 << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-			 << "</head><body><h1>Error " << code << ": " << Http::getStatusMessage(code) << "</h1>"
-			 << "<img src=\"https://httpgoats.com/" << code << ".jpg\" alt=\"Goat\">"
+			 << R"(<meta name="viewport" content="width=device-width, initial-scale=1">)"
+			 << "</head><body><h1>Error " << code << ": " << getStatusMessage(code) << "</h1>"
+			 << "<img src=\"https://httpgoats.com/" << code << R"(.jpg" alt="Goat">)"
 			 << "</body><style>*{font-family:Arial,sans-serif;--background:#f2f2f2;--color:#030303;}"
 			 << "@media (prefers-color-scheme: dark){*{--background:#030303;--color:#f2f2f2;}}"
 			 << "body{display:flex;justify-content:center;align-items:center;height:100vh;margin:0;"

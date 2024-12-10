@@ -16,8 +16,8 @@
 #include "RequestHandler.hpp"
 #include "Route.hpp"
 
-void RequestHandler::handleRequestCGIExecution(Route& route) {
-	std::string cgiPath = route.getCgiHandlers().at(_request.getRessourceExtension());
+void RequestHandler::handleRequestCGIExecution(const Route& route) {
+	const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
 
 	// Create environment variables for CGI
 	LOG_INFO("Create environment variables for CGI");
@@ -45,7 +45,8 @@ void RequestHandler::handleRequestCGIExecution(Route& route) {
 	char* envp[env.size() + 1];
 	size_t i = 0;
 	for (const auto& [key, value] : env) {
-		std::string envVar = key + "=" + value;
+		std::string envVar = key + "=";
+		envVar += value;
 		envp[i] = strdup(envVar.c_str());
 		++i;
 	}
@@ -55,7 +56,7 @@ void RequestHandler::handleRequestCGIExecution(Route& route) {
 	pipe(pipeIn);	// For input to the CGI script
 	pipe(pipeOut);	// For output from the CGI script
 
-	pid_t pid = fork();
+	const pid_t pid = fork();
 	if (pid == 0) {
 		// Child process: set up pipes and execv
 		close(pipeIn[1]);	// Close write end of input pipe
@@ -65,8 +66,8 @@ void RequestHandler::handleRequestCGIExecution(Route& route) {
 		dup2(pipeOut[1], STDOUT_FILENO);  // Redirect stdout to pipeOut
 
 		// Execute CGI
-		char* argv[] = {strdup(cgiPath.c_str()), strdup(_request.getServerSidePath().c_str()), nullptr};
-		if (execve(argv[0], argv, envp) == -1) {
+		if (char* argv[] = {strdup(cgiPath.c_str()), strdup(_request.getServerSidePath().c_str()), nullptr};
+			execve(argv[0], argv, envp) == -1) {
 			// Print error message if execve fails
 			perror("execve failed");
 			exit(EXIT_FAILURE);	 // Exit if exec fails
@@ -76,30 +77,30 @@ void RequestHandler::handleRequestCGIExecution(Route& route) {
 
 		// If exec fails, exit
 		exit(1);
-	} else {
-		// Parent process: send data to child and read response
-		close(pipeIn[0]);	// Close read end of input pipe
-		close(pipeOut[1]);	// Close write end of output pipe
-
-		// Write POST data to the CGI process if it's a POST request
-		if (_request.getMethod() == "POST")
-			write(pipeIn[1], _request.getBody().c_str(), _request.getBody().size());
-
-		close(pipeIn[1]);  // Close write end of input pipe
-
-		// Read the CGI output
-		char buffer[4096];
-		ssize_t bytesRead;
-		std::string response;
-		while ((bytesRead = read(pipeOut[0], buffer, sizeof(buffer))) > 0) response.append(buffer, bytesRead);
-
-		close(pipeOut[0]);
-		LOG_DEBUG("response:\n" + response + "\n");
-
-		_response = HttpResponse(response);
-		_cgiExecuted = true;
-
-		// Wait for the child process to finish
-		waitpid(pid, nullptr, 0);
 	}
+
+	// Parent process: send data to child and read response
+	close(pipeIn[0]);	// Close read end of input pipe
+	close(pipeOut[1]);	// Close write end of output pipe
+
+	// Write POST data to the CGI process if it's a POST request
+	if (_request.getMethod() == "POST")
+		write(pipeIn[1], _request.getBody().c_str(), _request.getBody().size());
+
+	close(pipeIn[1]);  // Close write end of input pipe
+
+	// Read the CGI output
+	char buffer[4096];
+	ssize_t bytesRead;
+	std::string response;
+	while ((bytesRead = read(pipeOut[0], buffer, sizeof(buffer))) > 0) response.append(buffer, bytesRead);
+
+	close(pipeOut[0]);
+	LOG_DEBUG("response:\n" + response + "\n");
+
+	_response = HttpResponse(response);
+	_cgiExecuted = true;
+
+	// Wait for the child process to finish
+	waitpid(pid, nullptr, 0);
 }

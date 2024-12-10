@@ -42,13 +42,11 @@ HttpResponse RequestHandler::handleGetFile() {
 		return buildDefaultResponse(Http::Status::NOT_FOUND);
 	}
 
-	struct pollfd pfd;
+	struct pollfd pfd{};
 	pfd.fd = fd;
 	pfd.events = POLLIN;
 
-	int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
-
-	if (ret <= 0 || !(pfd.revents & POLLIN)) {
+	if (int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT); ret <= 0 || !(pfd.revents & POLLIN)) {
 		close(fd);
 		return buildDefaultResponse(Http::REQUEST_TIMEOUT);
 	}

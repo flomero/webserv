@@ -18,7 +18,7 @@
 #include "HttpStatus.hpp"
 #include "webserv.hpp"
 
-HttpResponse::HttpResponse(Http::Status status) : _status(status) { setDefaultHeaders(); }
+HttpResponse::HttpResponse(const Http::Status status) : _status(status) { setDefaultHeaders(); }
 
 HttpResponse::HttpResponse(int status) : _status(static_cast<Http::Status>(status)) { setDefaultHeaders(); }
 
@@ -56,13 +56,13 @@ HttpResponse::HttpResponse(const std::string &rawResponse) {
 	}
 }
 
-void HttpResponse::setStatus(Http::Status status) { _status = status; }
+void HttpResponse::setStatus(const Http::Status status) { _status = status; }
 
 Http::Status HttpResponse::getStatus() const { return _status; }
 
 std::string getCurrentDate() {
-	auto now = std::chrono::system_clock::now();
-	std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+	const auto now = std::chrono::system_clock::now();
+	const std::time_t now_c = std::chrono::system_clock::to_time_t(now);
 	std::string date = std::ctime(&now_c);
 	date.pop_back();
 	date += " GMT";
@@ -83,9 +83,10 @@ void HttpResponse::setDefaultHeaders() {
 }
 
 std::string HttpResponse::toString() const {
-	std::string str = _httpVersion + " " + std::to_string(_status) + " " + Http::getStatusMessage(_status) + "\r\n";
+	std::string str = _httpVersion + " " + std::to_string(_status) + " " + getStatusMessage(_status) + "\r\n";
 	for (const auto &[key, value] : _headers) {
-		str += key + ": " + value + "\r\n";
+		str += key + ": ";
+		str += value + "\r\n";
 	}
 	str += "\r\n" + _body;
 	return str;

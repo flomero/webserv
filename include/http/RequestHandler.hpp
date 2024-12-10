@@ -26,9 +26,6 @@ class RequestHandler {
 		ServerConfig& _serverConfig;
 		Route _matchedRoute;
 
-		RequestHandler(const RequestHandler& other) = delete;
-		RequestHandler& operator=(const RequestHandler& other) = delete;
-
 		// General Functions
 		void findMatchingRoute();
 
@@ -39,7 +36,7 @@ class RequestHandler {
 
 		// CGI handler
 		void handleRequestCGI(Route& route);
-		void handleRequestCGIExecution(Route& route);
+		void handleRequestCGIExecution(const Route& route);
 
 		// Request handlers
 		// POST request handlers
@@ -49,13 +46,15 @@ class RequestHandler {
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
-		std::string buildDirectoryListingHTML(const std::string& path);
+		[[nodiscard]] std::string buildDirectoryListingHTML(const std::string& path) const;
 
 	public:
 		[[nodiscard]] ServerConfig& getConfig() const;
 		explicit RequestHandler(ServerConfig& serverConfig);
 		~RequestHandler() = default;
+		RequestHandler(const RequestHandler& other) = delete;
+		RequestHandler& operator=(const RequestHandler& other) = delete;
 
-		HttpResponse handleRequest(HttpRequest& request);
+		HttpResponse handleRequest(const HttpRequest& request);
 		HttpResponse buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request = std::nullopt);
 };

@@ -21,10 +21,10 @@
 class HttpResponse : public HttpMessage {
 	public:
 		HttpResponse() = default;
-		HttpResponse(Http::Status status);
-		HttpResponse(int status);
-		HttpResponse(const std::string &rawResponse);
-		~HttpResponse() = default;
+		explicit HttpResponse(Http::Status status);
+		explicit HttpResponse(int status);
+		explicit HttpResponse(const std::string &rawResponse);
+		~HttpResponse() override = default;
 		HttpResponse(const HttpResponse &other) = default;
 		HttpResponse &operator=(const HttpResponse &other) = default;
 

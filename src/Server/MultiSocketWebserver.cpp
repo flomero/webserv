@@ -1,8 +1,12 @@
 #include "MultiSocketWebserver.hpp"
 
 #include <arpa/inet.h>
+#include <unistd.h>
 
+#include "ClientConnection.hpp"
+#include "Logger.hpp"
 #include "PollFdManager.hpp"
+#include "Socket.hpp"
 
 MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_config)
 	: _polls(PollFdManager::getInstance()) {
@@ -62,7 +66,7 @@ void MultiSocketWebserver::run() {
 void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 	sockaddr_in clientAddr{};
 	socklen_t addrLen = sizeof(clientAddr);
-	int clientFd = ::accept(server_fd, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
+	int clientFd = accept(server_fd, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
 
 	if (clientFd == -1) {
 		LOG_ERROR("Accept failed: " + std::string(strerror(errno)));
@@ -114,6 +118,5 @@ void MultiSocketWebserver::_handleClientWrite(int fd) {
 		_clients.erase(fd);
 		_polls.removeFd(fd);
 		LOG_DEBUG("Client disconnected from socket " + std::to_string(fd) + " after write");
-		;
 	}
 }

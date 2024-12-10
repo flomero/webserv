@@ -61,38 +61,38 @@ void Route::setRedirect(const std::string& redirect) { _redirect = redirect; }
 std::ostream& operator<<(std::ostream& os, const Route& route) {
 	os << "path: " << COLOR(BLUE, route.getPath()) << "\n";
 
-	if (route.getAlias() != "") {
+	if (!route.getAlias().empty()) {
 		os << std::left << std::setw(24) << "      |- alias: " << route.getAlias() << "\n";
 	}
-	if (route.getMethods().size() != 0) {
+	if (!route.getMethods().empty()) {
 		os << std::left << std::setw(24) << "      |- methods: ";
 		for (const auto& method : route.getMethods()) os << method << " ";
 		os << "\n";
 	}
 
-	if (route.getRoot() != "") {
+	if (!route.getRoot().empty()) {
 		os << std::left << std::setw(24) << "      |- root: " << route.getRoot() << "\n";
 	}
-	if (route.getIndex() != "") {
+	if (!route.getIndex().empty()) {
 		os << std::left << std::setw(24) << "      |- index: " << route.getIndex() << "\n";
 	}
 
 	os << std::left << std::setw(24) << "      |- autoindex: " << (route.isAutoindex() ? "on" : "off") << "\n";
 
-	if (route.getUploadDir() != "") {
+	if (!route.getUploadDir().empty()) {
 		os << std::left << std::setw(24) << "      |- upload dir: " << route.getUploadDir() << "\n";
 	}
 
-	if (route.getCgiHandlers().size() != 0) {
+	if (!route.getCgiHandlers().empty()) {
 		os << "      |- cgi handlers: \n";
 		for (const auto& handler : route.getCgiHandlers())
-			os << "        |- " << std::left << std::setw(6) << (handler.first + ": ") << handler.second << "\n";
+			os << "        |- " << std::left << std::setw(6) << handler.first + ": " << handler.second << "\n";
 	}
 
 	if (route.getCode() != 0) {
 		os << std::left << std::setw(24) << "      |- code: " << RED << route.getCode() << RESET_COLOR << "\n";
 	}
-	if (route.getRedirect() != "") {
+	if (!route.getRedirect().empty()) {
 		os << std::left << std::setw(24) << "      |- redirect/content: " << route.getRedirect() << "\n";
 	}
 	return os;

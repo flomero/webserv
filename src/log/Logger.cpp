@@ -32,8 +32,8 @@ void Logger::setOutputToConsole() {
 		logFile.close();
 }
 
-void Logger::log(const std::string& msg, LogLevel level) {
-	std::time_t now = std::time(nullptr);
+void Logger::log(const std::string& msg, const LogLevel level) {
+	const std::time_t now = std::time(nullptr);
 	if (outputToFile) {
 		logFile << std::left << std::put_time(std::localtime(&now), "%F %T") << " " << std::left << std::setw(20)
 				<< level << " " << msg << std::endl;
@@ -43,7 +43,7 @@ void Logger::log(const std::string& msg, LogLevel level) {
 	}
 }
 
-std::ostream& operator<<(std::ostream& os, LogLevel level) {
+std::ostream& operator<<(std::ostream& os, const LogLevel level) {
 	switch (level) {
 		case DEBUG:
 			os << DEBUG_PREFIX;

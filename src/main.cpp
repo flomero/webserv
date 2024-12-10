@@ -10,14 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <arpa/inet.h>
-#include <poll.h>
-
 #include <exception>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <unordered_set>
 
 #include "MultiSocketWebserver.hpp"
 #include "webserv.hpp"
@@ -33,7 +29,7 @@ std::string readFile(const std::string &filename) {
 	return buffer.str();
 }
 
-int main(int argc, char const *argv[]) {
+int main(const int argc, const char *argv[]) {
 	if (argc != 2) {
 		std::cerr << COLOR(RED, "Error: ") << "Invalid number of arguments" << std::endl;
 		std::cerr << "Usage: " << argv[0] << " <path_to_config_file>" << std::endl;
@@ -56,7 +52,7 @@ int main(int argc, char const *argv[]) {
 
 	try {
 		servers_config = parser.parse();
-	} catch (std::exception &e) {
+	} catch (...) {
 		parser.flushErrors();
 	}
 	for (const auto &serv : servers_config) {
