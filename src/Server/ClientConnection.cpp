@@ -42,7 +42,7 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 		LOG_DEBUG(_log("Client socket set to non-blocking mode"));
 	}
 
-	_headerBuffer.reserve(config.getClientMaxHeaderSize());
+	_headerBuffer.reserve(config.getClientHeaderBufferSize());
 	_bodyBuffer.reserve(config.getClientBodyBufferSize());
 }
 
@@ -71,7 +71,7 @@ bool ClientConnection::_receiveHeader() {
 
 
 	// Attempt to read data into the header buffer
-	size_t remainingHeaderSize = _requestHandler.getConfig().getClientMaxHeaderSize() - _headerBuffer.size();
+	size_t remainingHeaderSize = _requestHandler.getConfig().getClientHeaderBufferSize() - _headerBuffer.size();
 	if (!_readData(_clientFd, _headerBuffer, remainingHeaderSize)) {
 		return false;
 	}
@@ -368,7 +368,7 @@ bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
 
 	if (!headerEndIndex) {
 		// Header not complete
-		if (_headerBuffer.size() > _requestHandler.getConfig().getClientMaxHeaderSize()) {
+		if (_headerBuffer.size() > _requestHandler.getConfig().getClientHeaderBufferSize()) {
 			LOG_ERROR(_log("Header size exceeds maximum allowed size"));
 			_response = _requestHandler.buildDefaultResponse(Http::REQUEST_HEADER_FIELDS_TOO_LARGE);
 			_disconnected = true;
@@ -382,8 +382,9 @@ bool ClientConnection::_extractHeaderIfComplete(std::vector<char>& header) {
 	// Convert header_end_index to the signed type required for vector operations
 	const auto header_end_pos = static_cast<std::vector<char>::difference_type>(*headerEndIndex);
 
-	header = std::vector(_headerBuffer.begin(), _headerBuffer.begin() + header_end_pos);
-	LOG_WARN(_log("Header extracted: " + std::string(header.begin(), header.end())+ "@") );
+	header = std::vector(_headerBuffer.begin(), _headerBuffer.begin() + header_end_pos + 1);
+	header.push_back('\0');	 // Null-terminate the header
+
 	// Erase the header and the delimiter from _headerBuffer
 	_headerBuffer.erase(_headerBuffer.begin(), _headerBuffer.begin() + header_end_pos + 4);
 	LOG_DEBUG(_log("Header extracted from buffer"));

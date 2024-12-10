@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/14 14:50:08 by lgreau           ###   ########.fr       */
+/*   Updated: 2024/11/22 09:36:49 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,9 @@ enum eTokenType {
 	TOKEN_SERVER_NAME,
 	TOKEN_ROOT,
 	TOKEN_INDEX,
-	TOKEN_CLIENT_BODY_SIZE,
+	TOKEN_CLIENT_MAX_BODY_SIZE,
+	TOKEN_CLIENT_BODY_BUFFER_SIZE,
+	TOKEN_CLIENT_HEADER_BUFFER_SIZE,
 	TOKEN_UPLOAD_DIR,
 	TOKEN_REQUEST_TIMEOUT,
 	TOKEN_ERROR_PAGE,
@@ -58,7 +60,9 @@ const std::map<eTokenType, std::string> tokenToString = {{TOKEN_HTTP, "http"},
 														 {TOKEN_SERVER_NAME, "server_name"},
 														 {TOKEN_ROOT, "root"},
 														 {TOKEN_INDEX, "index"},
-														 {TOKEN_CLIENT_BODY_SIZE, "client_max_body_size"},
+														 {TOKEN_CLIENT_MAX_BODY_SIZE, "client_max_body_size"},
+														 {TOKEN_CLIENT_BODY_BUFFER_SIZE, "client_body_buffer_size"},
+														 {TOKEN_CLIENT_HEADER_BUFFER_SIZE, "client_header_buffer_size"},
 														 {TOKEN_UPLOAD_DIR, "upload_dir"},
 														 {TOKEN_REQUEST_TIMEOUT, "request_timeout"},
 														 {TOKEN_ERROR_PAGE, "error_page"},
