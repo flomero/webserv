@@ -37,8 +37,11 @@ class ClientConnection {
 		bool _readingChunkSize = true;
 		size_t _chunkSizeRemaining = 0;
 
-		// void _readRequestBodyIfChunked();
-		// bool _parseChunkSize();
+		void _handleCompleteChunkedBodyRead();
+		bool _readChunkData();
+		bool _readChunkTerminator();
+		void _readRequestBodyIfChunked();
+		bool _parseChunkSize();
 		void _receiveBody();
 		bool _extractHeaderIfComplete(std::vector<char>& header);
 		void _logHeader() const;
