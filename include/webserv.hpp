@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:43:58 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/02 15:45:47 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:21:33 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,3 +21,4 @@
 #include "ServerConfig.hpp"
 
 #define SERVER_NAME "webserv"
+#define DEFAULT_POLL_TIMEOUT 5000

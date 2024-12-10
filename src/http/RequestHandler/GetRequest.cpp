@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/31 14:35:29 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 17:53:39 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:24:48 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include "RequestHandler.hpp"
 #include "ServerConfig.hpp"
 #include "mimetypes.hpp"
+#include "webserv.hpp"
 
 HttpResponse RequestHandler::handleGetRequest() {
 	LOG_DEBUG("Handling GET request");
@@ -45,8 +46,7 @@ HttpResponse RequestHandler::handleGetFile() {
 	pfd.fd = fd;
 	pfd.events = POLLIN;
 
-	int timeout = 5000;	 // TODO: make this configurable
-	int ret = poll(&pfd, 1, timeout);
+	int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
 
 	if (ret <= 0 || !(pfd.revents & POLLIN)) {
 		close(fd);

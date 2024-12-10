@@ -6,12 +6,13 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 19:57:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/04 10:57:27 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 19:23:09 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RequestHandler.hpp"
 #include "ServerConfig.hpp"
+#include "webserv.hpp"
 
 /**
  * @brief Builds a default response for a given status code
@@ -49,9 +50,8 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code, std::option
 			struct pollfd pfd;
 			pfd.fd = fd;
 			pfd.events = POLLIN;
-			int timeout = 5000;	 // TODO: make this configurable
 
-			int ret = poll(&pfd, 1, timeout);
+			int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
 			if (ret > 0 && (pfd.revents & POLLIN)) {
 				std::ifstream file(path);
 				if (file.is_open()) {
