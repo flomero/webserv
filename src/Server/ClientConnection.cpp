@@ -124,10 +124,9 @@ bool ClientConnection::_receiveHeader() {
 
 void ClientConnection::_handleCompleteChunkedBodyRead() {
 	LOG_DEBUG(_log("Finished reading chunked request body"));
-
-	// Set the request body to the body buffer content
-	_request.setBody(std::string(_bodyBuffer.begin(), _bodyBuffer.end()));
-
+	
+	LOG_DEBUG(_log("Request body: \n" + _request.getBody()));
+	// _readingChunkSize = true;
 	// Set the status to ready to send
 	_status = Status::READY_TO_SEND;
 }
@@ -241,8 +240,6 @@ void ClientConnection::_readRequestBodyIfChunked() {
 bool ClientConnection::_parseChunkSize() {
 	LOG_DEBUG(_log("Parsing chunk size"));
 
-	LOG_INFO(_log("Body buffer content: " + std::string(_bodyBuffer.begin(), _bodyBuffer.end())));
-
 	// Attempt to find the position of the CRLF that ends the chunk size line.
 	std::string bufferContent(_bodyBuffer.begin(), _bodyBuffer.end());
 	size_t pos = bufferContent.find("\r\n");
@@ -265,8 +262,6 @@ bool ClientConnection::_parseChunkSize() {
 
 	// Extract the chunk size line
 	std::string chunkSizeLine = bufferContent.substr(0, pos);
-
-	LOG_DEBUG(_log("Chunk size line: " + chunkSizeLine));
 
 	// Remove the chunk size line and the CRLF from _bodyBuffer
 	_bodyBuffer.erase(_bodyBuffer.begin(), _bodyBuffer.begin() + pos + 2);
@@ -339,9 +334,11 @@ void ClientConnection::_readRequestBodyIfContentLength() {
 
 void ClientConnection::_handleCompleteBodyRead() {
 	// Handle any extra data read beyond content length
-	if (const size_t contentLength = _request.getContentLength(); _bodyBuffer.size() > contentLength) {
+	const size_t contentLength = _request.getContentLength();
+	if (_bodyBuffer.size() > contentLength) {
 		// Move extra data into the header buffer for potential next request
 		_headerBuffer.assign(_bodyBuffer.begin() + contentLength, _bodyBuffer.end());
+		LOG_ERROR(_log("Extra data read beyond content length"));
 		// Resize body buffer to the exact content length
 		_bodyBuffer.resize(contentLength);
 	}
