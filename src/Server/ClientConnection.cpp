@@ -128,9 +128,6 @@ void ClientConnection::_handleCompleteChunkedBodyRead() {
 	// Set the request body to the body buffer content
 	_request.setBody(std::string(_bodyBuffer.begin(), _bodyBuffer.end()));
 
-	// Handle the request
-	_response = _requestHandler.handleRequest(_request);
-
 	// Set the status to ready to send
 	_status = Status::READY_TO_SEND;
 }
@@ -140,18 +137,16 @@ bool ClientConnection::_readChunkData() {
 	if (_bodyBuffer.size() >= _chunkSizeRemaining) {
 		// The chunk is fully read
 		LOG_DEBUG(_log("Chunk fully read"));
+		_request.appendToBody(std::string(_bodyBuffer.begin(), _bodyBuffer.begin() + _chunkSizeRemaining));
+		_bodyBuffer.erase(_bodyBuffer.begin(), _bodyBuffer.begin() + _chunkSizeRemaining);
 		return true;
 	}
-
 
 	LOG_DEBUG(_log("Reading chunked request data"));
 
 	// Calculate the remaining chunk size to read
 	const size_t currentChunkSize = _bodyBuffer.size();
 	const size_t remainingChunkSize = (_chunkSizeRemaining > currentChunkSize) ? (_chunkSizeRemaining - currentChunkSize) : 0;
-
-	LOG_DEBUG("Current chunk size: " + std::to_string(currentChunkSize));
-	LOG_DEBUG("Remaining chunk size: " + std::to_string(remainingChunkSize));
 
 
 	// Determine the maximum bytes to read in this iteration
@@ -166,9 +161,6 @@ bool ClientConnection::_readChunkData() {
 		return false;
 	}
 
-	LOG_DEBUG(_log("Body buffer size after read: " + std::to_string(_bodyBuffer.size())));
-
-
 	// If the chunk isn't fully read yet, return to wait for more data
 	LOG_DEBUG(_log("Partial chunk received, waiting for remaining data"));
 	return false;
@@ -176,11 +168,11 @@ bool ClientConnection::_readChunkData() {
 
 bool ClientConnection::_readChunkTerminator() {
 	LOG_DEBUG(_log("Reading chunk terminator"));
-
 	// Attempt to find the position of the CRLF that ends the chunk data
 	std::string bufferContent(_bodyBuffer.begin(), _bodyBuffer.end());
 	size_t pos = bufferContent.find("\r\n");
 	if (pos == std::string::npos) {
+		LOG_ERROR("No CRLF found in buffer");
 		// We do not have a full chunk terminator yet, attempt to read more data.
 
 		// Try to read a minimal amount (e.g., 1 byte) to see if we can complete the chunk terminator.
@@ -197,11 +189,10 @@ bool ClientConnection::_readChunkTerminator() {
 		}
 	}
 
+
 	// Remove the chunk terminator from _bodyBuffer
 	_bodyBuffer.erase(_bodyBuffer.begin(), _bodyBuffer.begin() + pos + 2);
-
 	LOG_DEBUG(_log("Chunk terminator read"));
-
 	return true;
 }
 
@@ -241,6 +232,9 @@ void ClientConnection::_readRequestBodyIfChunked() {
 		// After successfully reading the chunk terminator, we should read the next chunk size.
 		_readingChunkSize = true;
 		// If `_readingChunkSize` is true, the next call to `_readRequestBodyIfChunked` will parse the next chunk size.
+		if (!_bodyBuffer.empty()) {
+			_readRequestBodyIfChunked();
+		}
 	}
 }
 

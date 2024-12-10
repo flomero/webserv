@@ -19,7 +19,7 @@ HttpResponse RequestHandler::handlePostRequest() {
 	if (contentType == "application/x-www-form-urlencoded") {
 		LOG_INFO("application/x-www-form-urlencoded");
 		// TODO: not sure if needed
-	} else if (contentType == "multipart/form-data")
+	} else if (contentType.find("multipart/form-data") != std::string::npos)
 		return handlePostMultipart();
 
 	LOG_ERROR("Unsupported content type: " + contentType);
@@ -27,6 +27,7 @@ HttpResponse RequestHandler::handlePostRequest() {
 }
 
 HttpResponse RequestHandler::handlePostMultipart() {
+	LOG_DEBUG("Handling multipart POST request");
 	std::string contentType = _request.getHeader("Content-Type");
 	std::size_t boundaryPos = contentType.find("boundary=");
 	if (boundaryPos == std::string::npos) {
@@ -81,6 +82,7 @@ HttpResponse RequestHandler::handlePostMultipart() {
 }
 
 HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std::string &contentDisposition) {
+	LOG_DEBUG("Handling file upload");
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {
