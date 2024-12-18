@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:49:26 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/28 20:42:55 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 12:49:48 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,10 @@
 class HttpResponse : public HttpMessage {
 	public:
 		HttpResponse() = default;
-		HttpResponse(Http::Status status);
-		HttpResponse(int status);
-		~HttpResponse() = default;
+		explicit HttpResponse(Http::Status status);
+		explicit HttpResponse(int status);
+		explicit HttpResponse(const std::string &rawResponse);
+		~HttpResponse() override = default;
 		HttpResponse(const HttpResponse &other) = default;
 		HttpResponse &operator=(const HttpResponse &other) = default;
 

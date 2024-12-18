@@ -15,7 +15,7 @@
 /**
  * @brief Get the status message from the status code
  */
-std::string Http::getStatusMessage(Http::Status statusCode) {
+std::string Http::getStatusMessage(const Status statusCode) {
 	switch (statusCode) {
 		case 100:
 			return "Continue";

@@ -2,7 +2,6 @@
 #pragma once
 #include <sys/poll.h>
 
-#include <set>
 #include <vector>
 
 class PollFdManager {

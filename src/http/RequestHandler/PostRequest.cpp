@@ -15,7 +15,7 @@
 
 HttpResponse RequestHandler::handlePostRequest() {
 	LOG_DEBUG("Handling POST request");
-	std::string contentType = _request.getHeader("Content-Type");
+	const std::string contentType = _request.getHeader("Content-Type");
 	if (contentType == "application/x-www-form-urlencoded") {
 		LOG_INFO("application/x-www-form-urlencoded");
 		// TODO: not sure if needed
@@ -54,28 +54,26 @@ HttpResponse RequestHandler::handlePostMultipart() {
 		std::istringstream partStream(part);
 		std::string line;
 		std::string contentDisposition;
-		std::string contentType;
+		std::string contentTypeFile;
 
 		while (std::getline(partStream, line) && !line.empty()) {
 			if (line.find("Content-Disposition") == 0)
 				contentDisposition = line;
 			else if (line.find("Content-Type") == 0)
-				contentType = line;
+				contentTypeFile = line;
 		}
 		if (contentDisposition.empty()) {
 			LOG_ERROR("Missing Content-Disposition header in part");
 			return buildDefaultResponse(Http::BAD_REQUEST);
 		}
-		if (contentType.empty()) {
+		if (contentTypeFile.empty()) {
 			LOG_ERROR("Missing Content-Type header in part");
 			return buildDefaultResponse(Http::BAD_REQUEST);
 		}
 		if (contentDisposition.find("filename=") != std::string::npos)
 			return handleFileUpload(part, contentDisposition);
-		else {
-			// TODO: handle form fields - not sure if needed
-			LOG_INFO("Form field: " + part);
-		}
+
+		// TODO: handle form fields - not sure if needed
 	}
 	return buildDefaultResponse(Http::OK);
 }
@@ -85,7 +83,7 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {
 		filename = contentDisposition.substr(filenamePos + 9);
-		filename = filename.substr(0, filename.find("\""));
+		filename = filename.substr(0, filename.find('\"'));
 	}
 	if (filename.empty()) {
 		LOG_ERROR("Invalid filename in Content-Disposition header: " + contentDisposition);

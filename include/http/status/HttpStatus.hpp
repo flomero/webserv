@@ -99,6 +99,6 @@ enum Status {
 /**
  * @brief Get the status message for a given status code
  */
-std::string getStatusMessage(Http::Status statusCode);
+std::string getStatusMessage(Status statusCode);
 
 };	// namespace Http

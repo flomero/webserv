@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:25:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 18:11:00 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 17:05:53 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "HttpResponse.hpp"
 #include "RequestHandler.hpp"
 
-std::string humanReadableSize(uintmax_t size) {
+std::string humanReadableSize(const uintmax_t size) {
 	constexpr uintmax_t KB = 1024;
 	constexpr uintmax_t MB = KB * 1024;
 	constexpr uintmax_t GB = MB * 1024;
@@ -38,14 +38,14 @@ std::string humanReadableSize(uintmax_t size) {
 	return result.str();
 }
 
-std::string formatTimestamp(std::time_t time) {
-	std::tm* tm = std::localtime(&time);
+std::string formatTimestamp(const std::time_t time) {
+	const std::tm* tm = std::localtime(&time);
 	std::ostringstream ss;
 	ss << std::put_time(tm, "%Y-%m-%d %H:%M:%S");
 	return ss.str();
 }
 
-std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) {
+std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) const {
 	std::ostringstream html;
 
 	html << "<!DOCTYPE html>\n";
@@ -64,7 +64,7 @@ std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) {
 	// TODO: check for server root
 	if (path != "/") {
 		html << "<tr><td><a "
-				"href=\"../\">../</a></td><td>-</td><td>-</td></tr>\n";
+				"href=\"..\">../</a></td><td>-</td><td>-</td></tr>\n";
 	}
 	for (const auto& entry : std::filesystem::directory_iterator(path)) {
 		std::string entryPath = entry.path().string();
@@ -73,12 +73,11 @@ std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) {
 			entryName += "/";
 		}
 
-		std::string entrySize =
-			entry.is_directory() ? "-" : humanReadableSize(std::filesystem::file_size(entry.path()));
+		std::string entrySize = entry.is_directory() ? "-" : humanReadableSize(file_size(entry.path()));
 		std::time_t entryTime = decltype(entry.last_write_time())::clock::to_time_t(entry.last_write_time());
 		std::string entryTimeStr = formatTimestamp(entryTime);
 		std::string entryLink = _request.getLocation();
-		if (entry.is_directory() && entryLink.back() != '/') {
+		if (entryLink.back() != '/' && entryLink != ".." && entryLink != "." && entryLink != "/") {
 			entryLink += "/";
 		}
 		entryLink += entryName;

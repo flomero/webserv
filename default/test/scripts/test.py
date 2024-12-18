@@ -16,6 +16,7 @@ else:
     post_data = None
 
 # Output CGI response headers
+print("HTTP/1.1 200 OK")
 print("Content-Type: text/html")
 print()  # Empty line between headers and body (required)
 

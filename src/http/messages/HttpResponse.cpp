@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/03 16:21:52 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 12:53:22 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,51 @@
 #include "HttpStatus.hpp"
 #include "webserv.hpp"
 
-HttpResponse::HttpResponse(Http::Status status) : _status(status) { setDefaultHeaders(); }
+HttpResponse::HttpResponse(const Http::Status status) : _status(status) { setDefaultHeaders(); }
 
 HttpResponse::HttpResponse(int status) : _status(static_cast<Http::Status>(status)) { setDefaultHeaders(); }
 
-void HttpResponse::setStatus(Http::Status status) { _status = status; }
+HttpResponse::HttpResponse(const std::string &rawResponse) {
+	try {
+		std::istringstream iss(rawResponse);
+		std::string line;
+		std::getline(iss, line);
+		std::istringstream firstLine(line);
+		std::string httpVersion;
+		int status;
+		firstLine >> httpVersion >> status;
+		_status = static_cast<Http::Status>(status);
+		while (std::getline(iss, line) && !line.empty()) {
+			size_t pos = line.find(": ");
+			if (pos != std::string::npos) {
+				std::string key = line.substr(0, pos);
+				std::string value = line.substr(pos + 2);
+				_headers[key] = value;
+			}
+		}
+		std::string body;
+		while (std::getline(iss, line)) {
+			body += line + "\n";
+		}
+		_body = body;
+
+		if (_headers.find("Content-Length") == _headers.end()) {
+			addHeaderIfNew("Content-Length", std::to_string(_body.length()));
+		}
+	} catch (...) {
+		_status = Http::Status::INTERNAL_SERVER_ERROR;
+		_body = "Internal Server Error";
+		addHeaderIfNew("Content-Length", std::to_string(_body.length()));
+	}
+}
+
+void HttpResponse::setStatus(const Http::Status status) { _status = status; }
 
 Http::Status HttpResponse::getStatus() const { return _status; }
 
 std::string getCurrentDate() {
-	auto now = std::chrono::system_clock::now();
-	std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+	const auto now = std::chrono::system_clock::now();
+	const std::time_t now_c = std::chrono::system_clock::to_time_t(now);
 	std::string date = std::ctime(&now_c);
 	date.pop_back();
 	date += " GMT";
@@ -49,9 +83,10 @@ void HttpResponse::setDefaultHeaders() {
 }
 
 std::string HttpResponse::toString() const {
-	std::string str = _httpVersion + " " + std::to_string(_status) + " " + Http::getStatusMessage(_status) + "\r\n";
+	std::string str = _httpVersion + " " + std::to_string(_status) + " " + getStatusMessage(_status) + "\r\n";
 	for (const auto &[key, value] : _headers) {
-		str += key + ": " + value + "\r\n";
+		str += key + ": ";
+		str += value + "\r\n";
 	}
 	str += "\r\n" + _body;
 	return str;

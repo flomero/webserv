@@ -13,29 +13,16 @@
 
 #pragma once
 
-#include <exception>
 #include <filesystem>
-#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 
-// CGI script
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
-#include "ClientConnection.hpp"
 #include "HttpRequest.hpp"
-#include "HttpResponse.hpp"
 #include "HttpStatus.hpp"
-#include "Logger.hpp"
 #include "Route.hpp"
-#include "Socket.hpp"
-#include "misc/ft_iomanip.hpp"
 
 class ServerConfig {
-	private:
 		int _port;
 
 		size_t _requestTimeout;

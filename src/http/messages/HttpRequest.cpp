@@ -48,6 +48,7 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 	validateHeaders();
 	parseURI();
 	setBody("");
+	_bodyType = BodyType::NO_BODY;
 }
 
 void HttpRequest::_initBodyType() {
@@ -87,54 +88,17 @@ void HttpRequest::validateHeaders() const {
 void HttpRequest::parseURI() {
 	// set location
 	_location = "/";
-	std::size_t pathStart = _requestUri.find_first_of('/');
-	if (pathStart != _requestUri.npos) {
+	if (const std::size_t pathStart = _requestUri.find_first_of('/'); pathStart != std::string::npos) {
 		_location = _requestUri.substr(pathStart, _requestUri.size());
 	}
 	LOG_DEBUG("  |- Location:            " + _location);
 	// parse query string
-	size_t queryStart = _location.find_first_of('?');
-	if (queryStart != _requestUri.npos) {
+	if (size_t queryStart = _location.find_first_of('?'); queryStart != std::string::npos) {
 		LOG_DEBUG("  |- Query string found:  " + _location);
 		_queryString = _location.substr(queryStart + 1, _location.back());
 		_location = _location.substr(0, queryStart);
 		LOG_DEBUG("  |- Query string:        " + _queryString);
 	}
-}
-
-// TODO: move somewhere else
-void HttpRequest::parseChunkedBody(std::istringstream &requestStream) {
-	std::vector<char> body;
-	std::string line;
-
-	while (true) {
-		if (!std::getline(requestStream, line))
-			break;
-
-		if (line.empty())
-			continue;
-
-		std::size_t chunkSize;
-		try {
-			chunkSize = std::stoul(line, nullptr, 16);
-		} catch (const std::exception &e) {
-			throw BadRequest();
-		}
-
-		if (chunkSize == 0)
-			break;
-
-		std::string chunk(chunkSize, '\0');
-		requestStream.read(&chunk[0], chunkSize);
-
-		if (requestStream.gcount() < static_cast<std::streamsize>(chunkSize))
-			break;
-
-		body.insert(body.end(), chunk.begin(), chunk.end());
-		requestStream.ignore(2);
-	}
-
-	setBody(std::string(body.begin(), body.end()));
 }
 
 #pragma region Getters
@@ -147,7 +111,7 @@ std::string HttpRequest::getServerSidePath() const { return _serverSidePath; }
 
 bool HttpRequest::getIsFile() const { return _isFile; }
 
-std::string HttpRequest::getRessourceExtension() const { return _ressourceExtension; }
+std::string HttpRequest::getResourceExtension() const { return _resourceExtension; }
 
 std::string HttpRequest::getQueryString() const { return _queryString; }
 
@@ -163,11 +127,9 @@ void HttpRequest::setRequestUri(const std::string &requestUri) { _requestUri = r
 
 void HttpRequest::setServerSidePath(const std::string &serverSidePath) { _serverSidePath = serverSidePath; }
 
-void HttpRequest::setIsFile(bool isFile) { _isFile = isFile; }
+void HttpRequest::setIsFile(const bool isFile) { _isFile = isFile; }
 
-void HttpRequest::setRessourceExtension(const std::string &ressourceExtension) {
-	_ressourceExtension = ressourceExtension;
-}
+void HttpRequest::setResourceExtension(const std::string &resourceExtension) { _resourceExtension = resourceExtension; }
 
 void HttpRequest::setQueryString(const std::string &queryString) { _queryString = queryString; }
 
@@ -179,8 +141,8 @@ void HttpRequest::setLocation(const std::string &location) { _location = locatio
 
 std::ostream &operator<<(std::ostream &os, const HttpRequest &request) {
 	os << request.getMethod() << " " << request.getRequestUri() << " " << request.getHttpVersion() << "\r\n";
-	for (const auto &header : request.getHeaders()) {
-		os << header.first << ": " << header.second << "\r\n";
+	for (const auto &[key, val] : request.getHeaders()) {
+		os << key << ": " << val << "\r\n";
 	}
 	os << "\r\n";
 	os << request.getBody();

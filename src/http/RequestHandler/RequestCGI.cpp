@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:21 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 16:11:27 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/10 16:54:01 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
  * @brief   - If folder
  * @brief     -> Check for autoindex => If supported execute
  *
- * @param request
  * @param route
  */
 void RequestHandler::handleRequestCGI(Route& route) {
@@ -33,11 +32,12 @@ void RequestHandler::handleRequestCGI(Route& route) {
 		// Checks if this extensions has to be handled by a CGI
 		LOG_INFO("Checks if this extension has to be handled by a CGI");
 
-		if (route.getCgiHandlers().at(_request.getRessourceExtension()).empty())
-			LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getRessourceExtension() + "\n");
+		if (route.getCgiHandlers().find(_request.getResourceExtension()) == route.getCgiHandlers().end() ||
+			route.getCgiHandlers().at(_request.getResourceExtension()).empty())
+			LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getResourceExtension() + "\n");
 		else {
-			LOG_DEBUG("  |- Found:            " + _request.getRessourceExtension());
-			LOG_DEBUG("  |- Executable path:  " + route.getCgiHandlers().at(_request.getRessourceExtension()) + "\n");
+			LOG_DEBUG("  |- Found:            " + _request.getResourceExtension());
+			LOG_DEBUG("  |- Executable path:  " + route.getCgiHandlers().at(_request.getResourceExtension()) + "\n");
 			handleRequestCGIExecution(route);
 		}
 
