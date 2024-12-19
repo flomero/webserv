@@ -69,7 +69,6 @@ void ClientConnection::handleClient() {
 bool ClientConnection::_receiveHeader() {
 	LOG_DEBUG(_log("Receiving header from client"));
 
-
 	// Attempt to read data into the header buffer
 	size_t remainingHeaderSize = _requestHandler.getConfig().getClientHeaderBufferSize() - _headerBuffer.size();
 	if (!_readData(_clientFd, _headerBuffer, remainingHeaderSize)) {
@@ -124,7 +123,7 @@ bool ClientConnection::_receiveHeader() {
 
 void ClientConnection::_handleCompleteChunkedBodyRead() {
 	LOG_DEBUG(_log("Finished reading chunked request body"));
-	
+
 	LOG_DEBUG(_log("Request body: \n" + _request.getBody()));
 	// _readingChunkSize = true;
 	// Set the status to ready to send
@@ -145,8 +144,8 @@ bool ClientConnection::_readChunkData() {
 
 	// Calculate the remaining chunk size to read
 	const size_t currentChunkSize = _bodyBuffer.size();
-	const size_t remainingChunkSize = (_chunkSizeRemaining > currentChunkSize) ? (_chunkSizeRemaining - currentChunkSize) : 0;
-
+	const size_t remainingChunkSize =
+		(_chunkSizeRemaining > currentChunkSize) ? (_chunkSizeRemaining - currentChunkSize) : 0;
 
 	// Determine the maximum bytes to read in this iteration
 	const size_t maxReadSize = _requestHandler.getConfig().getClientBodyBufferSize();
@@ -187,7 +186,6 @@ bool ClientConnection::_readChunkTerminator() {
 			return false;
 		}
 	}
-
 
 	// Remove the chunk terminator from _bodyBuffer
 	_bodyBuffer.erase(_bodyBuffer.begin(), _bodyBuffer.begin() + pos + 2);
