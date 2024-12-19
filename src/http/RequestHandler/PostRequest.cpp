@@ -84,7 +84,7 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {
-		filename = contentDisposition.substr(filenamePos + 9);
+		filename = contentDisposition.substr(filenamePos + 10);
 		filename = filename.substr(0, filename.find('\"'));
 	}
 	if (filename.empty()) {
