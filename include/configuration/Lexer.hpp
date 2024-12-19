@@ -13,11 +13,7 @@
 #pragma once
 
 #include <map>
-#include <sstream>
 #include <string>
-#include <vector>
-
-#include "ft_iomanip.hpp"
 
 #define COMMENT_PLACEHOLDER '#'
 
@@ -99,7 +95,7 @@ class Lexer {
 		int _column;
 
 		char getChar();
-		char peekChar();
+		char peekChar() const;
 		void skipWhitespace();
 		void skipComment();
 

@@ -12,6 +12,8 @@
 
 #include "Parser.hpp"
 
+#include <sstream>
+
 Parser::Parser(Lexer& lexer) : _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
 void Parser::expect(eTokenType type) {
@@ -30,7 +32,7 @@ std::vector<ServerConfig> Parser::parse() {
 
 	expect(TOKEN_CLOSE_BRACE);
 
-	if (_parsingErrors.size() != 0)
+	if (!_parsingErrors.empty())
 		throw std::runtime_error("Found some parsing errors");
 
 	return servers;
@@ -374,5 +376,5 @@ void Parser::reportError(eParsingErrors error, std::string expected, std::string
 }
 
 void Parser::flushErrors() const {
-	for (auto msg : _parsingErrors) std::cerr << msg << std::endl << std::endl;
+	for (const auto& msg : _parsingErrors) std::cerr << msg << std::endl << std::endl;
 }

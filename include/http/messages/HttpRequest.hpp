@@ -25,15 +25,15 @@ class HttpRequest : public HttpMessage {
 		enum class BodyType { NO_BODY, CHUNKED, CONTENT_LENGTH };
 
 		HttpRequest() = default;
-		HttpRequest(const std::string &rawRequest);
-		virtual ~HttpRequest() = default;
+		explicit HttpRequest(const std::string &rawRequest);
+		~HttpRequest() override = default;
 
 		// Getters
 		[[nodiscard]] std::string getMethod() const;
 		[[nodiscard]] std::string getRequestUri() const;
 		[[nodiscard]] std::string getServerSidePath() const;
 		[[nodiscard]] bool getIsFile() const;
-		[[nodiscard]] std::string getRessourceExtension() const;
+		[[nodiscard]] std::string getResourceExtension() const;
 		[[nodiscard]] std::string getQueryString() const;
 		[[nodiscard]] std::string getLocation() const;
 
@@ -46,26 +46,28 @@ class HttpRequest : public HttpMessage {
 		void setRequestUri(const std::string &requestUri);
 		void setServerSidePath(const std::string &serverSidePath);
 		void setIsFile(bool isFile);
-		void setRessourceExtension(const std::string &ressourceExtension);
+		void setResourceExtension(const std::string &resourceExtension);
 		void setQueryString(const std::string &queryString);
 		void setLocation(const std::string &location);
 
 		// Error 400
-		class BadRequest : public std::exception {
+		class BadRequest final : public std::exception {
 			public:
-				const char *what() const noexcept override { return "Bad request - invalid HTTP request line"; }
+				[[nodiscard]] const char *what() const noexcept override {
+					return "Bad request - invalid HTTP request line";
+				}
 		};
 
 		// Error 501
-		class NotImplemented : public std::exception {
+		class NotImplemented final : public std::exception {
 			public:
-				const char *what() const noexcept override { return "Method not implemented"; }
+				[[nodiscard]] const char *what() const noexcept override { return "Method not implemented"; }
 		};
 
 		// Error 505
-		class InvalidVersion : public std::exception {
+		class InvalidVersion final : public std::exception {
 			public:
-				const char *what() const noexcept override { return "HTTP version not supported"; }
+				[[nodiscard]] const char *what() const noexcept override { return "HTTP version not supported"; }
 		};
 
 	private:
@@ -73,18 +75,16 @@ class HttpRequest : public HttpMessage {
 		std::string _requestUri;
 		std::string _rawRequest;
 		std::string _serverSidePath;
-		bool _isFile;
+		bool _isFile{};
 		std::string _location;
 		BodyType _bodyType;
-		std::string _ressourceExtension;
+		std::string _resourceExtension;
 		std::string _queryString;
 		size_t _contentLength = 0;
 
 		void parseURI();
-		void validateRequestLine() const;
 		void _validateRequestLine() const;
 		void validateHeaders() const;
-		void parseChunkedBody(std::istringstream &requestStream);
 		void _initBodyType();
 
 		std::unordered_set<std::string> _supportedMethods = {"GET", "POST", "DELETE"};

@@ -1,12 +1,13 @@
 #pragma once
 
-#include <sys/poll.h>
-
 #include <unordered_map>
 #include <vector>
 
 #include "PollFdManager.hpp"
 #include "ServerConfig.hpp"
+
+class ClientConnection;
+class Socket;
 
 class MultiSocketWebserver {
 	private:

@@ -41,8 +41,8 @@ const std::vector<Route>& ServerConfig::getRoutes() const { return _routes; }
 const std::map<int, std::string>& ServerConfig::getErrorPages() const { return _errorPages; }
 
 // Custom Getters
-std::optional<std::string> ServerConfig::getErrorPage(Http::Status code) const {
-	auto it = _errorPages.find(code);
+std::optional<std::string> ServerConfig::getErrorPage(const Http::Status code) const {
+	const auto it = _errorPages.find(code);
 	if (it == _errorPages.end()) {
 		return std::nullopt;
 	}
@@ -50,11 +50,11 @@ std::optional<std::string> ServerConfig::getErrorPage(Http::Status code) const {
 }
 
 // Setters
-void ServerConfig::setPort(int port) { _port = port; }
+void ServerConfig::setPort(const int port) { _port = port; }
 
-void ServerConfig::setRequestTimeout(size_t timeout) { _requestTimeout = timeout; }
+void ServerConfig::setRequestTimeout(const size_t timeout) { _requestTimeout = timeout; }
 
-void ServerConfig::setClientMaxBodySize(size_t size) { _clientMaxBodySize = size; }
+void ServerConfig::setClientMaxBodySize(const size_t size) { _clientMaxBodySize = size; }
 
 void ServerConfig::setClientBodyBufferSize(const size_t size) { _clientBodyBufferSize = size; }
 
@@ -79,13 +79,13 @@ std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
 	os << std::left << std::setw(32) << COLOR(BLUE, server.getServerName()) << BLUE << server.getHost() << ":"
 	   << server.getPort() << RESET_COLOR << "\n";
 
-	if (server.getIndex() != "") {
+	if (!server.getIndex().empty()) {
 		os << std::left << std::setw(32) << "  |- index: " << server.getIndex() << "\n";
 	}
-	if (server.getRoot() != "") {
+	if (!server.getRoot().empty()) {
 		os << std::left << std::setw(32) << "  |- root: " << server.getRoot() << "\n";
 	}
-	if (server.getUploadDir() != "") {
+	if (!server.getUploadDir().empty()) {
 		os << std::left << std::setw(32) << "  |- upload dir: " << server.getUploadDir() << "\n";
 	}
 
@@ -96,7 +96,7 @@ std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
 	   << " bytes\n";
 	os << std::left << std::setw(32) << "  |- request timeout: " << server.getRequestTimeout() << " ms\n";
 
-	if (server.getErrorPages().size() != 0) {
+	if (!server.getErrorPages().empty()) {
 		os << "  |- error pages: \n";
 		for (const auto& page : server.getErrorPages())
 			os << std::left << std::setw(8) << "    |- " << page.first << " -> " << page.second << "\n";

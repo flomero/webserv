@@ -52,5 +52,5 @@ class ClientConnection {
 		bool _parseHttpRequestHeader(const std::string& header);
 		bool _sendDataToClient(const std::string& data);
 		static std::optional<size_t> _findHeaderEnd(const std::vector<char>& buffer);
-		std::string _log(const std::string& msg) const;
+		[[nodiscard]] std::string _log(std::string msg) const;
 };

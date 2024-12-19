@@ -10,12 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/configuration/Lexer.hpp"
+#include "Lexer.hpp"
+
+#include <sstream>
 
 Lexer::Lexer(const std::string& source_name, const std::string& source_content)
 	: _source_name(source_name), _source_content(source_content), _currentPos(0), _line(1), _column(0) {}
 
-char Lexer::peekChar() {
+char Lexer::peekChar() const {
 	if (_currentPos >= _source_content.size())
 		return '\0';
 	return _source_content[_currentPos];
@@ -116,12 +118,11 @@ Token Lexer::parseNumber() {
 	return {TOKEN_NUMBER, value, _line, _column};
 }
 
-Token Lexer::parseIp_v4(std::string value, int count) {
+Token Lexer::parseIp_v4(std::string value, const int count) {
 	if (peekChar() != '.') {
 		if (count != 4)
 			return parseString(value);	// Defaults to string
-		else
-			return {TOKEN_IP_V4, value, _line, _column};
+		return {TOKEN_IP_V4, value, _line, _column};
 	}
 
 	value += getChar();
@@ -133,9 +134,8 @@ Token Lexer::parseIp_v4(std::string value, int count) {
 
 Token Lexer::parseString(std::string value) {
 	while (isalnum(peekChar()) || (peekChar() >= '<' && peekChar() <= '@') ||
-		   (peekChar() >= '-' && peekChar() <= '/') || (peekChar() == '!') ||
-		   (peekChar() >= '$' && peekChar() <= '&') || (peekChar() >= '*' && peekChar() <= '+') ||
-		   (peekChar() == '_') || (peekChar() == ':'))
+		   (peekChar() >= '-' && peekChar() <= '/') || peekChar() == '!' || (peekChar() >= '$' && peekChar() <= '&') ||
+		   (peekChar() >= '*' && peekChar() <= '+') || peekChar() == '_' || peekChar() == ':')
 		value += getChar();
 
 	return {TOKEN_STRING, value, _line, _column};
@@ -144,14 +144,13 @@ Token Lexer::parseString(std::string value) {
 Token Lexer::parseKeywordOrString() {
 	std::string value;
 	while (isalnum(peekChar()) || (peekChar() >= '<' && peekChar() <= '@') ||
-		   (peekChar() >= '-' && peekChar() <= '/') || (peekChar() == '!') ||
-		   (peekChar() >= '$' && peekChar() <= '&') || (peekChar() >= '*' && peekChar() <= '+') ||
-		   (peekChar() == '_') || (peekChar() == ':'))
+		   (peekChar() >= '-' && peekChar() <= '/') || peekChar() == '!' || (peekChar() >= '$' && peekChar() <= '&') ||
+		   (peekChar() >= '*' && peekChar() <= '+') || peekChar() == '_' || peekChar() == ':')
 		value += getChar();
 
-	for (auto it = tokenToString.begin(); it != tokenToString.end(); it++) {
-		if (value == (*it).second)
-			return {(*it).first, value, _line, _column};
+	for (const auto& [fst, snd] : tokenToString) {
+		if (value == snd)
+			return {fst, value, _line, _column};
 	}
 
 	// if (value == "http")
