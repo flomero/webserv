@@ -112,6 +112,7 @@ bool ClientConnection::_receiveHeader() {
 			_bodyBuffer.insert(_bodyBuffer.end(), _headerBuffer.begin(), _headerBuffer.end());
 			// LOG_DEBUG(
 			// 	_log("Added " + std::to_string(_headerBuffer.size()) + " bytes from header buffer to body buffer"));
+			_headerBuffer.clear();
 		}
 
 		_status = Status::BODY;

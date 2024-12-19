@@ -15,6 +15,7 @@
 #include <sstream>
 
 #include "HttpResponse.hpp"
+#include "Logger.hpp"
 #include "RequestHandler.hpp"
 
 std::string humanReadableSize(const uintmax_t size) {
@@ -153,10 +154,8 @@ void RequestHandler::handleAutoindex(const std::string& path) {
 		_response.setStatus(Http::OK);
 		_response.setBody(buildDirectoryListingHTML(path));
 		_response.addHeader("Content-Type", "text/html");
+		_response.setDefaultHeaders();
 	} else {
 		_response.setStatus(Http::NOT_FOUND);
 	}
-
-	// TODO: send response
-	std::cout << _response.toString() << std::endl;
 }

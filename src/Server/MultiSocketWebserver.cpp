@@ -40,7 +40,7 @@ MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
 void MultiSocketWebserver::run() {
 	while (true) {
 		// TODO timeout
-		if (const int eventCount = poll(_polls.data(), _polls.size(), -1); eventCount == -1) {
+		if (const int eventCount = poll(_polls.data(), _polls.size(), 5000); eventCount == -1) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;
 		}
@@ -79,6 +79,11 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 		LOG_ERROR("Accept failed: " + std::string(strerror(errno)));
 		return;
 	}
+
+	timeval tv{};
+	tv.tv_sec = 5;
+	tv.tv_usec = 0;
+	setsockopt(clientFd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
 	try {
 		_clients.emplace(clientFd,

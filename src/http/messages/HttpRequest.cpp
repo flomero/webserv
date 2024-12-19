@@ -21,6 +21,7 @@
  * @param rawRequest The raw HTTP request
  */
 HttpRequest::HttpRequest(const std::string &rawRequest) {
+	_bodyType = BodyType::NO_BODY;
 	std::istringstream requestStream(rawRequest);
 	std::string line;
 	std::getline(requestStream, line);
@@ -48,7 +49,6 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 	validateHeaders();
 	parseURI();
 	setBody("");
-	_bodyType = BodyType::NO_BODY;
 }
 
 void HttpRequest::_initBodyType() {
