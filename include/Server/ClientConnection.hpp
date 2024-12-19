@@ -34,14 +34,23 @@ class ClientConnection {
 		HttpRequest _request = HttpRequest();
 		HttpResponse _response = HttpResponse();
 
+		bool _readingChunkSize = true;
+		size_t _chunkSizeRemaining = 0;
+
+		void _handleCompleteChunkedBodyRead();
+		bool _readChunkData();
+		bool _readChunkTerminator();
+		void _readRequestBodyIfChunked();
+		bool _parseChunkSize();
 		void _receiveBody();
 		bool _extractHeaderIfComplete(std::vector<char>& header);
 		void _logHeader() const;
 		bool _readData(int fd, std::vector<char>& buffer, size_t bytesToRead);
 		bool _receiveHeader();
 		void _readRequestBodyIfContentLength();
+		void _handleCompleteBodyRead();
 		bool _parseHttpRequestHeader(const std::string& header);
 		bool _sendDataToClient(const std::string& data);
 		static std::optional<size_t> _findHeaderEnd(const std::vector<char>& buffer);
-		[[nodiscard]] std::string _log(std::string msg) const;
+		[[nodiscard]] std::string _log(const std::string& msg) const;
 };

@@ -66,6 +66,7 @@ void RequestHandler::findMatchingRoute() {
  */
 HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	_request = request;
+	_response = HttpResponse();
 	_request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
 
 	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());

@@ -39,7 +39,8 @@ MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
 
 void MultiSocketWebserver::run() {
 	while (true) {
-		if (const int eventCount = poll(_polls.data(), _polls.size(), -1); eventCount == -1) {
+		// TODO timeout
+		if (const int eventCount = poll(_polls.data(), _polls.size(), 5000); eventCount == -1) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;
 		}
@@ -49,13 +50,19 @@ void MultiSocketWebserver::run() {
 			if (revents & POLLIN) {
 				if (isServerFd(fd)) {
 					_acceptConnection(fd);
-				} else {
-					_handleClientData(fd);
+					break;
 				}
-			} else if (revents & POLLOUT) {
+				_handleClientData(fd);
+				break;
+			}
+			if (revents & POLLOUT) {
 				// LOG_INFO("Write event on socket " + std::to_string(fd));
 				_handleClientWrite(fd);
-			} else if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
+				break;
+			}
+			if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
+				LOG_ERROR("Error on socket " + std::to_string(fd));
+				_polls.removeFd(fd);
 			}
 		}
 	}
@@ -72,6 +79,11 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 		LOG_ERROR("Accept failed: " + std::string(strerror(errno)));
 		return;
 	}
+
+	timeval tv{};
+	tv.tv_sec = 5;
+	tv.tv_usec = 0;
+	setsockopt(clientFd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
 	try {
 		_clients.emplace(clientFd,
