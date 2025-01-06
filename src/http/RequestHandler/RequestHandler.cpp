@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/06 14:51:17 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/06 16:38:06 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,11 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 
 	// Find the best matching route
 	findMatchingRoute();
+
+	if (_matchedRoute.getCode() != 0) {
+		LOG_INFO("Route has a return directive.");
+		return handleRedirectRequest();
+	}
 
 	// check if method is allowed
 	if (std::find(_matchedRoute.getMethods().begin(), _matchedRoute.getMethods().end(), _request.getMethod()) ==
