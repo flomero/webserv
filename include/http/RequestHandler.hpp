@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2024/12/10 16:20:46 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/06 14:50:15 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,20 +29,23 @@ class RequestHandler {
 		// General Functions
 		void findMatchingRoute();
 
-		// GET request handlers
-		HttpResponse handleGetRequest();
-		HttpResponse handleGetFile();
-		HttpResponse handleGetDirectory();
-
 		// CGI handler
 		void handleRequestCGI(Route& route);
 		void handleRequestCGIExecution(const Route& route);
 
 		// Request handlers
+		// GET request handlers
+		HttpResponse handleGetRequest();
+		HttpResponse handleGetFile();
+		HttpResponse handleGetDirectory();
+
 		// POST request handlers
 		[[nodiscard]] HttpResponse handlePostRequest();
 		[[nodiscard]] HttpResponse handlePostMultipart();
 		[[nodiscard]] HttpResponse handleFileUpload(const std::string& part, const std::string& contentDisposition);
+
+		// DELETE request handler
+		[[nodiscard]] HttpResponse handleDeleteRequest();
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);

@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/12/19 17:07:59 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/06 14:51:17 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,8 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 		_response = handleGetRequest();
 	else if (_request.getMethod() == "POST")
 		_response = handlePostRequest();
+	else if (_request.getMethod() == "DELETE")
+		_response = handleDeleteRequest();
 
 	if (_request.getHttpVersion() == "HTTP/1.0")
 		_response.setHttpVersion("HTTP/1.0");
