@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/12/10 16:52:46 by flfische         ###   ########.fr       */
+/*   Updated: 2024/12/19 17:07:59 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,13 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 
 	// Find the best matching route
 	findMatchingRoute();
+
+	// check if method is allowed
+	if (std::find(_matchedRoute.getMethods().begin(), _matchedRoute.getMethods().end(), _request.getMethod()) ==
+		_matchedRoute.getMethods().end()) {
+		LOG_WARN("Method not allowed");
+		return buildDefaultResponse(Http::METHOD_NOT_ALLOWED);
+	}
 
 	// Check resource existence
 	if (_request.getMethod() != "POST" ||
