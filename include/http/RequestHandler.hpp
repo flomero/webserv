@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/06 14:50:15 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/06 16:35:16 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,9 @@ class RequestHandler {
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
 		[[nodiscard]] std::string buildDirectoryListingHTML(const std::string& path) const;
+
+		// Redirect Request
+		[[nodiscard]] HttpResponse handleRedirectRequest();
 
 	public:
 		[[nodiscard]] ServerConfig& getConfig() const;

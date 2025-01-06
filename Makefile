@@ -47,6 +47,7 @@ SRCS     := main.cpp \
 			PostRequest.cpp \
 			GetRequest.cpp \
 			DeleteRequest.cpp \
+			RedirectRequest.cpp \
 			RequestCGI.cpp \
 			RequestCGIExecution.cpp \
 			RequestAutoindex.cpp \
