@@ -320,6 +320,13 @@ Route Parser::parseRoute() {
 				break;
 			}
 
+			case TOKEN_UPLOAD_DIR:
+				expect(TOKEN_UPLOAD_DIR);
+				route.setUploadDir(_currentToken.value);
+				expect(TOKEN_STRING);
+				expect(TOKEN_SEMICOLON);
+				break;
+
 			case TOKEN_RETURN: {
 				expect(TOKEN_RETURN);
 
