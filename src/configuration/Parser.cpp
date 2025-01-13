@@ -320,7 +320,7 @@ Route Parser::parseRoute() {
 				break;
 			}
 
-      case TOKEN_ROOT:
+			case TOKEN_ROOT:
 				expect(TOKEN_ROOT);
 				route.setRoot(_currentToken.value);
 				expect(TOKEN_STRING);
