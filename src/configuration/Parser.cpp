@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/22 09:54:45 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 12:27:15 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -310,6 +310,9 @@ Route Parser::parseRoute() {
 			case TOKEN_CGI: {
 				expect(TOKEN_CGI);
 				std::string ext = _currentToken.value;
+				if (ext[0] != '.' || ext.size() <= 1)
+					reportError(CGI_BAD_EXTENSION, ".__ e.g: '.py' or '.php'", ext);
+
 				expect(TOKEN_STRING);
 				std::string handler = _currentToken.value;
 				expect(TOKEN_STRING);

@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 17:08:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/14 14:40:52 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 12:26:54 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@
 enum eParsingErrors {
 	UNEXPECTED_TOKEN,
 
-	LISTEN_MISSING_VALUES
+	LISTEN_MISSING_VALUES,
+	CGI_BAD_EXTENSION
 };
 
 #define ERROR_NAME 0
@@ -28,4 +29,6 @@ enum eParsingErrors {
 const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages = {
 	{UNEXPECTED_TOKEN, {"UNEXPECTED_TOKEN", "expected: "}},
 
-	{LISTEN_MISSING_VALUES, {"LISTEN_MISSING_VALUES", "expected: "}}};
+	{LISTEN_MISSING_VALUES, {"LISTEN_MISSING_VALUES", "expected: "}},
+	{CGI_BAD_EXTENSION, {"CGI_BAD_EXTENSION", "expected: "}},
+};
