@@ -23,8 +23,7 @@ void Parser::expect(eTokenType type) {
 	_currentToken = _lexer.nextToken();
 }
 
-std::vector<ServerConfig> Parser::
-parse() {
+std::vector<ServerConfig> Parser::parse() {
 	std::vector<ServerConfig> servers;
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);

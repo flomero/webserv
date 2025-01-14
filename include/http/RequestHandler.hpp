@@ -12,14 +12,15 @@
 
 #pragma once
 
+#include <signal.h>
+#include <sys/wait.h>
+
+#include <chrono>
+#include <thread>
+
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Route.hpp"
-
-#include <chrono>
-#include <signal.h>
-#include <sys/wait.h>
-#include <thread>
 #define DEFAULT_CGI_TIMEOUT_MS 5000
 
 class ServerConfig;

@@ -79,8 +79,6 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		exit(1);
 	}
 
-
-
 	// Parent process: send data to child and read response
 	close(pipeIn[0]);	// Close read end of input pipe
 	close(pipeOut[1]);	// Close write end of output pipe
@@ -109,7 +107,7 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
 		if (elapsed_ms > DEFAULT_CGI_TIMEOUT_MS) {
 			LOG_ERROR("CGI execution timed out. Killing process...");
-			kill(pid, SIGKILL);  // Kill the child process
+			kill(pid, SIGKILL);		   // Kill the child process
 			waitpid(pid, &status, 0);  // Wait for the process to be reaped
 			break;
 		}

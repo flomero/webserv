@@ -119,7 +119,7 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	LOG_INFO("Checking for route's information's: CGI");
 	if (!_matchedRoute.getCgiHandlers().empty()) {
 		handleRequestCGI(_matchedRoute);
-		if (_cgiExecuted){
+		if (_cgiExecuted) {
 			_response.setDefaultHeaders();
 			return _response;
 		}
