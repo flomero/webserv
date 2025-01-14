@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 13:20:20 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 14:19:49 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,6 +308,8 @@ Route Parser::parseRoute() {
 					route.setAutoindex(true);
 				} else if (_currentToken.type == TOKEN_OFF) {
 					route.setAutoindex(false);
+				} else {
+					reportError(AUTOINDEX_BAD_VALUE, "'on' or 'off'", _currentToken.value);
 				}
 				_currentToken = _lexer.nextToken();
 				expect(TOKEN_SEMICOLON);
