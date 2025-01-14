@@ -11,9 +11,10 @@
 /* ************************************************************************** */
 
 #include "Parser.hpp"
-#include "Logger.hpp"
 
 #include <sstream>
+
+#include "Logger.hpp"
 
 Parser::Parser(Lexer& lexer) : _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
