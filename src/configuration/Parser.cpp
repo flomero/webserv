@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 10:20:27 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 15:10:20 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -323,6 +323,13 @@ Route Parser::parseRoute() {
 			case TOKEN_ROOT:
 				expect(TOKEN_ROOT);
 				route.setRoot(_currentToken.value);
+				expect(TOKEN_STRING);
+				expect(TOKEN_SEMICOLON);
+				break;
+
+			case TOKEN_INDEX:
+				expect(TOKEN_INDEX);
+				route.setIndex(_currentToken.value);
 				expect(TOKEN_STRING);
 				expect(TOKEN_SEMICOLON);
 				break;

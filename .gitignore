@@ -41,3 +41,6 @@ webserv
 # Editor files
 .vscode
 .idea
+
+# Tester files
+tester
