@@ -291,7 +291,8 @@ Route Parser::parseRoute() {
 						_currentToken = _lexer.nextToken();
 					}
 					if (methods.size() <= 0)
-						reportError(ALLOW_METHODS_MISSING_VALUES, "at least one method: 'GET', 'POST' or 'DELETE'", "None");
+						reportError(ALLOW_METHODS_MISSING_VALUES, "at least one method: 'GET', 'POST' or 'DELETE'",
+									"None");
 					route.setMethods(methods);
 				}
 				expect(TOKEN_SEMICOLON);
