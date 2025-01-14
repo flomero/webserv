@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 12:27:15 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 12:31:00 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,6 +315,9 @@ Route Parser::parseRoute() {
 
 				expect(TOKEN_STRING);
 				std::string handler = _currentToken.value;
+				if (handler[handler.size() - 1] == '/')
+					reportError(CGI_BAD_EXECUTABLE, "CGI executable for " + ext + " must be a file", handler);
+
 				expect(TOKEN_STRING);
 				auto cgiHandlers = route.getCgiHandlers();
 				cgiHandlers[ext] = handler;
