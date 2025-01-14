@@ -52,13 +52,14 @@ void MultiSocketWebserver::run() {
 					_acceptConnection(fd);
 					break;
 				}
-				_handleClientData(fd);
-				break;
+				if (_handleClientData(fd)) {
+					break;
+				}
 			}
 			if (revents & POLLOUT) {
-				// LOG_INFO("Write event on socket " + std::to_string(fd));
-				_handleClientWrite(fd);
-				break;
+				if (_handleClientWrite(fd)) {
+					break;
+				}
 			}
 			if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
 				LOG_ERROR("Error on socket " + std::to_string(fd));
@@ -66,7 +67,6 @@ void MultiSocketWebserver::run() {
 			}
 		}
 	}
-
 	// TODO: Poll failed, handle error
 }
 
@@ -97,38 +97,51 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 	}
 }
 
-void MultiSocketWebserver::_handleClientData(const int client_fd) {
+bool MultiSocketWebserver::_handleClientData(const int client_fd) {
 	auto it = _clients.find(client_fd);
 	if (it == _clients.end()) {
 		LOG_ERROR("Client not found in map");
-		return;
+		return false;
 	}
 
 	ClientConnection& client = *it->second;
+	if (client.getStatus() == ClientConnection::Status::READY_TO_SEND) {
+		return false;
+	}
 	client.handleClient();
 
 	if (client.isDisconnected()) {
 		_clients.erase(client_fd);
 		_polls.removeFd(client_fd);
 		LOG_DEBUG("Client disconnected from socket " + std::to_string(client_fd) + " after read");
+		return false;
 	}
+
+	return true;
 }
 
 bool MultiSocketWebserver::isServerFd(int fd) const { return _sockets.find(fd) != _sockets.end(); }
 
-void MultiSocketWebserver::_handleClientWrite(int fd) {
+bool MultiSocketWebserver::_handleClientWrite(int fd) {
 	auto it = _clients.find(fd);
 	if (it == _clients.end()) {
 		LOG_ERROR("Client not found in map");
-		return;
+		return false;
 	}
 
 	ClientConnection& client = *it->second;
+	if (client.getStatus() != ClientConnection::Status::READY_TO_SEND) {
+		return false;
+	}
+
 	client.sendResponse();
 
 	if (client.isDisconnected()) {
 		_clients.erase(fd);
 		_polls.removeFd(fd);
 		LOG_DEBUG("Client disconnected from socket " + std::to_string(fd) + " after write");
+		return false;
 	}
+
+	return true;
 }

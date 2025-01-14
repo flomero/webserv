@@ -17,14 +17,14 @@ class MultiSocketWebserver {
 		PollFdManager& _polls;
 
 		void _acceptConnection(int server_fd);
-		void _handleClientData(int client_fd);
+		bool _handleClientData(int client_fd);
 		[[nodiscard]] bool isServerFd(int fd) const;
 
 	public:
 		explicit MultiSocketWebserver(std::vector<ServerConfig> servers_config);
 		~MultiSocketWebserver();
 
-		void _handleClientWrite(int fd);
+		bool _handleClientWrite(int fd);
 		void run();
 		void initSockets();
 };

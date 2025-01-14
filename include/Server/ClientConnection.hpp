@@ -22,6 +22,8 @@ class ClientConnection {
 		void sendResponse();
 		[[nodiscard]] bool isDisconnected() const;
 
+		[[nodiscard]] Status getStatus() const;
+
 	private:
 		int _clientFd;
 		bool _disconnected;
@@ -31,6 +33,8 @@ class ClientConnection {
 		RequestHandler _requestHandler;
 
 		Status _status = Status::HEADER;
+
+	private:
 		HttpRequest _request = HttpRequest();
 		HttpResponse _response = HttpResponse();
 

@@ -54,6 +54,7 @@ int main(const int argc, const char *argv[]) {
 		servers_config = parser.parse();
 	} catch (...) {
 		parser.flushErrors();
+		return 1;
 	}
 	for (const auto &serv : servers_config) {
 		std::cout << serv << std::endl;
