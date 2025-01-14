@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestCGIExecution.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2024/12/10 16:21:25 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/14 10:54:46 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,8 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		exit(1);
 	}
 
+
+
 	// Parent process: send data to child and read response
 	close(pipeIn[0]);	// Close read end of input pipe
 	close(pipeOut[1]);	// Close write end of output pipe
@@ -89,18 +91,49 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 
 	close(pipeIn[1]);  // Close write end of input pipe
 
-	// Read the CGI output
+	// Timeout handling
+	auto start_time = std::chrono::high_resolution_clock::now();
+	int status;
+	bool child_terminated = false;
+
+	while (true) {
+		// Check if the child process has terminated
+		pid_t result = waitpid(pid, &status, WNOHANG);
+		if (result == pid) {
+			child_terminated = true;
+			break;
+		}
+
+		// Check if timeout has been exceeded
+		auto now = std::chrono::high_resolution_clock::now();
+		auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+		if (elapsed_ms > DEFAULT_CGI_TIMEOUT_MS) {
+			LOG_ERROR("CGI execution timed out. Killing process...");
+			kill(pid, SIGKILL);  // Kill the child process
+			waitpid(pid, &status, 0);  // Wait for the process to be reaped
+			break;
+		}
+
+		// Sleep briefly to avoid busy-waiting
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
 	char buffer[4096];
 	ssize_t bytesRead;
 	std::string response;
-	while ((bytesRead = read(pipeOut[0], buffer, sizeof(buffer))) > 0) response.append(buffer, bytesRead);
+
+	if (child_terminated) {
+		// Read the CGI output
+		while ((bytesRead = read(pipeOut[0], buffer, sizeof(buffer))) > 0) {
+			response.append(buffer, bytesRead);
+		}
+		_response = HttpResponse(response);
+		_cgiExecuted = true;
+	} else {
+		_response = buildDefaultResponse(Http::Status::GATEWAY_TIMEOUT);
+		_cgiExecuted = true;
+	}
 
 	close(pipeOut[0]);
 	LOG_DEBUG("response:\n" + response + "\n");
-
-	_response = HttpResponse(response);
-	_cgiExecuted = true;
-
-	// Wait for the child process to finish
-	waitpid(pid, nullptr, 0);
 }

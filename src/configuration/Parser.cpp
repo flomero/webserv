@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/22 09:54:45 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 10:20:27 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ void Parser::expect(eTokenType type) {
 	_currentToken = _lexer.nextToken();
 }
 
-std::vector<ServerConfig> Parser::parse() {
+std::vector<ServerConfig> Parser::
+parse() {
 	std::vector<ServerConfig> servers;
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);
