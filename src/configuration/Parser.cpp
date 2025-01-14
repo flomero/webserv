@@ -6,19 +6,24 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 12:31:00 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 13:01:47 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
+#include "Logger.hpp"
 
 #include <sstream>
 
 Parser::Parser(Lexer& lexer) : _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
 void Parser::expect(eTokenType type) {
-	if (_currentToken.type != type)
-		reportError(UNEXPECTED_TOKEN, tokenToString.at(type), tokenToString.at(_currentToken.type));
+	if (_currentToken.type != type) {
+		if (_currentToken.type == TOKEN_STRING)
+			reportError(UNEXPECTED_TOKEN, tokenToString.at(type), _currentToken.value);
+		else
+			reportError(UNEXPECTED_TOKEN, tokenToString.at(type), tokenToString.at(_currentToken.type));
+	}
 
 	_currentToken = _lexer.nextToken();
 }

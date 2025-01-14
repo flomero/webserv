@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/22 09:36:49 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 12:59:28 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,12 @@ enum eTokenType {
 	TOKEN_ALIAS,
 	TOKEN_CGI,
 	TOKEN_RETURN,
+
 	TOKEN_IP_V4,
 	TOKEN_NUMBER,
 	TOKEN_ON,
 	TOKEN_OFF,
+
 	TOKEN_OPEN_BRACE,
 	TOKEN_CLOSE_BRACE,
 	TOKEN_SEMICOLON,
@@ -63,8 +65,8 @@ const std::map<eTokenType, std::string> tokenToString = {{TOKEN_HTTP, "http"},
 														 {TOKEN_REQUEST_TIMEOUT, "request_timeout"},
 														 {TOKEN_ERROR_PAGE, "error_page"},
 														 {TOKEN_ALLOW_METHODS, "allow_methods"},
-														 {TOKEN_ALIAS, "alias"},
 														 {TOKEN_AUTOINDEX, "autoindex"},
+														 {TOKEN_ALIAS, "alias"},
 														 {TOKEN_CGI, "cgi"},
 														 {TOKEN_RETURN, "return"},
 
@@ -76,8 +78,11 @@ const std::map<eTokenType, std::string> tokenToString = {{TOKEN_HTTP, "http"},
 														 {TOKEN_OPEN_BRACE, "{"},
 														 {TOKEN_CLOSE_BRACE, "}"},
 														 {TOKEN_SEMICOLON, ";"},
+														 {TOKEN_COMMENT, "#"},
+														 {TOKEN_STRING, "string"},
 
-														 {TOKEN_EOF, "EOF"}};
+														 {TOKEN_EOF, "EOF"},
+														 {TOKEN_INVALID, "invalid"}};
 
 struct Token {
 		eTokenType type;
