@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2024/12/10 16:52:46 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/14 10:55:08 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ void RequestHandler::findMatchingRoute() {
  */
 HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	_request = request;
+	_response = HttpResponse();
 	_request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
 
 	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
@@ -76,6 +77,18 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 
 	// Find the best matching route
 	findMatchingRoute();
+
+	if (_matchedRoute.getCode() != 0) {
+		LOG_INFO("Route has a return directive.");
+		return handleRedirectRequest();
+	}
+
+	// check if method is allowed
+	if (std::find(_matchedRoute.getMethods().begin(), _matchedRoute.getMethods().end(), _request.getMethod()) ==
+		_matchedRoute.getMethods().end()) {
+		LOG_WARN("Method not allowed");
+		return buildDefaultResponse(Http::METHOD_NOT_ALLOWED);
+	}
 
 	// Check resource existence
 	if (_request.getMethod() != "POST" ||
@@ -106,14 +119,18 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	LOG_INFO("Checking for route's information's: CGI");
 	if (!_matchedRoute.getCgiHandlers().empty()) {
 		handleRequestCGI(_matchedRoute);
-		if (_cgiExecuted)
+		if (_cgiExecuted) {
+			_response.setDefaultHeaders();
 			return _response;
+		}
 		LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getResourceExtension());
 	}
 	if (_request.getMethod() == "GET")
 		_response = handleGetRequest();
 	else if (_request.getMethod() == "POST")
 		_response = handlePostRequest();
+	else if (_request.getMethod() == "DELETE")
+		_response = handleDeleteRequest();
 
 	if (_request.getHttpVersion() == "HTTP/1.0")
 		_response.setHttpVersion("HTTP/1.0");

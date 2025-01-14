@@ -39,7 +39,8 @@ MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
 
 void MultiSocketWebserver::run() {
 	while (true) {
-		if (const int eventCount = poll(_polls.data(), _polls.size(), -1); eventCount == -1) {
+		// TODO timeout
+		if (const int eventCount = poll(_polls.data(), _polls.size(), 5000); eventCount == -1) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;
 		}
@@ -49,17 +50,23 @@ void MultiSocketWebserver::run() {
 			if (revents & POLLIN) {
 				if (isServerFd(fd)) {
 					_acceptConnection(fd);
-				} else {
-					_handleClientData(fd);
+					break;
 				}
-			} else if (revents & POLLOUT) {
-				// LOG_INFO("Write event on socket " + std::to_string(fd));
-				_handleClientWrite(fd);
-			} else if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
+				if (_handleClientData(fd)) {
+					break;
+				}
+			}
+			if (revents & POLLOUT) {
+				if (_handleClientWrite(fd)) {
+					break;
+				}
+			}
+			if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
+				LOG_ERROR("Error on socket " + std::to_string(fd));
+				_polls.removeFd(fd);
 			}
 		}
 	}
-
 	// TODO: Poll failed, handle error
 }
 
@@ -73,6 +80,11 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 		return;
 	}
 
+	timeval tv{};
+	tv.tv_sec = 5;
+	tv.tv_usec = 0;
+	setsockopt(clientFd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
 	try {
 		_clients.emplace(clientFd,
 						 std::make_unique<ClientConnection>(clientFd, clientAddr, _sockets.at(server_fd)->getConfig()));
@@ -85,38 +97,51 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 	}
 }
 
-void MultiSocketWebserver::_handleClientData(const int client_fd) {
+bool MultiSocketWebserver::_handleClientData(const int client_fd) {
 	auto it = _clients.find(client_fd);
 	if (it == _clients.end()) {
 		LOG_ERROR("Client not found in map");
-		return;
+		return false;
 	}
 
 	ClientConnection& client = *it->second;
+	if (client.getStatus() == ClientConnection::Status::READY_TO_SEND) {
+		return false;
+	}
 	client.handleClient();
 
 	if (client.isDisconnected()) {
 		_clients.erase(client_fd);
 		_polls.removeFd(client_fd);
 		LOG_DEBUG("Client disconnected from socket " + std::to_string(client_fd) + " after read");
+		return false;
 	}
+
+	return true;
 }
 
 bool MultiSocketWebserver::isServerFd(int fd) const { return _sockets.find(fd) != _sockets.end(); }
 
-void MultiSocketWebserver::_handleClientWrite(int fd) {
+bool MultiSocketWebserver::_handleClientWrite(int fd) {
 	auto it = _clients.find(fd);
 	if (it == _clients.end()) {
 		LOG_ERROR("Client not found in map");
-		return;
+		return false;
 	}
 
 	ClientConnection& client = *it->second;
+	if (client.getStatus() != ClientConnection::Status::READY_TO_SEND) {
+		return false;
+	}
+
 	client.sendResponse();
 
 	if (client.isDisconnected()) {
 		_clients.erase(fd);
 		_polls.removeFd(fd);
 		LOG_DEBUG("Client disconnected from socket " + std::to_string(fd) + " after write");
+		return false;
 	}
+
+	return true;
 }

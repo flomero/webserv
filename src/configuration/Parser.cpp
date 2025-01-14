@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 13:14:31 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 13:20:20 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,6 +332,20 @@ Route Parser::parseRoute() {
 				expect(TOKEN_SEMICOLON);
 				break;
 			}
+
+			case TOKEN_ROOT:
+				expect(TOKEN_ROOT);
+				route.setRoot(_currentToken.value);
+				expect(TOKEN_STRING);
+				expect(TOKEN_SEMICOLON);
+				break;
+
+			case TOKEN_UPLOAD_DIR:
+				expect(TOKEN_UPLOAD_DIR);
+				route.setUploadDir(_currentToken.value);
+				expect(TOKEN_STRING);
+				expect(TOKEN_SEMICOLON);
+				break;
 
 			case TOKEN_RETURN: {
 				expect(TOKEN_RETURN);
