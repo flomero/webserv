@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/12/10 19:31:32 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/14 12:36:30 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,12 @@ std::string readFile(const std::string &filename) {
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	return buffer.str();
+}
+
+void validateServerConfigs(std::vector<ServerConfig> servers_config) {
+	// At least one server
+	if (servers_config.size() <= 0)
+		throw std::runtime_error("At least one server has to be created");
 }
 
 int main(const int argc, const char *argv[]) {
@@ -52,6 +58,7 @@ int main(const int argc, const char *argv[]) {
 
 	try {
 		servers_config = parser.parse();
+		validateServerConfigs(servers_config);
 	} catch (...) {
 		parser.flushErrors();
 		return 1;
