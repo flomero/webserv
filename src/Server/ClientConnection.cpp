@@ -122,6 +122,8 @@ bool ClientConnection::_receiveHeader() {
 	return true;
 }
 
+ClientConnection::Status ClientConnection::getStatus() const { return _status; }
+
 void ClientConnection::_handleCompleteChunkedBodyRead() {
 	LOG_DEBUG(_log("Finished reading chunked request body"));
 
