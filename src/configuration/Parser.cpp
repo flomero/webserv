@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 14:19:49 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 14:22:51 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,6 +290,8 @@ Route Parser::parseRoute() {
 						methods.push_back(_currentToken.value);
 						_currentToken = _lexer.nextToken();
 					}
+					if (methods.size() <= 0)
+						reportError(ALLOW_METHODS_MISSING_VALUES, "at least one method: 'GET', 'POST' or 'DELETE'", "None");
 					route.setMethods(methods);
 				}
 				expect(TOKEN_SEMICOLON);

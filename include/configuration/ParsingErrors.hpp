@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 17:08:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 14:19:17 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 14:21:16 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,9 @@ enum eParsingErrors {
 	CGI_BAD_EXTENSION,
 	CGI_BAD_EXECUTABLE,
 
-	AUTOINDEX_BAD_VALUE
+	AUTOINDEX_BAD_VALUE,
+
+	ALLOW_METHODS_MISSING_VALUES
 };
 
 #define ERROR_NAME 0
@@ -39,4 +41,6 @@ const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages 
 	{CGI_BAD_EXECUTABLE, {"CGI_BAD_EXECUTABLE", "expected: "}},
 
 	{AUTOINDEX_BAD_VALUE, {"AUTOINDEX_BAD_VALUE", "expected: "}},
+
+	{ALLOW_METHODS_MISSING_VALUES, {"ALLOW_METHODS_MISSING_VALUES", "expected: "}},
 };
