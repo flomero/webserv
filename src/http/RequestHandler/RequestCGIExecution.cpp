@@ -78,7 +78,6 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 				LOG_ERROR("chdir error");
 		}
 
-
 		// Execute CGI
 		if (char* argv[] = {strdup(cgiPath.c_str()), strdup(script_path.c_str()), nullptr};
 
