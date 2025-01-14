@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/06 16:38:06 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/14 10:55:08 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,8 +119,10 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	LOG_INFO("Checking for route's information's: CGI");
 	if (!_matchedRoute.getCgiHandlers().empty()) {
 		handleRequestCGI(_matchedRoute);
-		if (_cgiExecuted)
+		if (_cgiExecuted) {
+			_response.setDefaultHeaders();
 			return _response;
+		}
 		LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getResourceExtension());
 	}
 	if (_request.getMethod() == "GET")

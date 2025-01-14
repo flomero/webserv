@@ -3,18 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/06 16:35:16 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/14 10:31:14 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <signal.h>
+#include <sys/wait.h>
+
+#include <chrono>
+#include <thread>
+
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Route.hpp"
+#define DEFAULT_CGI_TIMEOUT_MS 5000
 
 class ServerConfig;
 
