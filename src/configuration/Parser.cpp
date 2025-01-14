@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 13:01:47 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 13:14:31 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -325,7 +325,8 @@ Route Parser::parseRoute() {
 
 				expect(TOKEN_STRING);
 				auto cgiHandlers = route.getCgiHandlers();
-				cgiHandlers[ext] = handler;
+				if (cgiHandlers.find(ext) == cgiHandlers.end())
+					cgiHandlers[ext] = handler;
 				route.setCgiHandlers(cgiHandlers);
 				expect(TOKEN_SEMICOLON);
 				break;
