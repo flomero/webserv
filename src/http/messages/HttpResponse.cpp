@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2024/12/10 12:53:22 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/15 15:47:05 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,12 @@ HttpResponse::HttpResponse(const std::string &rawResponse) {
 		_body = body;
 
 		if (_headers.find("Content-Length") == _headers.end()) {
-			addHeaderIfNew("Content-Length", std::to_string(_body.length()));
+			addHeaderIfNew("Content-Length", std::to_string(_body.size()));
 		}
 	} catch (...) {
 		_status = Http::Status::INTERNAL_SERVER_ERROR;
 		_body = "Internal Server Error";
-		addHeaderIfNew("Content-Length", std::to_string(_body.length()));
+		addHeaderIfNew("Content-Length", std::to_string(_body.size()));
 	}
 }
 
