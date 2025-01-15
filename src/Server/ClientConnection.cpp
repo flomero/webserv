@@ -409,7 +409,8 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 	// Check if there is a matching server config
 	for (const auto& config : _configs) {
 		for (const auto& serverName : config.getServerNames()) {
-			if (serverName + ":" + std::to_string(config.getPort()) == _request.getHeader("Host")) {
+			if (serverName + ":" + std::to_string(config.getPort()) == _request.getHeader("Host") ||
+				serverName == _request.getHeader("Host")) {
 				_currentConfig = config;
 				_requestHandler.setConfig(_currentConfig);
 				isKnownHost = true;

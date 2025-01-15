@@ -114,7 +114,7 @@ bool MultiSocketWebserver::_handleClientData(const int client_fd) {
 		_clients.erase(client_fd);
 		_polls.removeFd(client_fd);
 		LOG_DEBUG("Client disconnected from socket " + std::to_string(client_fd) + " after read");
-		return false;
+		return true;
 	}
 
 	return true;

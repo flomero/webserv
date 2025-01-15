@@ -13,7 +13,7 @@
 #include "ServerConfig.hpp"
 
 // Constructor
-ServerConfig::ServerConfig() : _port(80), _requestTimeout(60), _clientMaxBodySize(1048576), _host("127.0.0.1") {}
+ServerConfig::ServerConfig() : _port(80), _requestTimeout(60), _clientMaxBodySize(1048576), _host("0.0.0.0") {}
 
 // Simple Getters
 int ServerConfig::getPort() const { return _port; }
