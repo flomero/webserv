@@ -23,7 +23,7 @@
 	<ul id="fileList" class="bg-white p-6 rounded shadow-md w-full max-w-md space-y-4"></ul>
 
 	<script>
-		const cgiScript = "/uploadthing/filemanager.py";
+		const cgiScript = "/filemanager.py";
 
 		// Fetch and display directory contents
 		async function fetchDirectory() {
@@ -37,7 +37,7 @@
 				listItem.className = "flex justify-between items-center p-2 border rounded-md bg-gray-50 hover:bg-gray-100";
 
 				const link = document.createElement('a');
-				link.href = `/uploadthing/uploads/${file}`;
+				link.href = `/uploads/${file}`;
 				link.textContent = file;
 				link.className = "text-indigo-500 hover:underline";
 				listItem.appendChild(link);
@@ -47,7 +47,7 @@
 				deleteButton.className = "bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400";
 				deleteButton.onclick = async () => {
 					if (confirm(`Are you sure you want to delete ${file}?`)) {
-						await fetch(`/uploadthing/uploads/${file}`, { method: 'DELETE' });
+						await fetch(`/uploads/${file}`, { method: 'DELETE' });
 						fetchDirectory();
 					}
 				};
@@ -64,7 +64,7 @@
 			const formData = new FormData(event.target);
 
 			try {
-				const response = await fetch('/uploadthing', {
+				const response = await fetch('/', {
 					method: 'POST',
 					body: formData
 				});
