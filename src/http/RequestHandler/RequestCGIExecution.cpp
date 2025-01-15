@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 13:36:47 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/15 11:23:32 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,8 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		if (_request.getServerSidePath().find('/') != _request.getServerSidePath().size()) {
 			size_t sep = _request.getServerSidePath().find_last_of('/');
 			std::string cd_path = script_path.substr(0, sep);
-			LOG_DEBUG("cd_path: " + cd_path);
 
 			script_path = _request.getServerSidePath().substr(sep + 1);
-			LOG_DEBUG("script_path: " + script_path);
 
 			if (chdir(cd_path.c_str()) != 0)
 				LOG_ERROR("chdir error");
@@ -140,9 +138,13 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 			response.append(buffer, bytesRead);
 		}
 		_response = HttpResponse(response);
+		if (status == 0)
+			_response.setStatus(Http::OK);
+		else
+			_response.setStatus(Http::INTERNAL_SERVER_ERROR);
 		_cgiExecuted = true;
 	} else {
-		_response = buildDefaultResponse(Http::Status::GATEWAY_TIMEOUT);
+		_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
 		_cgiExecuted = true;
 	}
 
