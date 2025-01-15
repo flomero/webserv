@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 10:55:08 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/15 12:01:22 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,13 +68,14 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	_request = request;
 	_response = HttpResponse();
 	_request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
+	_cgiExecuted = false;
 
 	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
 	LOG_DEBUG("  |- location:                " + _request.getLocation());
 	LOG_DEBUG("  |- server side path:        " + _request.getServerSidePath());
 	const std::filesystem::path serverSidePath(_request.getServerSidePath());
 	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
-
+	LOG_ERROR(_request.getBody());
 	// Find the best matching route
 	findMatchingRoute();
 

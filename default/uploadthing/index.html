@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>File Upload & Management</title>
+</head>
+
+<body>
+	<h1>File Upload & Management</h1>
+
+		<form onsubmit="uploadFile(event)">
+			<label for="fileInput">Select file to upload:</label>
+			<input type="file" id="fileInput" name="file">
+			<button type="submit">Upload</button>
+		</form>
+
+	<h2>Directory Contents</h2>
+	<ul id="fileList"></ul>
+
+	<script>
+		const cgiScript = "/uploadthing/filemanager.py";
+
+		// Fetch and display directory contents
+		async function fetchDirectory() {
+			const response = await fetch(cgiScript);
+			const files = await response.json();
+			const fileList = document.getElementById('fileList');
+			fileList.innerHTML = ''; // Clear existing list
+
+			files.forEach(file => {
+				const listItem = document.createElement('li');
+				const link = document.createElement('a');
+				link.href = `/uploadthing/uploads/${file}`;
+				link.textContent = file;
+				listItem.appendChild(link);
+
+				const deleteButton = document.createElement('button');
+				deleteButton.textContent = 'Delete';
+				deleteButton.onclick = async () => {
+					if (confirm(`Are you sure you want to delete ${file}?`)) {
+						await fetch(`/uploadthing/uploads/${file}`, { method: 'DELETE' });
+						fetchDirectory();
+					}
+				};
+
+				listItem.appendChild(deleteButton);
+				fileList.appendChild(listItem);
+			});
+		}
+
+		fetchDirectory();
+
+		 async function uploadFile(event) {
+				event.preventDefault();
+				const formData = new FormData(event.target);
+
+				try {
+					const response = await fetch('/uploadthing', {
+						method: 'POST',
+						body: formData
+					});
+
+					if (response.ok) {
+						location.reload();
+					} else {
+						alert('Error uploading file: ' + response.statusText);
+					}
+				} catch (error) {
+					alert('Error: ' + error);
+				}
+			}
+	</script>
+</body>
+
+</html>

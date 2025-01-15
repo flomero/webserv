@@ -41,3 +41,6 @@ webserv
 # Editor files
 .vscode
 .idea
+
+# OS generated files
+.DS_Store

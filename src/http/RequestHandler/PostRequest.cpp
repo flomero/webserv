@@ -6,12 +6,16 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 16:43:36 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/15 11:59:35 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <errno.h>
+#include <sys/stat.h>
+
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
+#include "ServerConfig.hpp"
 
 HttpResponse RequestHandler::handlePostRequest() {
 	LOG_DEBUG("Handling POST request");
@@ -56,7 +60,7 @@ HttpResponse RequestHandler::handlePostMultipart() {
 		std::string line;
 		std::string contentDisposition;
 		std::string contentTypeFile;
-
+		LOG_ERROR(_request.getBody());
 		while (std::getline(partStream, line) && !line.empty()) {
 			if (line.find("Content-Disposition") == 0)
 				contentDisposition = line;
@@ -79,6 +83,25 @@ HttpResponse RequestHandler::handlePostMultipart() {
 	return buildDefaultResponse(Http::OK);
 }
 
+std::string buildpath(const std::string &path, const std::string &filename, const std::string &root) {
+	std::string result = root;
+	if (result.front() != '.')
+		result = "." + result;
+	if (result.back() != '/')
+		result += '/';
+	if (path.front() == '/')
+		result += path.substr(1);
+	else
+		result += path;
+	if (result.back() != '/')
+		result += '/';
+	if (filename.front() == '/')
+		result += filename.substr(1);
+	else
+		result += filename;
+	return result;
+}
+
 HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std::string &contentDisposition) {
 	LOG_DEBUG("Handling file upload");
 	std::string filename;
@@ -99,6 +122,15 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 		LOG_ERROR("Invalid part: " + part);
 		return buildDefaultResponse(Http::BAD_REQUEST);
 	}
+	if (!_matchedRoute.getUploadDir().empty())
+		filename = buildpath(_matchedRoute.getUploadDir(), filename, _serverConfig.getRoot());
+	else {
+		if (!_serverConfig.getUploadDir().empty())
+			filename = buildpath(_serverConfig.getUploadDir(), filename, _serverConfig.getRoot());
+		else
+			filename = buildpath(_serverConfig.getRoot(), filename, _serverConfig.getRoot());
+	}
+	LOG_ERROR(filename);
 	std::ofstream file(filename, std::ios::binary);
 	if (!file.is_open()) {
 		LOG_ERROR("Failed to open file: " + filename);
