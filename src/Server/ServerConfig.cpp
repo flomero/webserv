@@ -34,7 +34,7 @@ const std::string& ServerConfig::getRoot() const { return _root; }
 
 const std::string& ServerConfig::getUploadDir() const { return _uploadDir; }
 
-std::vector<std::string>  ServerConfig::getServerNames() const { return _serverNames; }
+std::vector<std::string> ServerConfig::getServerNames() const { return _serverNames; }
 
 const std::vector<Route>& ServerConfig::getRoutes() const { return _routes; }
 

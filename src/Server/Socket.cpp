@@ -39,8 +39,8 @@ Socket::~Socket() {
 void Socket::bind() {
 	LOG_DEBUG("Binding socket to IP " + _default_config.getHostIP() + " and port " + std::to_string(_port));
 	if (::bind(_socketFd, reinterpret_cast<sockaddr*>(&_addr), sizeof(_addr)) == -1) {
-		throw std::runtime_error("Bind failed on IP " + _default_config.getHostIP() + " and port " + std::to_string(_port) +
-								 ": " + std::string(strerror(errno)));
+		throw std::runtime_error("Bind failed on IP " + _default_config.getHostIP() + " and port " +
+								 std::to_string(_port) + ": " + std::string(strerror(errno)));
 	}
 	LOG_INFO("Socket successfully bound to IP " + _default_config.getHostIP() + " and port " + std::to_string(_port));
 }
@@ -55,10 +55,10 @@ void Socket::listen() const {
 int Socket::getSocketFd() const { return _socketFd; }
 
 void Socket::setupAddress() {
-	_addr = sockaddr_in{};												 // Value-initialize sockaddr_in
-	_addr.sin_family = AF_INET;											 // IPv4
+	_addr = sockaddr_in{};													 // Value-initialize sockaddr_in
+	_addr.sin_family = AF_INET;												 // IPv4
 	_addr.sin_addr.s_addr = inet_addr(_default_config.getHostIP().c_str());	 // Convert IP address to network byte order
-	_addr.sin_port = htons(_port);										 // Convert port to network byte order
+	_addr.sin_port = htons(_port);											 // Convert port to network byte order
 }
 
 void Socket::setSocketOpt() const {
