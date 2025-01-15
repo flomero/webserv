@@ -87,7 +87,7 @@ bool ClientConnection::_receiveHeader() {
 	LOG_DEBUG(_log("Header: \n" + std::string(header.begin(), header.end())));
 
 	// Process the HTTP request header; handle errors by setting status and returning
-	if (!_parseHttpRequestHeader(header.data())) {
+	if (!_parseHttpRequestHeader(std::string(header.begin(), header.end()))) {
 		_status = Status::READY_TO_SEND;
 		return false;
 	}
@@ -343,7 +343,7 @@ void ClientConnection::_handleCompleteBodyRead() {
 	}
 
 	// Set the complete body in the request
-	_request.setBody(_bodyBuffer.data());
+	_request.setBody(std::string(_bodyBuffer.begin(), _bodyBuffer.end()));
 
 	// Log the completed header and body info
 	_logHeader();

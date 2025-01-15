@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/15 12:01:22 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/15 16:09:17 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	LOG_DEBUG("  |- server side path:        " + _request.getServerSidePath());
 	const std::filesystem::path serverSidePath(_request.getServerSidePath());
 	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
-	LOG_ERROR(_request.getBody());
+
 	// Find the best matching route
 	findMatchingRoute();
 

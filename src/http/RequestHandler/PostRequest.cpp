@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/15 11:59:35 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/15 16:03:33 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ HttpResponse RequestHandler::handlePostMultipart() {
 	std::string body = _request.getBody();
 	while ((pos = body.find(boundaryDelimiter, pos)) != std::string::npos) {
 		pos += boundaryDelimiter.length();
-		if (pos == body.length())
+		if (pos == body.size())
 			break;
 		std::size_t endPos = body.find(boundaryDelimiter, pos);
 		std::string part = body.substr(pos, endPos - pos);
@@ -130,13 +130,12 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 		else
 			filename = buildpath(_serverConfig.getRoot(), filename, _serverConfig.getRoot());
 	}
-	LOG_ERROR(filename);
 	std::ofstream file(filename, std::ios::binary);
 	if (!file.is_open()) {
 		LOG_ERROR("Failed to open file: " + filename);
 		return buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 	}
-	file.write(fileContent.c_str(), fileContent.length());
+	file.write(fileContent.c_str(), fileContent.size());
 	file.close();
 	LOG_INFO("File uploaded: " + filename);
 	return buildDefaultResponse(Http::CREATED);
