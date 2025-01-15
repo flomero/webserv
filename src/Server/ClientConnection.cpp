@@ -460,7 +460,9 @@ void ClientConnection::sendResponse() {
 bool ClientConnection::_readData(const int fd, std::vector<char>& buffer, const size_t bytesToRead) {
 	if (buffer.capacity() < buffer.size() + bytesToRead) {
 		LOG_ERROR(_log("Buffer capacity is insufficient"));
-		_disconnected = true;
+		_response = _requestHandler.buildDefaultResponse(Http::PAYLOAD_TOO_LARGE);
+		_status = Status::READY_TO_SEND;
+		// _disconnected = true;
 		return false;
 	}
 	std::vector<char> tmp(bytesToRead);
