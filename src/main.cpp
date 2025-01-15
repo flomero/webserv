@@ -29,10 +29,24 @@ std::string readFile(const std::string &filename) {
 	return buffer.str();
 }
 
-void validateServerConfigs(std::vector<ServerConfig> servers_config) {
-	// At least one server
-	if (servers_config.size() <= 0)
-		throw std::runtime_error("At least one server has to be created");
+void validateServerConfigs(const std::vector<std::vector<ServerConfig>> &server_config_vectors) {
+	// At least one server configuration vector
+	if (server_config_vectors.empty())
+		throw std::runtime_error("At least one server configuration vector has to be created");
+
+	// At least one server in each configuration vector
+	for (const auto &server_configs : server_config_vectors) {
+		if (server_configs.empty())
+			throw std::runtime_error("Each server configuration vector must contain at least one server");
+	}
+}
+
+void printServerConfigs(const std::vector<std::vector<ServerConfig>> &server_config_vectors) {
+	for (const auto &server_configs : server_config_vectors) {
+		for (const auto &config : server_configs) {
+			std::cout << config << std::endl;
+		}
+	}
 }
 
 int main(const int argc, const char *argv[]) {
@@ -43,7 +57,7 @@ int main(const int argc, const char *argv[]) {
 	}
 
 	std::string source;
-	std::vector<ServerConfig> servers_config;
+	std::vector<std::vector<ServerConfig>> server_config_vectors;
 
 	LOG_INFO("Parsing configuration file...");
 	try {
@@ -57,19 +71,18 @@ int main(const int argc, const char *argv[]) {
 	Parser parser(lexer);
 
 	try {
-		servers_config = parser.parse();
-		validateServerConfigs(servers_config);
+		server_config_vectors = parser.parse();
+		validateServerConfigs(server_config_vectors);
 	} catch (...) {
 		parser.flushErrors();
 		return 1;
 	}
-	for (const auto &serv : servers_config) {
-		std::cout << serv << std::endl;
-	}
+
+	printServerConfigs(server_config_vectors);
 
 	try {
 		LOG_INFO("Starting server...");
-		MultiSocketWebserver server(servers_config);
+		MultiSocketWebserver server(server_config_vectors);
 		server.initSockets();
 		server.run();
 	} catch (const std::exception &e) {
