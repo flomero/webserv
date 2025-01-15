@@ -424,7 +424,7 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 
 	if (!isKnownHost) {
 		LOG_WARN(_log("No server config found for host: " + _request.getHeader("Host")));
-		_response = _requestHandler.buildDefaultResponse(Http::BAD_REQUEST);
+		_response = HttpResponse(Http::BAD_REQUEST);
 		return false;
 	}
 
