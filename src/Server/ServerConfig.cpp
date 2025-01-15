@@ -26,7 +26,7 @@ size_t ServerConfig::getClientBodyBufferSize() const { return _clientBodyBufferS
 
 size_t ServerConfig::getClientHeaderBufferSize() const { return _clientHeaderBufferSize; }
 
-const std::string& ServerConfig::getHost() const { return _host; }
+const std::string& ServerConfig::getIp() const { return _host; }
 
 const std::string& ServerConfig::getIndex() const { return _index; }
 
@@ -34,7 +34,7 @@ const std::string& ServerConfig::getRoot() const { return _root; }
 
 const std::string& ServerConfig::getUploadDir() const { return _uploadDir; }
 
-const std::string& ServerConfig::getServerName() const { return _serverName; }
+const std::string& ServerConfig::getHost() const { return _serverName; }
 
 const std::vector<Route>& ServerConfig::getRoutes() const { return _routes; }
 
@@ -76,7 +76,7 @@ void ServerConfig::setErrorPages(const std::map<int, std::string>& pages) { _err
 
 // Overload "<<" operator
 std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
-	os << std::left << std::setw(32) << COLOR(BLUE, server.getServerName()) << BLUE << server.getHost() << ":"
+	os << std::left << std::setw(32) << COLOR(BLUE, server.getHost()) << BLUE << server.getIp() << ":"
 	   << server.getPort() << RESET_COLOR << "\n";
 
 	if (!server.getIndex().empty()) {

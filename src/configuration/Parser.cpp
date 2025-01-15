@@ -13,6 +13,8 @@
 #include "Parser.hpp"
 
 #include <sstream>
+#include <unordered_map>
+#include <tuple>
 
 #include "Logger.hpp"
 
@@ -29,7 +31,24 @@ void Parser::expect(eTokenType type) {
 	_currentToken = _lexer.nextToken();
 }
 
-std::vector<ServerConfig> Parser::parse() {
+std::vector<std::vector<ServerConfig>> Parser::splitServerConfigs(const std::vector<ServerConfig>& serverConfigs) {
+	std::unordered_map<std::string, std::vector<ServerConfig>> groupedConfigs;
+	std::vector<std::vector<ServerConfig>> result;
+
+	for (const auto& config : serverConfigs) {
+		std::string key = config.getHost() + ":" + std::to_string(config.getPort());
+		groupedConfigs[key].push_back(config);
+	}
+
+	result.reserve(groupedConfigs.size());
+	for (const auto& [fst, snd] : groupedConfigs) {
+		result.push_back(snd);
+	}
+
+	return result;
+}
+
+std::vector<std::vector<ServerConfig>> Parser::parse() {
 	std::vector<ServerConfig> servers;
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);
@@ -41,7 +60,9 @@ std::vector<ServerConfig> Parser::parse() {
 	if (!_parsingErrors.empty())
 		throw std::runtime_error("Found some parsing errors");
 
-	return servers;
+
+
+	return splitServerConfigs(servers);
 }
 
 ServerConfig Parser::parseServer() {

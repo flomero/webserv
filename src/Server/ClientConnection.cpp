@@ -28,8 +28,13 @@ std::string statusToString(const ClientConnection::Status status) {
 }
 }  // namespace
 
-ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr, ServerConfig& config)
-	: _clientFd(clientFd), _disconnected(false), _clientAddr(clientAddr), _requestHandler(config) {
+ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr, std::vector<ServerConfig> configs)
+	: _clientFd(clientFd),
+	  _disconnected(false),
+	  _currentConfig(configs.front()),
+	  _configs(std::move(configs)),
+	  _clientAddr(clientAddr),
+	  _requestHandler(_currentConfig) {
 	LOG_INFO(_log("New client connection established"));
 	LOG_INFO("Client address: " + std::string(inet_ntoa(_clientAddr.sin_addr)) +
 			 " Port: " + std::to_string(ntohs(_clientAddr.sin_port)));
@@ -42,8 +47,7 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 		LOG_DEBUG(_log("Client socket set to non-blocking mode"));
 	}
 
-	_headerBuffer.reserve(config.getClientHeaderBufferSize());
-	_bodyBuffer.reserve(config.getClientBodyBufferSize());
+	_headerBuffer.reserve(_currentConfig.getClientHeaderBufferSize());
 }
 
 ClientConnection::~ClientConnection() {
@@ -103,6 +107,7 @@ bool ClientConnection::_receiveHeader() {
 	if (_request.getBodyType() == HttpRequest::BodyType::CHUNKED ||
 		_request.getBodyType() == HttpRequest::BodyType::CONTENT_LENGTH) {
 		LOG_DEBUG(_log("Request has body"));
+		_bodyBuffer.reserve(_currentConfig.getClientBodyBufferSize());
 		// LOG_DEBUG(_log("Request has body with Content-Length: " + std::to_string(_request.getContentLength())));
 		// Handle cases with data already in buffer
 		_bodyBuffer.clear();
@@ -399,6 +404,25 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 		_response = _requestHandler.buildDefaultResponse(Http::HTTP_VERSION_NOT_SUPPORTED);
 		return false;
 	}
+
+	bool isKnownHost = false;
+	// Check if there is a matching server config
+	for (const auto& config : _configs) {
+		if (config.getHost() + ":" + std::to_string(config.getPort()) == _request.getHeader("Host")) {
+			_currentConfig = config;
+			_requestHandler.setConfig(_currentConfig);
+			isKnownHost = true;
+			LOG_INFO(_log("Server config found for host: " + _request.getHeader("Host")));
+			break;
+		}
+	}
+
+	if (!isKnownHost) {
+		LOG_WARN(_log("No server config found for host: " + _request.getHeader("Host")));
+		_response = _requestHandler.buildDefaultResponse(Http::BAD_REQUEST);
+		return false;
+	}
+
 	return true;
 }
 

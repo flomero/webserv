@@ -33,12 +33,13 @@ class Parser {
 		std::vector<std::string> _parsingErrors;
 
 		void expect(eTokenType type);
+		static std::vector<std::vector<ServerConfig>> splitServerConfigs(const std::vector<ServerConfig>& serverConfigs);
 		ServerConfig parseServer();
 		Route parseRoute();
 
 	public:
 		Parser(Lexer& lexer);
-		std::vector<ServerConfig> parse();
+		std::vector<std::vector<ServerConfig>> parse();
 
 		void reportError(eParsingErrors error, std::string expected, std::string found);
 		void flushErrors() const;

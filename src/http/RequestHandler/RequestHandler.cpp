@@ -28,6 +28,10 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serve
 
 ServerConfig& RequestHandler::getConfig() const { return _serverConfig; }
 
+void RequestHandler::setConfig(const ServerConfig& server_config) const {
+	_serverConfig = server_config;
+}
+
 #pragma endregion
 
 /**

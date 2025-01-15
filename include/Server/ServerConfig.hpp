@@ -50,11 +50,11 @@ class ServerConfig {
 		[[nodiscard]] size_t getClientMaxBodySize() const;
 		[[nodiscard]] size_t getClientBodyBufferSize() const;
 		[[nodiscard]] size_t getClientHeaderBufferSize() const;
-		[[nodiscard]] const std::string& getHost() const;
+		[[nodiscard]] const std::string& getIp() const;
 		[[nodiscard]] const std::string& getIndex() const;
 		[[nodiscard]] const std::string& getRoot() const;
 		[[nodiscard]] const std::string& getUploadDir() const;
-		[[nodiscard]] const std::string& getServerName() const;
+		[[nodiscard]] const std::string& getHost() const;
 		[[nodiscard]] const std::vector<Route>& getRoutes() const;
 		[[nodiscard]] const std::map<int, std::string>& getErrorPages() const;
 		[[nodiscard]] std::optional<std::string> getErrorPage(Http::Status code) const;

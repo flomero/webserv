@@ -15,6 +15,9 @@
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 #include "Route.hpp"
+#include "thread"
+#include <sys/types.h>
+#include <csignal>
 
 void RequestHandler::handleRequestCGIExecution(const Route& route) {
 	const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
