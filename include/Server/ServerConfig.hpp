@@ -35,7 +35,7 @@ class ServerConfig {
 		std::string _index;
 		std::string _root;
 		std::string _uploadDir;
-		std::string _serverName;
+		std::vector<std::string> _serverNames = {};
 
 		std::vector<Route> _routes;
 		std::map<int, std::string> _errorPages;
@@ -50,11 +50,11 @@ class ServerConfig {
 		[[nodiscard]] size_t getClientMaxBodySize() const;
 		[[nodiscard]] size_t getClientBodyBufferSize() const;
 		[[nodiscard]] size_t getClientHeaderBufferSize() const;
-		[[nodiscard]] const std::string& getHost() const;
+		[[nodiscard]] const std::string& getHostIP() const;
 		[[nodiscard]] const std::string& getIndex() const;
 		[[nodiscard]] const std::string& getRoot() const;
 		[[nodiscard]] const std::string& getUploadDir() const;
-		[[nodiscard]] const std::string& getServerName() const;
+		[[nodiscard]] std::vector<std::string> getServerNames() const;
 		[[nodiscard]] const std::vector<Route>& getRoutes() const;
 		[[nodiscard]] const std::map<int, std::string>& getErrorPages() const;
 		[[nodiscard]] std::optional<std::string> getErrorPage(Http::Status code) const;
@@ -69,9 +69,10 @@ class ServerConfig {
 		void setIndex(const std::string& index);
 		void setRoot(const std::string& root);
 		void setUploadDir(const std::string& dir);
-		void setServerName(const std::string& name);
 		void setRoutes(const std::vector<Route>& routes);
 		void setErrorPages(const std::map<int, std::string>& pages);
+
+		void addServerName(const std::string& name);
 
 		// Overload "<<" operator to print ServerConfig details
 		friend std::ostream& operator<<(std::ostream& os, const ServerConfig& server);

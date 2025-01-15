@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2024/12/10 19:31:32 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/14 12:36:30 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,26 @@ std::string readFile(const std::string &filename) {
 	return buffer.str();
 }
 
+void validateServerConfigs(const std::vector<std::vector<ServerConfig>> &server_config_vectors) {
+	// At least one server configuration vector
+	if (server_config_vectors.empty())
+		throw std::runtime_error("At least one server configuration vector has to be created");
+
+	// At least one server in each configuration vector
+	for (const auto &server_configs : server_config_vectors) {
+		if (server_configs.empty())
+			throw std::runtime_error("Each server configuration vector must contain at least one server");
+	}
+}
+
+void printServerConfigs(const std::vector<std::vector<ServerConfig>> &server_config_vectors) {
+	for (const auto &server_configs : server_config_vectors) {
+		for (const auto &config : server_configs) {
+			std::cout << config << std::endl;
+		}
+	}
+}
+
 int main(const int argc, const char *argv[]) {
 	if (argc != 2) {
 		std::cerr << COLOR(RED, "Error: ") << "Invalid number of arguments" << std::endl;
@@ -37,7 +57,7 @@ int main(const int argc, const char *argv[]) {
 	}
 
 	std::string source;
-	std::vector<ServerConfig> servers_config;
+	std::vector<std::vector<ServerConfig>> server_config_vectors;
 
 	LOG_INFO("Parsing configuration file...");
 	try {
@@ -51,17 +71,18 @@ int main(const int argc, const char *argv[]) {
 	Parser parser(lexer);
 
 	try {
-		servers_config = parser.parse();
+		server_config_vectors = parser.parse();
+		validateServerConfigs(server_config_vectors);
 	} catch (...) {
 		parser.flushErrors();
+		return 1;
 	}
-	for (const auto &serv : servers_config) {
-		std::cout << serv << std::endl;
-	}
+
+	printServerConfigs(server_config_vectors);
 
 	try {
 		LOG_INFO("Starting server...");
-		MultiSocketWebserver server(servers_config);
+		MultiSocketWebserver server(server_config_vectors);
 		server.initSockets();
 		server.run();
 	} catch (const std::exception &e) {

@@ -15,22 +15,27 @@ class ClientConnection {
 			READY_TO_SEND,
 		};
 
-		explicit ClientConnection(int clientFd, sockaddr_in clientAddr, ServerConfig& config);
+		explicit ClientConnection(int clientFd, sockaddr_in clientAddr, std::vector<ServerConfig> configs);
 		~ClientConnection();
 
 		void handleClient();
 		void sendResponse();
 		[[nodiscard]] bool isDisconnected() const;
 
+		[[nodiscard]] Status getStatus() const;
+
 	private:
 		int _clientFd;
 		bool _disconnected;
+		ServerConfig& _currentConfig;
+		std::vector<ServerConfig> _configs;
 		sockaddr_in _clientAddr;
 		std::vector<char> _headerBuffer;
 		std::vector<char> _bodyBuffer;
 		RequestHandler _requestHandler;
 
 		Status _status = Status::HEADER;
+
 		HttpRequest _request = HttpRequest();
 		HttpResponse _response = HttpResponse();
 

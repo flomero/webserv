@@ -12,12 +12,6 @@
 
 #pragma once
 
-#include <signal.h>
-#include <sys/wait.h>
-
-#include <chrono>
-#include <thread>
-
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Route.hpp"
@@ -26,7 +20,6 @@
 class ServerConfig;
 
 class RequestHandler {
-	private:
 		HttpRequest _request;
 		HttpResponse _response;
 		bool _cgiExecuted = false;
@@ -62,12 +55,13 @@ class RequestHandler {
 		[[nodiscard]] HttpResponse handleRedirectRequest();
 
 	public:
-		[[nodiscard]] ServerConfig& getConfig() const;
 		explicit RequestHandler(ServerConfig& serverConfig);
 		~RequestHandler() = default;
 		RequestHandler(const RequestHandler& other) = delete;
 		RequestHandler& operator=(const RequestHandler& other) = delete;
 
+		[[nodiscard]] ServerConfig& getConfig() const;
+		void setConfig(const ServerConfig& server_config) const;
 		HttpResponse handleRequest(const HttpRequest& request);
 		HttpResponse buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request = std::nullopt);
 };

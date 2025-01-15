@@ -6,15 +6,19 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 10:54:46 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 13:36:47 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/types.h>
 #include <unistd.h>
+
+#include <csignal>
 
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 #include "Route.hpp"
+#include "thread"
 
 void RequestHandler::handleRequestCGIExecution(const Route& route) {
 	const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
@@ -65,8 +69,22 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		dup2(pipeIn[0], STDIN_FILENO);	  // Redirect stdin to pipeIn
 		dup2(pipeOut[1], STDOUT_FILENO);  // Redirect stdout to pipeOut
 
+		std::string script_path = _request.getServerSidePath();
+		if (_request.getServerSidePath().find('/') != _request.getServerSidePath().size()) {
+			size_t sep = _request.getServerSidePath().find_last_of('/');
+			std::string cd_path = script_path.substr(0, sep);
+			LOG_DEBUG("cd_path: " + cd_path);
+
+			script_path = _request.getServerSidePath().substr(sep + 1);
+			LOG_DEBUG("script_path: " + script_path);
+
+			if (chdir(cd_path.c_str()) != 0)
+				LOG_ERROR("chdir error");
+		}
+
 		// Execute CGI
-		if (char* argv[] = {strdup(cgiPath.c_str()), strdup(_request.getServerSidePath().c_str()), nullptr};
+		if (char* argv[] = {strdup(cgiPath.c_str()), strdup(script_path.c_str()), nullptr};
+
 			execve(argv[0], argv, envp) == -1) {
 			// Print error message if execve fails
 			perror("execve failed");

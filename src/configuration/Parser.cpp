@@ -6,24 +6,49 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 10:20:27 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 14:22:51 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 
 #include <sstream>
+#include <tuple>
+#include <unordered_map>
+
+#include "Logger.hpp"
 
 Parser::Parser(Lexer& lexer) : _lexer(lexer), _currentToken(lexer.nextToken()) {}
 
 void Parser::expect(eTokenType type) {
-	if (_currentToken.type != type)
-		reportError(UNEXPECTED_TOKEN, tokenToString.at(type), tokenToString.at(_currentToken.type));
+	if (_currentToken.type != type) {
+		if (_currentToken.type == TOKEN_STRING)
+			reportError(UNEXPECTED_TOKEN, tokenToString.at(type), _currentToken.value);
+		else
+			reportError(UNEXPECTED_TOKEN, tokenToString.at(type), tokenToString.at(_currentToken.type));
+	}
 
 	_currentToken = _lexer.nextToken();
 }
 
-std::vector<ServerConfig> Parser::parse() {
+std::vector<std::vector<ServerConfig>> Parser::splitServerConfigs(const std::vector<ServerConfig>& serverConfigs) {
+	std::unordered_map<std::string, std::vector<ServerConfig>> groupedConfigs;
+	std::vector<std::vector<ServerConfig>> result;
+
+	for (const auto& config : serverConfigs) {
+		std::string key = config.getHostIP() + ":" + std::to_string(config.getPort());
+		groupedConfigs[key].push_back(config);
+	}
+
+	result.reserve(groupedConfigs.size());
+	for (const auto& [fst, snd] : groupedConfigs) {
+		result.push_back(snd);
+	}
+
+	return result;
+}
+
+std::vector<std::vector<ServerConfig>> Parser::parse() {
 	std::vector<ServerConfig> servers;
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);
@@ -35,7 +60,7 @@ std::vector<ServerConfig> Parser::parse() {
 	if (!_parsingErrors.empty())
 		throw std::runtime_error("Found some parsing errors");
 
-	return servers;
+	return splitServerConfigs(servers);
 }
 
 ServerConfig Parser::parseServer() {
@@ -69,8 +94,10 @@ ServerConfig Parser::parseServer() {
 
 			case TOKEN_SERVER_NAME:
 				expect(TOKEN_SERVER_NAME);
-				server.setServerName(_currentToken.value);
-				expect(TOKEN_STRING);
+				while (_currentToken.type == TOKEN_STRING || _currentToken.type == TOKEN_IP_V4) {
+					server.addServerName(_currentToken.value);
+					_currentToken = _lexer.nextToken();
+				}
 				expect(TOKEN_SEMICOLON);
 				break;
 
@@ -284,6 +311,9 @@ Route Parser::parseRoute() {
 						methods.push_back(_currentToken.value);
 						_currentToken = _lexer.nextToken();
 					}
+					if (methods.size() <= 0)
+						reportError(ALLOW_METHODS_MISSING_VALUES, "at least one method: 'GET', 'POST' or 'DELETE'",
+									"None");
 					route.setMethods(methods);
 				}
 				expect(TOKEN_SEMICOLON);
@@ -302,6 +332,8 @@ Route Parser::parseRoute() {
 					route.setAutoindex(true);
 				} else if (_currentToken.type == TOKEN_OFF) {
 					route.setAutoindex(false);
+				} else {
+					reportError(AUTOINDEX_BAD_VALUE, "'on' or 'off'", _currentToken.value);
 				}
 				_currentToken = _lexer.nextToken();
 				expect(TOKEN_SEMICOLON);
@@ -310,11 +342,18 @@ Route Parser::parseRoute() {
 			case TOKEN_CGI: {
 				expect(TOKEN_CGI);
 				std::string ext = _currentToken.value;
+				if (ext[0] != '.' || ext.size() <= 1)
+					reportError(CGI_BAD_EXTENSION, ".__ e.g: '.py' or '.php'", ext);
+
 				expect(TOKEN_STRING);
 				std::string handler = _currentToken.value;
+				if (handler[handler.size() - 1] == '/')
+					reportError(CGI_BAD_EXECUTABLE, "CGI executable for " + ext + " must be a file", handler);
+
 				expect(TOKEN_STRING);
 				auto cgiHandlers = route.getCgiHandlers();
-				cgiHandlers[ext] = handler;
+				if (cgiHandlers.find(ext) == cgiHandlers.end())
+					cgiHandlers[ext] = handler;
 				route.setCgiHandlers(cgiHandlers);
 				expect(TOKEN_SEMICOLON);
 				break;
