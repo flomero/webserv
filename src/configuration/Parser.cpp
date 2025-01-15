@@ -13,8 +13,8 @@
 #include "Parser.hpp"
 
 #include <sstream>
-#include <unordered_map>
 #include <tuple>
+#include <unordered_map>
 
 #include "Logger.hpp"
 
@@ -59,8 +59,6 @@ std::vector<std::vector<ServerConfig>> Parser::parse() {
 
 	if (!_parsingErrors.empty())
 		throw std::runtime_error("Found some parsing errors");
-
-
 
 	return splitServerConfigs(servers);
 }

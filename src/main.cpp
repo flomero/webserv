@@ -41,9 +41,9 @@ void validateServerConfigs(const std::vector<std::vector<ServerConfig>> &server_
 	}
 }
 
-void printServerConfigs(const std::vector<std::vector<ServerConfig>>& server_config_vectors) {
-	for (const auto& server_configs : server_config_vectors) {
-		for (const auto& config : server_configs) {
+void printServerConfigs(const std::vector<std::vector<ServerConfig>> &server_config_vectors) {
+	for (const auto &server_configs : server_config_vectors) {
+		for (const auto &config : server_configs) {
 			std::cout << config << std::endl;
 		}
 	}

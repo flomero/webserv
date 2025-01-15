@@ -61,7 +61,7 @@ class RequestHandler {
 		RequestHandler& operator=(const RequestHandler& other) = delete;
 
 		[[nodiscard]] ServerConfig& getConfig() const;
-		void setConfig(const ServerConfig & server_config) const;
+		void setConfig(const ServerConfig& server_config) const;
 		HttpResponse handleRequest(const HttpRequest& request);
 		HttpResponse buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request = std::nullopt);
 };

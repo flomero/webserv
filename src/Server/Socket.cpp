@@ -13,7 +13,11 @@
 #include "ServerConfig.hpp"
 
 Socket::Socket(std::vector<ServerConfig> configs)
-	: _socketFd(-1), _port(configs.front().getPort()), _default_config(configs.front()), _configs(std::move(configs)) , _addr(sockaddr_in{}) {
+	: _socketFd(-1),
+	  _port(configs.front().getPort()),
+	  _default_config(configs.front()),
+	  _configs(std::move(configs)),
+	  _addr(sockaddr_in{}) {
 	LOG_INFO("Creating socket on IP " + _default_config.getIp() + " and port " + std::to_string(_port));
 	_socketFd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -51,10 +55,10 @@ void Socket::listen() const {
 int Socket::getSocketFd() const { return _socketFd; }
 
 void Socket::setupAddress() {
-	_addr = sockaddr_in{};										   // Value-initialize sockaddr_in
-	_addr.sin_family = AF_INET;									   // IPv4
-	_addr.sin_addr.s_addr = inet_addr(_default_config.getIp().c_str());  // Convert IP address to network byte order
-	_addr.sin_port = htons(_port);								   // Convert port to network byte order
+	_addr = sockaddr_in{};												 // Value-initialize sockaddr_in
+	_addr.sin_family = AF_INET;											 // IPv4
+	_addr.sin_addr.s_addr = inet_addr(_default_config.getIp().c_str());	 // Convert IP address to network byte order
+	_addr.sin_port = htons(_port);										 // Convert port to network byte order
 }
 
 void Socket::setSocketOpt() const {
@@ -65,6 +69,4 @@ void Socket::setSocketOpt() const {
 	}
 }
 
-std::vector<ServerConfig> Socket::getConfig() const {
-	return _configs;
-}
+std::vector<ServerConfig> Socket::getConfig() const { return _configs; }

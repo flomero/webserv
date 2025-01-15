@@ -17,7 +17,7 @@ void MultiSocketWebserver::initSockets() {
 	_sockets.reserve(_server_configs_vector.size());
 	for (const std::vector<ServerConfig>& serv : _server_configs_vector) {
 		try {
-			auto newSocket = std::make_unique<Socket>( serv);
+			auto newSocket = std::make_unique<Socket>(serv);
 			int socketFd = newSocket->getSocketFd();
 			_sockets.emplace(socketFd, std::move(newSocket));
 			_polls.addFd(socketFd);
