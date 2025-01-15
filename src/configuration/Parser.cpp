@@ -36,7 +36,7 @@ std::vector<std::vector<ServerConfig>> Parser::splitServerConfigs(const std::vec
 	std::vector<std::vector<ServerConfig>> result;
 
 	for (const auto& config : serverConfigs) {
-		std::string key = config.getHost() + ":" + std::to_string(config.getPort());
+		std::string key = config.getHostIP() + ":" + std::to_string(config.getPort());
 		groupedConfigs[key].push_back(config);
 	}
 
@@ -94,8 +94,10 @@ ServerConfig Parser::parseServer() {
 
 			case TOKEN_SERVER_NAME:
 				expect(TOKEN_SERVER_NAME);
-				server.setServerName(_currentToken.value);
-				expect(TOKEN_STRING);
+				while (_currentToken.type == TOKEN_STRING || _currentToken.type == TOKEN_IP_V4) {
+					server.addServerName(_currentToken.value);
+					_currentToken = _lexer.nextToken();
+				}
 				expect(TOKEN_SEMICOLON);
 				break;
 

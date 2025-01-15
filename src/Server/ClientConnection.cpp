@@ -408,11 +408,16 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 	bool isKnownHost = false;
 	// Check if there is a matching server config
 	for (const auto& config : _configs) {
-		if (config.getHost() + ":" + std::to_string(config.getPort()) == _request.getHeader("Host")) {
-			_currentConfig = config;
-			_requestHandler.setConfig(_currentConfig);
-			isKnownHost = true;
-			LOG_INFO(_log("Server config found for host: " + _request.getHeader("Host")));
+		for (const auto& serverName : config.getServerNames()) {
+			if (serverName + ":" + std::to_string(config.getPort()) == _request.getHeader("Host")) {
+				_currentConfig = config;
+				_requestHandler.setConfig(_currentConfig);
+				isKnownHost = true;
+				LOG_INFO(_log("Server config found for host: " + _request.getHeader("Host")));
+				break;
+			}
+		}
+		if (isKnownHost) {
 			break;
 		}
 	}
