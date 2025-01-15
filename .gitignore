@@ -41,3 +41,7 @@ webserv
 # Editor files
 .vscode
 .idea
+
+# Python tester
+*/venv
+tester/test_file.txt
