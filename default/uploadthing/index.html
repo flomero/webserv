@@ -5,19 +5,22 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>File Upload & Management</title>
+	<script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-	<h1>File Upload & Management</h1>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+	<h1 class="text-3xl font-bold mb-8 text-gray-800">File Upload & Management</h1>
 
-		<form onsubmit="uploadFile(event)">
-			<label for="fileInput">Select file to upload:</label>
-			<input type="file" id="fileInput" name="file">
-			<button type="submit">Upload</button>
-		</form>
+	<form onsubmit="uploadFile(event)" class="bg-white p-6 rounded shadow-md w-full max-w-md">
+		<label for="fileInput" class="block text-sm font-medium text-gray-700 mb-2">Select file to upload:</label>
+		<input type="file" id="fileInput" name="file"
+			class="block w-full border-gray-300 shadow-md mb-4 focus:ring-indigo-500 focus:border-indigo-500">
+		<button type="submit"
+			class="w-full bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400">Upload</button>
+	</form>
 
-	<h2>Directory Contents</h2>
-	<ul id="fileList"></ul>
+	<h2 class="text-2xl font-semibold mt-10 mb-4 text-gray-800">Directory Contents</h2>
+	<ul id="fileList" class="bg-white p-6 rounded shadow-md w-full max-w-md space-y-4"></ul>
 
 	<script>
 		const cgiScript = "/uploadthing/filemanager.py";
@@ -31,13 +34,17 @@
 
 			files.forEach(file => {
 				const listItem = document.createElement('li');
+				listItem.className = "flex justify-between items-center p-2 border rounded-md bg-gray-50 hover:bg-gray-100";
+
 				const link = document.createElement('a');
 				link.href = `/uploadthing/uploads/${file}`;
 				link.textContent = file;
+				link.className = "text-indigo-500 hover:underline";
 				listItem.appendChild(link);
 
 				const deleteButton = document.createElement('button');
 				deleteButton.textContent = 'Delete';
+				deleteButton.className = "bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400";
 				deleteButton.onclick = async () => {
 					if (confirm(`Are you sure you want to delete ${file}?`)) {
 						await fetch(`/uploadthing/uploads/${file}`, { method: 'DELETE' });
@@ -52,25 +59,25 @@
 
 		fetchDirectory();
 
-		 async function uploadFile(event) {
-				event.preventDefault();
-				const formData = new FormData(event.target);
+		async function uploadFile(event) {
+			event.preventDefault();
+			const formData = new FormData(event.target);
 
-				try {
-					const response = await fetch('/uploadthing', {
-						method: 'POST',
-						body: formData
-					});
+			try {
+				const response = await fetch('/uploadthing', {
+					method: 'POST',
+					body: formData
+				});
 
-					if (response.ok) {
-						location.reload();
-					} else {
-						alert('Error uploading file: ' + response.statusText);
-					}
-				} catch (error) {
-					alert('Error: ' + error);
+				if (response.ok) {
+					location.reload();
+				} else {
+					alert('Error uploading file: ' + response.statusText);
 				}
+			} catch (error) {
+				alert('Error: ' + error);
 			}
+		}
 	</script>
 </body>
 
