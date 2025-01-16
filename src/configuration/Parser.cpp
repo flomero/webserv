@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 11:55:47 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 17:54:40 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,9 +309,9 @@ ServerConfig Parser::parseServer() {
 			}
 
 			default:
+				reportError(UNEXPECTED_TOKEN, "something", _currentToken.value);
 				_currentToken = _lexer.nextToken();
 				break;
-				// throw std::runtime_error("Unexpected token in server body");
 		}
 	}
 
@@ -422,7 +422,9 @@ Route Parser::parseRoute() {
 			}
 
 			default:
-				throw std::runtime_error("Unexpected token in route body");
+				reportError(UNEXPECTED_TOKEN, "something", _currentToken.value);
+				_currentToken = _lexer.nextToken();
+				break;
 		}
 	}
 
