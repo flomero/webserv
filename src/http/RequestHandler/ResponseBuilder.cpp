@@ -23,10 +23,10 @@
 #include <sys/poll.h>
 #include <unistd.h>
 
+#include <cstring>
 #include <fstream>
 #include <optional>
 #include <string>
-#include <cstring>
 
 HttpResponse RequestHandler::buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request) {
 	HttpResponse response(code);

@@ -11,14 +11,12 @@
 /* ************************************************************************** */
 
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <csignal>
 #include <algorithm>
+#include <csignal>
 #include <cstring>
-#include <sys/wait.h>
 #include <thread>
 
 #include "Logger.hpp"

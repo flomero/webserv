@@ -4,10 +4,10 @@
 #include <sys/fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <cstring>    // For strerror
-#include <algorithm>  // For std::search
 
+#include <algorithm>  // For std::search
 #include <array>
+#include <cstring>	// For strerror
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"

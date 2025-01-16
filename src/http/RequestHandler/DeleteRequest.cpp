@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <filesystem>
+
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
-
-#include <filesystem>
 
 HttpResponse RequestHandler::handleDeleteRequest() {
 	LOG_DEBUG("Handling DELETE request");

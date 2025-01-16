@@ -12,11 +12,12 @@
 
 #include "RequestHandler.hpp"
 
+#include <algorithm>
+#include <string>
+#include <vector>
+
 #include "Logger.hpp"
 #include "ServerConfig.hpp"
-#include <algorithm>
-#include <vector>
-#include <string>
 
 /**
  * @brief Construct a new Request Handler:: Request Handler object
