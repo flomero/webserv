@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:15:21 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 18:17:07 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/15 21:16:39 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,10 @@ class HttpRequest : public HttpMessage {
 		std::string _queryString;
 		size_t _contentLength = 0;
 
-		void parseURI();
+		void _parseURI();
+		void _decodeURL();
 		void _validateRequestLine() const;
-		void validateHeaders() const;
+		void _validateHeaders() const;
 		void _initBodyType();
 
 		std::unordered_set<std::string> _supportedMethods = {"GET", "POST", "DELETE"};

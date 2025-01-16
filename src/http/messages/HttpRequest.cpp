@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2024/11/01 18:18:40 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/15 21:16:39 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 	if (_method.empty() || _requestUri.empty() || _httpVersion.empty()) {
 		throw BadRequest();
 	}
+	_decodeURL();
 	_validateRequestLine();
 	while (std::getline(requestStream, line)) {
 		if (!line.empty() && line.back() == '\r')
@@ -46,8 +47,8 @@ HttpRequest::HttpRequest(const std::string &rawRequest) {
 
 	_initBodyType();
 
-	validateHeaders();
-	parseURI();
+	_validateHeaders();
+	_parseURI();
 	setBody("");
 }
 
@@ -77,7 +78,7 @@ void HttpRequest::_validateRequestLine() const {
 	}
 }
 
-void HttpRequest::validateHeaders() const {
+void HttpRequest::_validateHeaders() const {
 	// TODO: check if Host header is required
 	// TODO: check if other stuff is required
 	if (_method == "POST" && _bodyType == BodyType::NO_BODY) {
@@ -85,20 +86,36 @@ void HttpRequest::validateHeaders() const {
 	}
 }
 
-void HttpRequest::parseURI() {
-	// set location
+void HttpRequest::_parseURI() {
 	_location = "/";
 	if (const std::size_t pathStart = _requestUri.find_first_of('/'); pathStart != std::string::npos) {
 		_location = _requestUri.substr(pathStart, _requestUri.size());
 	}
 	LOG_DEBUG("  |- Location:            " + _location);
-	// parse query string
 	if (size_t queryStart = _location.find_first_of('?'); queryStart != std::string::npos) {
 		LOG_DEBUG("  |- Query string found:  " + _location);
 		_queryString = _location.substr(queryStart + 1, _location.back());
 		_location = _location.substr(0, queryStart);
 		LOG_DEBUG("  |- Query string:        " + _queryString);
 	}
+}
+
+void HttpRequest::_decodeURL() {
+	auto it = _requestUri.begin();
+	while (it != _requestUri.end()) {
+		if (*it == '%') {
+			try {
+				std::string hex = _requestUri.substr(std::distance(_requestUri.begin(), it) + 1, 2);
+				char c = std::stoi(hex, nullptr, 16);
+				_requestUri.replace(it, it + 3, 1, c);
+			} catch (const std::exception &e) {
+				throw BadRequest();
+			}
+		} else {
+			++it;
+		}
+	}
+	LOG_DEBUG("  |- Decoded URI:         " + _requestUri);
 }
 
 #pragma region Getters
