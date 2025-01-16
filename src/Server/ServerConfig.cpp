@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:56:20 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/22 09:57:07 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 10:47:27 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,13 @@ void ServerConfig::addServerName(const std::string& name) {
 std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
 	os << std::left << std::setw(32) << COLOR(BLUE, server.getHostIP()) << BLUE << server.getHostIP() << ":"
 	   << server.getPort() << RESET_COLOR << "\n";
+
+	if (!server.getServerNames().empty()) {
+		os << "  |- server names: \n";
+		for (const auto& name : server.getServerNames())
+			os << std::left << std::setw(8) << "    |- " << name << std::endl;
+	}
+
 
 	if (!server.getIndex().empty()) {
 		os << std::left << std::setw(32) << "  |- index: " << server.getIndex() << "\n";

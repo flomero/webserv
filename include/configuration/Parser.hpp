@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:58:34 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/28 15:20:25 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/16 10:33:40 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,13 @@
 #include <iostream>
 #include <regex>
 #include <vector>
+#include <sstream>
 
 #include "Lexer.hpp"
 #include "ParsingErrors.hpp"
 #include "Route.hpp"
 #include "ServerConfig.hpp"
 
-#define REGEX_IP_V4                                                            \
-	"(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[" \
-	"0-9]?[0-9])"
 #define REGEX_PORT "[0-9]{1,5}"
 
 class Parser {

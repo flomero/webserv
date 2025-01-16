@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 17:08:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 14:21:16 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 10:40:23 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,9 @@ enum eParsingErrors {
 
 	AUTOINDEX_BAD_VALUE,
 
-	ALLOW_METHODS_MISSING_VALUES
+	ALLOW_METHODS_MISSING_VALUES,
+
+	SERVER_NAME_MISSING_VALUES
 };
 
 #define ERROR_NAME 0
@@ -43,4 +45,6 @@ const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages 
 	{AUTOINDEX_BAD_VALUE, {"AUTOINDEX_BAD_VALUE", "expected: "}},
 
 	{ALLOW_METHODS_MISSING_VALUES, {"ALLOW_METHODS_MISSING_VALUES", "expected: "}},
+
+	{SERVER_NAME_MISSING_VALUES, {"SERVER_NAME_MISSING_VALUES", "expected: "}},
 };
