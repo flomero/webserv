@@ -28,8 +28,13 @@ std::string statusToString(const ClientConnection::Status status) {
 }
 }  // namespace
 
-ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr, ServerConfig& config)
-	: _clientFd(clientFd), _disconnected(false), _clientAddr(clientAddr), _requestHandler(config) {
+ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientAddr, std::vector<ServerConfig> configs)
+	: _clientFd(clientFd),
+	  _disconnected(false),
+	  _currentConfig(configs.front()),
+	  _configs(std::move(configs)),
+	  _clientAddr(clientAddr),
+	  _requestHandler(_currentConfig) {
 	LOG_INFO(_log("New client connection established"));
 	LOG_INFO("Client address: " + std::string(inet_ntoa(_clientAddr.sin_addr)) +
 			 " Port: " + std::to_string(ntohs(_clientAddr.sin_port)));
@@ -42,8 +47,7 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 		LOG_DEBUG(_log("Client socket set to non-blocking mode"));
 	}
 
-	_headerBuffer.reserve(config.getClientHeaderBufferSize());
-	_bodyBuffer.reserve(config.getClientBodyBufferSize());
+	_headerBuffer.reserve(_currentConfig.getClientHeaderBufferSize());
 }
 
 ClientConnection::~ClientConnection() {
@@ -87,7 +91,7 @@ bool ClientConnection::_receiveHeader() {
 	LOG_DEBUG(_log("Header: \n" + std::string(header.begin(), header.end())));
 
 	// Process the HTTP request header; handle errors by setting status and returning
-	if (!_parseHttpRequestHeader(header.data())) {
+	if (!_parseHttpRequestHeader(std::string(header.begin(), header.end()))) {
 		_status = Status::READY_TO_SEND;
 		return false;
 	}
@@ -103,6 +107,7 @@ bool ClientConnection::_receiveHeader() {
 	if (_request.getBodyType() == HttpRequest::BodyType::CHUNKED ||
 		_request.getBodyType() == HttpRequest::BodyType::CONTENT_LENGTH) {
 		LOG_DEBUG(_log("Request has body"));
+		_bodyBuffer.reserve(_currentConfig.getClientBodyBufferSize());
 		// LOG_DEBUG(_log("Request has body with Content-Length: " + std::to_string(_request.getContentLength())));
 		// Handle cases with data already in buffer
 		_bodyBuffer.clear();
@@ -345,7 +350,7 @@ void ClientConnection::_handleCompleteBodyRead() {
 	}
 
 	// Set the complete body in the request
-	_request.setBody(_bodyBuffer.data());
+	_request.setBody(std::string(_bodyBuffer.begin(), _bodyBuffer.end()));
 
 	// Log the completed header and body info
 	_logHeader();
@@ -399,6 +404,31 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 		_response = _requestHandler.buildDefaultResponse(Http::HTTP_VERSION_NOT_SUPPORTED);
 		return false;
 	}
+
+	bool isKnownHost = false;
+	// Check if there is a matching server config
+	for (const auto& config : _configs) {
+		for (const auto& serverName : config.getServerNames()) {
+			if (serverName + ":" + std::to_string(config.getPort()) == _request.getHeader("Host") ||
+				serverName == _request.getHeader("Host")) {
+				_currentConfig = config;
+				_requestHandler.setConfig(_currentConfig);
+				isKnownHost = true;
+				LOG_INFO(_log("Server config found for host: " + _request.getHeader("Host")));
+				break;
+			}
+		}
+		if (isKnownHost) {
+			break;
+		}
+	}
+
+	if (!isKnownHost) {
+		LOG_WARN(_log("No server config found for host: " + _request.getHeader("Host")));
+		_response = HttpResponse(Http::BAD_REQUEST);
+		return false;
+	}
+
 	return true;
 }
 
@@ -430,7 +460,9 @@ void ClientConnection::sendResponse() {
 bool ClientConnection::_readData(const int fd, std::vector<char>& buffer, const size_t bytesToRead) {
 	if (buffer.capacity() < buffer.size() + bytesToRead) {
 		LOG_ERROR(_log("Buffer capacity is insufficient"));
-		_disconnected = true;
+		_response = _requestHandler.buildDefaultResponse(Http::PAYLOAD_TOO_LARGE);
+		_status = Status::READY_TO_SEND;
+		// _disconnected = true;
 		return false;
 	}
 	std::vector<char> tmp(bytesToRead);

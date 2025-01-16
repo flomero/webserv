@@ -6,13 +6,15 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/15 10:15:13 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 12:42:11 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 
 #include <sstream>
+#include <tuple>
+#include <unordered_map>
 
 #include "Logger.hpp"
 
@@ -29,7 +31,24 @@ void Parser::expect(eTokenType type) {
 	_currentToken = _lexer.nextToken();
 }
 
-std::vector<ServerConfig> Parser::parse() {
+std::vector<std::vector<ServerConfig>> Parser::splitServerConfigs(const std::vector<ServerConfig>& serverConfigs) {
+	std::unordered_map<std::string, std::vector<ServerConfig>> groupedConfigs;
+	std::vector<std::vector<ServerConfig>> result;
+
+	for (const auto& config : serverConfigs) {
+		std::string key = config.getHostIP() + ":" + std::to_string(config.getPort());
+		groupedConfigs[key].push_back(config);
+	}
+
+	result.reserve(groupedConfigs.size());
+	for (const auto& [fst, snd] : groupedConfigs) {
+		result.push_back(snd);
+	}
+
+	return result;
+}
+
+std::vector<std::vector<ServerConfig>> Parser::parse() {
 	std::vector<ServerConfig> servers;
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);
@@ -41,7 +60,7 @@ std::vector<ServerConfig> Parser::parse() {
 	if (!_parsingErrors.empty())
 		throw std::runtime_error("Found some parsing errors");
 
-	return servers;
+	return splitServerConfigs(servers);
 }
 
 ServerConfig Parser::parseServer() {
@@ -73,12 +92,24 @@ ServerConfig Parser::parseServer() {
 				break;
 			}
 
-			case TOKEN_SERVER_NAME:
-				expect(TOKEN_SERVER_NAME);
-				server.setServerName(_currentToken.value);
-				expect(TOKEN_STRING);
+			case TOKEN_SERVER_NAME: {
+				_currentToken = _lexer.nextTokenWhitespace();
+
+				std::stringstream ss(_currentToken.value);
+				std::vector<std::string> server_names;
+				std::string tmp;
+
+				while (std::getline(ss, tmp, ' '))
+					if (tmp.size() > 0)
+						server.addServerName(tmp);
+
+				if (server.getServerNames().empty())
+					reportError(SERVER_NAME_MISSING_VALUES, "name1 name2", "");
+
+				_currentToken = _lexer.nextToken();
 				expect(TOKEN_SEMICOLON);
 				break;
+			}
 
 			case TOKEN_ROOT:
 				expect(TOKEN_ROOT);
@@ -113,6 +144,11 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
@@ -148,6 +184,11 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
@@ -183,6 +224,11 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 

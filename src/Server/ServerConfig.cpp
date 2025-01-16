@@ -6,14 +6,14 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:56:20 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/22 09:57:07 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 10:47:27 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
 
 // Constructor
-ServerConfig::ServerConfig() : _port(80), _requestTimeout(60), _clientMaxBodySize(1048576), _host("127.0.0.1") {}
+ServerConfig::ServerConfig() : _port(80), _requestTimeout(60), _clientMaxBodySize(1048576), _host("0.0.0.0") {}
 
 // Simple Getters
 int ServerConfig::getPort() const { return _port; }
@@ -26,7 +26,7 @@ size_t ServerConfig::getClientBodyBufferSize() const { return _clientBodyBufferS
 
 size_t ServerConfig::getClientHeaderBufferSize() const { return _clientHeaderBufferSize; }
 
-const std::string& ServerConfig::getHost() const { return _host; }
+const std::string& ServerConfig::getHostIP() const { return _host; }
 
 const std::string& ServerConfig::getIndex() const { return _index; }
 
@@ -34,7 +34,7 @@ const std::string& ServerConfig::getRoot() const { return _root; }
 
 const std::string& ServerConfig::getUploadDir() const { return _uploadDir; }
 
-const std::string& ServerConfig::getServerName() const { return _serverName; }
+std::vector<std::string> ServerConfig::getServerNames() const { return _serverNames; }
 
 const std::vector<Route>& ServerConfig::getRoutes() const { return _routes; }
 
@@ -68,16 +68,26 @@ void ServerConfig::setRoot(const std::string& root) { _root = root; }
 
 void ServerConfig::setUploadDir(const std::string& dir) { _uploadDir = dir; }
 
-void ServerConfig::setServerName(const std::string& name) { _serverName = name; }
-
 void ServerConfig::setRoutes(const std::vector<Route>& routes) { _routes = routes; }
 
 void ServerConfig::setErrorPages(const std::map<int, std::string>& pages) { _errorPages = pages; }
 
+void ServerConfig::addServerName(const std::string& name) {
+	if (std::find(_serverNames.begin(), _serverNames.end(), name) == _serverNames.end()) {
+		_serverNames.push_back(name);
+	}
+}
+
 // Overload "<<" operator
 std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
-	os << std::left << std::setw(32) << COLOR(BLUE, server.getServerName()) << BLUE << server.getHost() << ":"
+	os << std::left << std::setw(32) << COLOR(BLUE, server.getHostIP()) << BLUE << server.getHostIP() << ":"
 	   << server.getPort() << RESET_COLOR << "\n";
+
+	if (!server.getServerNames().empty()) {
+		os << "  |- server names: \n";
+		for (const auto& name : server.getServerNames())
+			os << std::left << std::setw(8) << "    |- " << name << std::endl;
+	}
 
 	if (!server.getIndex().empty()) {
 		os << std::left << std::setw(32) << "  |- index: " << server.getIndex() << "\n";

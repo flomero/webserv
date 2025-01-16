@@ -6,16 +6,24 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:20:10 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 12:59:28 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 10:15:43 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <iostream>
 #include <map>
+#include <regex>
 #include <string>
 
+#include "Logger.hpp"
+
 #define COMMENT_PLACEHOLDER '#'
+
+#define IP_V4_REGEX                                                            \
+	"(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[" \
+	"0-9]?[0-9])"
 
 enum eTokenType {
 	TOKEN_HTTP,

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 10:55:08 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/15 16:09:17 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serve
 #pragma region Getters
 
 ServerConfig& RequestHandler::getConfig() const { return _serverConfig; }
+
+void RequestHandler::setConfig(const ServerConfig& server_config) const { _serverConfig = server_config; }
 
 #pragma endregion
 
@@ -68,6 +70,7 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	_request = request;
 	_response = HttpResponse();
 	_request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
+	_cgiExecuted = false;
 
 	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
 	LOG_DEBUG("  |- location:                " + _request.getLocation());

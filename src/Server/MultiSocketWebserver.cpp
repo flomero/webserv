@@ -8,16 +8,16 @@
 #include "PollFdManager.hpp"
 #include "Socket.hpp"
 
-MultiSocketWebserver::MultiSocketWebserver(std::vector<ServerConfig> servers_config)
+MultiSocketWebserver::MultiSocketWebserver(std::vector<std::vector<ServerConfig>> servers_config)
 	: _polls(PollFdManager::getInstance()) {
-	_servers_config = std::move(servers_config);
+	_server_configs_vector = std::move(servers_config);
 }
 
 void MultiSocketWebserver::initSockets() {
-	_sockets.reserve(_servers_config.size());
-	for (ServerConfig& serv : _servers_config) {
+	_sockets.reserve(_server_configs_vector.size());
+	for (const std::vector<ServerConfig>& serv : _server_configs_vector) {
 		try {
-			auto newSocket = std::make_unique<Socket>(serv.getPort(), serv);
+			auto newSocket = std::make_unique<Socket>(serv);
 			int socketFd = newSocket->getSocketFd();
 			_sockets.emplace(socketFd, std::move(newSocket));
 			_polls.addFd(socketFd);
@@ -114,7 +114,7 @@ bool MultiSocketWebserver::_handleClientData(const int client_fd) {
 		_clients.erase(client_fd);
 		_polls.removeFd(client_fd);
 		LOG_DEBUG("Client disconnected from socket " + std::to_string(client_fd) + " after read");
-		return false;
+		return true;
 	}
 
 	return true;

@@ -10,8 +10,7 @@ class ClientConnection;
 class Socket;
 
 class MultiSocketWebserver {
-	private:
-		std::vector<ServerConfig> _servers_config;
+		std::vector<std::vector<ServerConfig>> _server_configs_vector;
 		std::unordered_map<int, std::unique_ptr<Socket>> _sockets;
 		std::unordered_map<int, std::unique_ptr<ClientConnection>> _clients;
 		PollFdManager& _polls;
@@ -21,7 +20,8 @@ class MultiSocketWebserver {
 		[[nodiscard]] bool isServerFd(int fd) const;
 
 	public:
-		explicit MultiSocketWebserver(std::vector<ServerConfig> servers_config);
+		explicit MultiSocketWebserver(std::vector<std::vector<ServerConfig>> servers_config);
+
 		~MultiSocketWebserver();
 
 		bool _handleClientWrite(int fd);

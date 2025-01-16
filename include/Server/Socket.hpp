@@ -7,19 +7,20 @@
 
 class Socket {
 	public:
-		explicit Socket(int port, ServerConfig& config);
+		explicit Socket(std::vector<ServerConfig> configs);
 		~Socket();
 
 		void bind();
 		void listen() const;
 		[[nodiscard]] int getSocketFd() const;
-		[[nodiscard]] ServerConfig& getConfig() const;
+		[[nodiscard]] std::vector<ServerConfig> getConfig() const;
 
 	private:
 		void setupAddress();
 		void setSocketOpt() const;
 		int _socketFd;
 		int _port;
-		ServerConfig& _config;
+		ServerConfig& _default_config;
+		std::vector<ServerConfig> _configs;
 		sockaddr_in _addr;
 };

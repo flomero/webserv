@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 17:08:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 14:21:16 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 11:53:34 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 enum eParsingErrors {
 	UNEXPECTED_TOKEN,
+	INVALID_UNIT,
 
 	LISTEN_MISSING_VALUES,
 
@@ -26,7 +27,9 @@ enum eParsingErrors {
 
 	AUTOINDEX_BAD_VALUE,
 
-	ALLOW_METHODS_MISSING_VALUES
+	ALLOW_METHODS_MISSING_VALUES,
+
+	SERVER_NAME_MISSING_VALUES
 };
 
 #define ERROR_NAME 0
@@ -34,6 +37,7 @@ enum eParsingErrors {
 
 const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages = {
 	{UNEXPECTED_TOKEN, {"UNEXPECTED_TOKEN", "expected: "}},
+	{INVALID_UNIT, {"INVALID_UNIT", "expected: "}},
 
 	{LISTEN_MISSING_VALUES, {"LISTEN_MISSING_VALUES", "expected: "}},
 
@@ -43,4 +47,6 @@ const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages 
 	{AUTOINDEX_BAD_VALUE, {"AUTOINDEX_BAD_VALUE", "expected: "}},
 
 	{ALLOW_METHODS_MISSING_VALUES, {"ALLOW_METHODS_MISSING_VALUES", "expected: "}},
+
+	{SERVER_NAME_MISSING_VALUES, {"SERVER_NAME_MISSING_VALUES", "expected: "}},
 };

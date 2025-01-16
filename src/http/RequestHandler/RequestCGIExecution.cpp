@@ -6,15 +6,19 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/15 11:23:32 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 12:43:04 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/types.h>
 #include <unistd.h>
+
+#include <csignal>
 
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 #include "Route.hpp"
+#include "thread"
 
 void RequestHandler::handleRequestCGIExecution(const Route& route) {
 	const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
@@ -39,6 +43,14 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 
 	env["CONTENT_TYPE"] = _request.getHeader("Content-Type");
 	LOG_DEBUG("  |- CONTENT_TYPE:      " + env["CONTENT_TYPE"] + "\n");
+
+	for (const auto& [key, value] : _request.getHeaders()) {
+		std::string headerKey = "HTTP_" + key;
+		std::transform(headerKey.begin(), headerKey.end(), headerKey.begin(), ::toupper);
+		std::replace(headerKey.begin(), headerKey.end(), '-', '_');
+		env[headerKey] = value;
+		LOG_DEBUG("  |- " + headerKey + ": " + env[headerKey]);
+	}
 
 	// Prepare environment for execv
 	LOG_INFO("Prepare environment for execv");
