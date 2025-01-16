@@ -42,6 +42,10 @@ webserv
 .vscode
 .idea
 
+# Python tester
+*/venv
+tester/test_file.txt
+
 # OS generated files
 .DS_Store
 

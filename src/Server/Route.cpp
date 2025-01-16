@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Route.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:58:51 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/15 15:03:59 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/14 15:30:25 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,12 @@ int Route::getCode() const { return _code; }
 
 const std::string& Route::getRedirect() const { return _redirect; }
 
+size_t Route::getClientMaxBodySize() const { return _clientMaxBodySize; }
+
+size_t Route::getClientBodyBufferSize() const { return _clientBodyBufferSize; }
+
+size_t Route::getClientHeaderBufferSize() const { return _clientHeaderBufferSize; }
+
 // Setters
 void Route::setPath(const std::string& path) { _path = path; }
 
@@ -56,6 +62,12 @@ void Route::setCgiHandlers(const std::map<std::string, std::string>& handlers) {
 void Route::setCode(int code) { _code = code; }
 
 void Route::setRedirect(const std::string& redirect) { _redirect = redirect; }
+
+void Route::setClientMaxBodySize(const size_t size) { _clientMaxBodySize = size; }
+
+void Route::setClientBodyBufferSize(const size_t size) { _clientBodyBufferSize = size; }
+
+void Route::setClientHeaderBufferSize(const size_t size) { _clientHeaderBufferSize = size; }
 
 // Overload "<<" operator
 std::ostream& operator<<(std::ostream& os, const Route& route) {
@@ -82,6 +94,12 @@ std::ostream& operator<<(std::ostream& os, const Route& route) {
 	if (!route.getUploadDir().empty()) {
 		os << std::left << std::setw(24) << "      |- upload dir: " << route.getUploadDir() << "\n";
 	}
+
+	os << std::left << std::setw(32) << "  |- client max body size: " << route.getClientMaxBodySize() << " bytes\n";
+	os << std::left << std::setw(32) << "  |- client body buffer size: " << route.getClientBodyBufferSize()
+	   << " bytes\n";
+	os << std::left << std::setw(32) << "  |- client header buffer size: " << route.getClientHeaderBufferSize()
+	   << " bytes\n";
 
 	if (!route.getCgiHandlers().empty()) {
 		os << "      |- cgi handlers: \n";

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/05 13:53:24 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/15 15:47:05 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/16 14:16:09 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

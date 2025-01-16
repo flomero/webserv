@@ -15,6 +15,8 @@
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Route.hpp"
+#include "optional"
+
 #define DEFAULT_CGI_TIMEOUT_MS 5000
 
 class ServerConfig;

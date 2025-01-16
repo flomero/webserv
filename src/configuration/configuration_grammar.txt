@@ -9,6 +9,8 @@
             | "root" <string> ";"
             | "index" <string> ";"
             | "client_max_body_size" <size_value> ";"
+            | "client_body_buffer_size" <size_value> ";"
+            | "client_header_buffer_size" <size_value> ";"
             | "upload_dir" <string> ";"
             | "request_timeout" <time_value> ";"
             | "error_page" <number> <string> ";"
@@ -18,10 +20,10 @@
                  | ":" <number>
                  | <number>
 
-<size_value> ::= (<number> <size_unit)+
+<size_value> ::= (<number> <size_unit>)+
                | <number>
 
-<time_value> ::= (<number> <time_unit)+
+<time_value> ::= (<number> <time_unit>)+
                | <number>
 
 <route> ::= "location" <string> "{" <route_body> "}"
@@ -33,6 +35,12 @@
                      | "alias" <string> ";"
                      | "cgi" <string> <string> ";"
                      | "return" <return_value> ";"
+                     | "root" <string> ";"
+                     | "index" <string> ";"
+                     | "client_max_body_size" <size_value> ";"
+                     | "client_body_buffer_size" <size_value> ";"
+                     | "client_header_buffer_size" <size_value> ";"
+                     | "upload_dir" <string> ";"
 
 <return_value> ::= <number> <string>
                  | <number>

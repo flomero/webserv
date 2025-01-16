@@ -12,6 +12,10 @@
 
 #include "ServerConfig.hpp"
 
+#include <algorithm>
+#include <string>
+#include <vector>
+
 // Constructor
 ServerConfig::ServerConfig() : _port(80), _requestTimeout(60), _clientMaxBodySize(1048576), _host("0.0.0.0") {}
 

@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 17:54:40 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 17:59:38 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,10 @@ ServerConfig Parser::parseServer() {
 				std::string tmp;
 
 				while (std::getline(ss, tmp, ' '))
-					if (tmp.size() > 0)
+					if (tmp.size() > 0) {
+						std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
 						server.addServerName(tmp);
+					}
 
 				if (server.getServerNames().empty())
 					reportError(SERVER_NAME_MISSING_VALUES, "name1 name2", "");
@@ -391,6 +393,13 @@ Route Parser::parseRoute() {
 				expect(TOKEN_SEMICOLON);
 				break;
 
+			case TOKEN_INDEX:
+				expect(TOKEN_INDEX);
+				route.setIndex(_currentToken.value);
+				expect(TOKEN_STRING);
+				expect(TOKEN_SEMICOLON);
+				break;
+
 			case TOKEN_UPLOAD_DIR:
 				expect(TOKEN_UPLOAD_DIR);
 				route.setUploadDir(_currentToken.value);
@@ -418,6 +427,111 @@ Route Parser::parseRoute() {
 					throw std::runtime_error("Unexpected token");
 				}
 
+				break;
+			}
+
+			case TOKEN_CLIENT_MAX_BODY_SIZE: {
+				expect(TOKEN_CLIENT_MAX_BODY_SIZE);
+				size_t maxBodySize = 0;
+				size_t mbValue = std::stoul(_currentToken.value);
+				expect(TOKEN_NUMBER);
+				while (_currentToken.type == TOKEN_STRING) {
+					switch (_currentToken.value[0]) {
+						case 'k':
+						case 'K':
+							mbValue *= 1024;
+							break;
+						case 'm':
+						case 'M':
+							mbValue *= 1024 * 1024;
+							break;
+						case 'g':
+						case 'G':
+							mbValue *= 1024 * 1024 * 1024;
+							break;
+					}
+					_currentToken = _lexer.nextToken();	 // Moves past the suffix
+
+					if (_currentToken.type != TOKEN_NUMBER)
+						break;
+					maxBodySize += mbValue;
+					mbValue = std::stoul(_currentToken.value);
+
+					_currentToken = _lexer.nextToken();	 // Move past the number
+				}
+				maxBodySize += mbValue;
+				route.setClientMaxBodySize(maxBodySize);
+				expect(TOKEN_SEMICOLON);
+				break;
+			}
+
+			case TOKEN_CLIENT_BODY_BUFFER_SIZE: {
+				expect(TOKEN_CLIENT_BODY_BUFFER_SIZE);
+				size_t bodyBufferSize = 0;
+				size_t mbValue = std::stoul(_currentToken.value);
+				expect(TOKEN_NUMBER);
+				while (_currentToken.type == TOKEN_STRING) {
+					switch (_currentToken.value[0]) {
+						case 'k':
+						case 'K':
+							mbValue *= 1024;
+							break;
+						case 'm':
+						case 'M':
+							mbValue *= 1024 * 1024;
+							break;
+						case 'g':
+						case 'G':
+							mbValue *= 1024 * 1024 * 1024;
+							break;
+					}
+					_currentToken = _lexer.nextToken();	 // Moves past the suffix
+
+					if (_currentToken.type != TOKEN_NUMBER)
+						break;
+					bodyBufferSize += mbValue;
+					mbValue = std::stoul(_currentToken.value);
+
+					_currentToken = _lexer.nextToken();	 // Move past the number
+				}
+				bodyBufferSize += mbValue;
+				route.setClientBodyBufferSize(bodyBufferSize);
+				expect(TOKEN_SEMICOLON);
+				break;
+			}
+
+			case TOKEN_CLIENT_HEADER_BUFFER_SIZE: {
+				expect(TOKEN_CLIENT_HEADER_BUFFER_SIZE);
+				size_t headerBufferSize = 0;
+				size_t mbValue = std::stoul(_currentToken.value);
+				expect(TOKEN_NUMBER);
+				while (_currentToken.type == TOKEN_STRING) {
+					switch (_currentToken.value[0]) {
+						case 'k':
+						case 'K':
+							mbValue *= 1024;
+							break;
+						case 'm':
+						case 'M':
+							mbValue *= 1024 * 1024;
+							break;
+						case 'g':
+						case 'G':
+							mbValue *= 1024 * 1024 * 1024;
+							break;
+					}
+					_currentToken = _lexer.nextToken();	 // Moves past the suffix
+
+					if (_currentToken.type != TOKEN_NUMBER)
+						break;
+					headerBufferSize += mbValue;
+					mbValue = std::stoul(_currentToken.value);
+
+					_currentToken = _lexer.nextToken();	 // Move past the number
+				}
+				headerBufferSize += mbValue;
+				route.setClientHeaderBufferSize(headerBufferSize);
+				expect(TOKEN_SEMICOLON);
 				break;
 			}
 

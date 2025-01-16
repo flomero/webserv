@@ -3,14 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/15 16:09:17 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/16 14:24:22 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RequestHandler.hpp"
+
+#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "Logger.hpp"
 #include "ServerConfig.hpp"
@@ -54,6 +58,33 @@ void RequestHandler::findMatchingRoute() {
 	}
 	_matchedRoute = matchedRoute;
 	LOG_DEBUG("  |- best match:   " + _matchedRoute.getPath() + "\n");
+
+	// if matches directly to a route, check for index file in the directory and change if applicable
+	if (_request.getLocation().back() == '/') {
+		std::string indexFile;
+		if (_matchedRoute.getIndex() != "") {
+			indexFile = _matchedRoute.getIndex();
+		} else {
+			indexFile = _serverConfig.getIndex();
+		}
+		if (indexFile.empty()) {
+			return;
+		}
+		std::string indexPath = _request.getServerSidePath();
+		if (indexPath.back() != '/') {
+			indexPath += '/';
+		}
+		if (indexFile.front() == '/') {
+			indexFile = indexFile.substr(1);
+		}
+		indexPath += indexFile;
+		const std::filesystem::path path(indexPath);
+		if (exists(path)) {
+			_request.setServerSidePath(path);
+			_request.setIsFile(true);
+		}
+	}
+	LOG_DEBUG("  |- server side path:  " + _request.getServerSidePath() + "\n");
 }
 
 /**
@@ -75,11 +106,12 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
 	LOG_DEBUG("  |- location:                " + _request.getLocation());
 	LOG_DEBUG("  |- server side path:        " + _request.getServerSidePath());
-	const std::filesystem::path serverSidePath(_request.getServerSidePath());
-	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
 	// Find the best matching route
 	findMatchingRoute();
+
+	const std::filesystem::path serverSidePath(_request.getServerSidePath());
+	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
 	if (_matchedRoute.getCode() != 0) {
 		LOG_INFO("Route has a return directive.");
@@ -123,6 +155,8 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	if (!_matchedRoute.getCgiHandlers().empty()) {
 		handleRequestCGI(_matchedRoute);
 		if (_cgiExecuted) {
+			if (!_request.getHeader("Connection").empty())
+				_response.addHeader("Connection", _request.getHeader("Connection"));
 			_response.setDefaultHeaders();
 			return _response;
 		}
@@ -137,10 +171,8 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 
 	if (_request.getHttpVersion() == "HTTP/1.0")
 		_response.setHttpVersion("HTTP/1.0");
-	if (_request.getHeader("Connection") == "close")
-		_response.addHeader("Connection", "close");
-	else if (_request.getHeader("Connection") == "keep-alive")
-		_response.addHeader("Connection", "keep-alive");
+	if (!_request.getHeader("Connection").empty())
+		_response.addHeader("Connection", _request.getHeader("Connection"));
 	_response.setDefaultHeaders();
 	return _response;
 }
