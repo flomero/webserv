@@ -44,3 +44,6 @@ webserv
 
 # OS generated files
 .DS_Store
+
+# Testers venv
+*/venv
