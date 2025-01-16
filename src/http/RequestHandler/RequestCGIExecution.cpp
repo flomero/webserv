@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/15 17:22:42 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/15 21:34:35 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,14 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 
 	env["CONTENT_TYPE"] = _request.getHeader("Content-Type");
 	LOG_DEBUG("  |- CONTENT_TYPE:      " + env["CONTENT_TYPE"] + "\n");
+
+	for (const auto& [key, value] : _request.getHeaders()) {
+		std::string headerKey = "HTTP_" + key;
+		std::transform(headerKey.begin(), headerKey.end(), headerKey.begin(), ::toupper);
+		std::replace(headerKey.begin(), headerKey.end(), '-', '_');
+		env[headerKey] = value;
+		LOG_DEBUG("  |- " + headerKey + ": " + env[headerKey]);
+	}
 
 	// Prepare environment for execv
 	LOG_INFO("Prepare environment for execv");
