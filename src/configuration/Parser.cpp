@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 10:50:09 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 11:55:47 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,12 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
+
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
@@ -179,6 +185,12 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
+
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
@@ -214,6 +226,11 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
