@@ -4,12 +4,13 @@
 #include <sys/poll.h>
 #include <unistd.h>
 
-#include <cstddef>	// For size_t
+#include <cstddef>
 
 #include "ClientConnection.hpp"
 #include "Logger.hpp"
 #include "PollFdManager.hpp"
 #include "Socket.hpp"
+#include "globals.hpp"
 
 MultiSocketWebserver::MultiSocketWebserver(std::vector<std::vector<ServerConfig>> servers_config)
 	: _polls(PollFdManager::getInstance()) {
@@ -51,9 +52,9 @@ MultiSocketWebserver::~MultiSocketWebserver() {
 }
 
 void MultiSocketWebserver::run() {
-	while (true) {
+	while (stopServer == false) {
 		// TODO timeout
-		if (const int eventCount = poll(_polls.data(), _polls.size(), 5000); eventCount == -1) {
+		if (const int eventCount = poll(_polls.data(), _polls.size(), 5000); eventCount == -1 && !stopServer) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;
 		}
