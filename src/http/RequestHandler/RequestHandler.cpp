@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/15 16:09:17 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/16 13:22:06 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,33 @@ void RequestHandler::findMatchingRoute() {
 	}
 	_matchedRoute = matchedRoute;
 	LOG_DEBUG("  |- best match:   " + _matchedRoute.getPath() + "\n");
+
+	// if matches directly to a route, check for index file in the directory and change if applicable
+	if (_request.getLocation().back() == '/') {
+		std::string indexFile;
+		if (_matchedRoute.getIndex() != "") {
+			indexFile = _matchedRoute.getIndex();
+		} else {
+			indexFile = _serverConfig.getIndex();
+		}
+		if (indexFile.empty()) {
+			return;
+		}
+		std::string indexPath = _request.getServerSidePath();
+		if (indexPath.back() != '/') {
+			indexPath += '/';
+		}
+		if (indexFile.front() == '/') {
+			indexFile = indexFile.substr(1);
+		}
+		indexPath += indexFile;
+		const std::filesystem::path path(indexPath);
+		if (exists(path)) {
+			_request.setServerSidePath(path);
+			_request.setIsFile(true);
+		}
+	}
+	LOG_DEBUG("  |- server side path:  " + _request.getServerSidePath() + "\n");
 }
 
 /**
@@ -75,11 +102,12 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
 	LOG_DEBUG("  |- location:                " + _request.getLocation());
 	LOG_DEBUG("  |- server side path:        " + _request.getServerSidePath());
-	const std::filesystem::path serverSidePath(_request.getServerSidePath());
-	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
 	// Find the best matching route
 	findMatchingRoute();
+
+	const std::filesystem::path serverSidePath(_request.getServerSidePath());
+	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
 	if (_matchedRoute.getCode() != 0) {
 		LOG_INFO("Route has a return directive.");
