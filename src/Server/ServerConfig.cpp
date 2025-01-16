@@ -89,7 +89,6 @@ std::ostream& operator<<(std::ostream& os, const ServerConfig& server) {
 			os << std::left << std::setw(8) << "    |- " << name << std::endl;
 	}
 
-
 	if (!server.getIndex().empty()) {
 		os << std::left << std::setw(32) << "  |- index: " << server.getIndex() << "\n";
 	}

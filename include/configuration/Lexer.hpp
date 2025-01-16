@@ -12,10 +12,11 @@
 
 #pragma once
 
-#include <map>
-#include <string>
-#include <regex>
 #include <iostream>
+#include <map>
+#include <regex>
+#include <string>
+
 #include "Logger.hpp"
 
 #define COMMENT_PLACEHOLDER '#'

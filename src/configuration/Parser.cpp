@@ -149,7 +149,6 @@ ServerConfig Parser::parseServer() {
 							break;
 						default:
 							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
-
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
@@ -190,7 +189,6 @@ ServerConfig Parser::parseServer() {
 							break;
 						default:
 							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
-
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 

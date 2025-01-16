@@ -14,8 +14,8 @@
 
 #include <iostream>
 #include <regex>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include "Lexer.hpp"
 #include "ParsingErrors.hpp"
