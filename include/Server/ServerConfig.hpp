@@ -17,6 +17,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include "HttpRequest.hpp"
 #include "HttpStatus.hpp"

@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include <vector>
-
+#include <cstring>  // For strerror
 #include "PollFdManager.hpp"
 #include "ServerConfig.hpp"
 

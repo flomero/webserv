@@ -2,6 +2,8 @@
 
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/poll.h>
+#include <cstddef>  // For size_t
 
 #include "ClientConnection.hpp"
 #include "Logger.hpp"

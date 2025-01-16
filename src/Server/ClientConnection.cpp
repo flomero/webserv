@@ -4,6 +4,8 @@
 #include <sys/fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cstring>    // For strerror
+#include <algorithm>  // For std::search
 
 #include <array>
 

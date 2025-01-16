@@ -1,8 +1,8 @@
 
 #pragma once
-#include <sys/poll.h>
-
 #include <vector>
+#include <sys/poll.h>
+#include <cstddef>
 
 class PollFdManager {
 	public:

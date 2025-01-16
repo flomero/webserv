@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <chrono>  // << NEU: sicherstellen, dass <chrono> inkludiert wird
 #include <filesystem>
 #include <iomanip>
 #include <sstream>
@@ -64,21 +65,31 @@ std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) c
 	html << "<tr><th>Name</th><th>Size</th><th>Last Modified</th></tr>\n";
 	// TODO: check for server root
 	if (path != "/") {
-		html << "<tr><td><a "
-				"href=\"..\">../</a></td><td>-</td><td>-</td></tr>\n";
+		html << "<tr><td><a href=\"..\">../</a></td><td>-</td><td>-</td></tr>\n";
 	}
+
 	for (const auto& entry : std::filesystem::directory_iterator(path)) {
 		std::string entryPath = entry.path().string();
 		std::string entryName = entry.path().filename().string();
-		if (entry.is_directory() && entryName.back() != '/') {
+		if (entry.is_directory() && !entryName.empty() && entryName.back() != '/') {
 			entryName += "/";
 		}
 
-		std::string entrySize = entry.is_directory() ? "-" : humanReadableSize(file_size(entry.path()));
-		std::time_t entryTime = decltype(entry.last_write_time())::clock::to_time_t(entry.last_write_time());
+		// Größe (falls kein Verzeichnis)
+		std::string entrySize =
+			entry.is_directory() ? "-" : humanReadableSize(std::filesystem::file_size(entry.path()));
+
+		// NEU: Portabler Zeit-Konvertierungscode
+		auto ftime = entry.last_write_time();
+		auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+			ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now());
+		std::time_t entryTime = std::chrono::system_clock::to_time_t(sctp);
+
 		std::string entryTimeStr = formatTimestamp(entryTime);
+
 		std::string entryLink = _request.getLocation();
-		if (entryLink.back() != '/' && entryLink != ".." && entryLink != "." && entryLink != "/") {
+		if (!entryLink.empty() && entryLink.back() != '/' && entryLink != ".." && entryLink != "." &&
+			entryLink != "/") {
 			entryLink += "/";
 		}
 		entryLink += entryName;
@@ -89,10 +100,12 @@ std::string RequestHandler::buildDirectoryListingHTML(const std::string& path) c
 			 << "<td>" << entryTimeStr << "</td>"
 			 << "</tr>\n";
 	}
+
 	html << "</table>\n";
 	html << "<hr>\n";
 	html << "</body>\n";
 
+	// Einfaches CSS:
 	html << "<style>\n";
 	html << "    * {\n";
 	html << "        --light: #f2f2f2;\n";

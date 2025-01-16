@@ -13,12 +13,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <unistd.h>
 #include <csignal>
+#include <algorithm>
+#include <cstring>
+#include <sys/wait.h>
+#include <thread>
 
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 #include "Route.hpp"
-#include "thread"
 
 void RequestHandler::handleRequestCGIExecution(const Route& route) {
 	const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
