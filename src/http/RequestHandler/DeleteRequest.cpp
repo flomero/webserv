@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <filesystem>
+
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 
