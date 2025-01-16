@@ -51,3 +51,4 @@ tester/test_file.txt
 
 # Testers venv
 */venv
+*/*/__pycache__
