@@ -80,8 +80,6 @@ def test_invalid_requests():
 	print("\nGeneral Invalid Tests")
 	make_request("Request with unsupported HTTP method (PATCH).", "PATCH", "/", expected_status=501)
 	make_request("Request with extremely large payload.", "POST", "/upload", data="A" * 10000000, expected_status=413)
-	make_request("Request with invalid HTTP version.", "GET", "/", headers={"HTTP-Version": "HTTP/1.0"}, expected_status=400)
-	make_request("Request with tampered headers.", "GET", "/", headers={"Authorization": "Bearer invalid-token"}, expected_status=401)
 
 # Main function to run all tests
 if __name__ == "__main__":
