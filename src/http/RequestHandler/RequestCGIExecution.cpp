@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestCGIExecution.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 12:43:04 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 13:57:22 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		if (status == 0)
 			_response.setStatus(Http::OK);
 		else
-			_response.setStatus(Http::INTERNAL_SERVER_ERROR);
+			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 		_cgiExecuted = true;
 	} else {
 		_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
