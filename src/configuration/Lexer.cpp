@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2024/11/22 09:42:20 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 10:26:15 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ Token Lexer::parseIp_v4(std::string value, const int count) {
 Token Lexer::parseString(std::string value) {
 	while (isalnum(peekChar()) || (peekChar() >= '<' && peekChar() <= '@') ||
 		   (peekChar() >= '-' && peekChar() <= '/') || peekChar() == '!' || (peekChar() >= '$' && peekChar() <= '&') ||
-		   (peekChar() >= '*' && peekChar() <= '+') || peekChar() == '_' || peekChar() == ':')
+		   (peekChar() >= '*' && peekChar() <= '+') || peekChar() == '_' || peekChar() == ':' || peekChar() == '.')
 		value += getChar();
 
 	return {TOKEN_STRING, value, _line, _column};
@@ -153,42 +153,9 @@ Token Lexer::parseKeywordOrString() {
 			return {fst, value, _line, _column};
 	}
 
-	// if (value == "http")
-	// 	return {TOKEN_HTTP, value, _line, _column};
-	// if (value == "server")
-	// 	return {TOKEN_SERVER, value, _line, _column};
-	// if (value == "location")
-	// 	return {TOKEN_LOCATION, value, _line, _column};
-	// if (value == "listen")
-	// 	return {TOKEN_LISTEN, value, _line, _column};
-	// if (value == "server_name")
-	// 	return {TOKEN_SERVER_NAME, value, _line, _column};
-	// if (value == "root")
-	// 	return {TOKEN_ROOT, value, _line, _column};
-	// if (value == "index")
-	// 	return {TOKEN_INDEX, value, _line, _column};
-	// if (value == "client_max_body_size")
-	// 	return {TOKEN_CLIENT_MAX_BODY_SIZE, value, _line, _column};
-	// if (value == "upload_dir")
-	// 	return {TOKEN_UPLOAD_DIR, value, _line, _column};
-	// if (value == "request_timeout")
-	// 	return {TOKEN_REQUEST_TIMEOUT, value, _line, _column};
-	// if (value == "error_page")
-	// 	return {TOKEN_ERROR_PAGE, value, _line, _column};
-	// if (value == "allow_methods")
-	// 	return {TOKEN_ALLOW_METHODS, value, _line, _column};
-	// if (value == "autoindex")
-	// 	return {TOKEN_AUTOINDEX, value, _line, _column};
-	// if (value == "alias")
-	// 	return {TOKEN_ALIAS, value, _line, _column};
-	// if (value == "cgi")
-	// 	return {TOKEN_CGI, value, _line, _column};
-	// if (value == "return")
-	// 	return {TOKEN_RETURN, value, _line, _column};
-	// if (value == "on")
-	// 	return {TOKEN_ON, value, _line, _column};
-	// if (value == "off")
-	// 	return {TOKEN_OFF, value, _line, _column};
+	// LOG_INFO("unmatched token string: " + value);
+	// if (value.find_first_not_of("0123456789") == std::string::npos)
+	// 	return {TOKEN_NUMBER, value, _line, _column};
 
 	return {TOKEN_STRING, value, _line, _column};  // Default to string if not a keyword
 }

@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 14:22:51 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 11:55:47 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,14 +92,24 @@ ServerConfig Parser::parseServer() {
 				break;
 			}
 
-			case TOKEN_SERVER_NAME:
-				expect(TOKEN_SERVER_NAME);
-				while (_currentToken.type == TOKEN_STRING || _currentToken.type == TOKEN_IP_V4) {
-					server.addServerName(_currentToken.value);
-					_currentToken = _lexer.nextToken();
-				}
+			case TOKEN_SERVER_NAME: {
+				_currentToken = _lexer.nextTokenWhitespace();
+
+				std::stringstream ss(_currentToken.value);
+				std::vector<std::string> server_names;
+				std::string tmp;
+
+				while (std::getline(ss, tmp, ' '))
+					if (tmp.size() > 0)
+						server.addServerName(tmp);
+
+				if (server.getServerNames().empty())
+					reportError(SERVER_NAME_MISSING_VALUES, "name1 name2", "");
+
+				_currentToken = _lexer.nextToken();
 				expect(TOKEN_SEMICOLON);
 				break;
+			}
 
 			case TOKEN_ROOT:
 				expect(TOKEN_ROOT);
@@ -134,6 +144,11 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
@@ -169,6 +184,11 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
@@ -204,6 +224,11 @@ ServerConfig Parser::parseServer() {
 						case 'G':
 							mbValue *= 1024 * 1024 * 1024;
 							break;
+						case 'b':
+						case 'B':
+							break;
+						default:
+							reportError(INVALID_UNIT, "'b', 'k', 'm' or 'g'", _currentToken.value);
 					}
 					_currentToken = _lexer.nextToken();	 // Moves past the suffix
 
