@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestCGIExecution.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/15 21:34:35 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/16 12:43:04 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,10 +81,8 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		if (_request.getServerSidePath().find('/') != _request.getServerSidePath().size()) {
 			size_t sep = _request.getServerSidePath().find_last_of('/');
 			std::string cd_path = script_path.substr(0, sep);
-			LOG_DEBUG("cd_path: " + cd_path);
 
 			script_path = _request.getServerSidePath().substr(sep + 1);
-			LOG_DEBUG("script_path: " + script_path);
 
 			if (chdir(cd_path.c_str()) != 0)
 				LOG_ERROR("chdir error");
@@ -158,7 +156,7 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 			_response.setStatus(Http::INTERNAL_SERVER_ERROR);
 		_cgiExecuted = true;
 	} else {
-		_response = buildDefaultResponse(Http::Status::GATEWAY_TIMEOUT);
+		_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
 		_cgiExecuted = true;
 	}
 

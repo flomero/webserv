@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:54:56 by lgreau            #+#    #+#             */
-/*   Updated: 2024/10/15 15:29:20 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/14 15:28:44 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,9 @@ class Route {
 		std::map<std::string, std::string> _cgiHandlers;
 		int _code;
 		std::string _redirect;
+		size_t _clientMaxBodySize = 0;
+		size_t _clientBodyBufferSize = 8192;
+		size_t _clientHeaderBufferSize = 1024;
 
 	public:
 		// Constructor
@@ -47,6 +50,9 @@ class Route {
 		[[nodiscard]] const std::map<std::string, std::string>& getCgiHandlers() const;
 		[[nodiscard]] int getCode() const;
 		[[nodiscard]] const std::string& getRedirect() const;
+		[[nodiscard]] size_t getClientMaxBodySize() const;
+		[[nodiscard]] size_t getClientBodyBufferSize() const;
+		[[nodiscard]] size_t getClientHeaderBufferSize() const;
 
 		// Setters
 		void setPath(const std::string& path);
@@ -59,6 +65,9 @@ class Route {
 		void setCgiHandlers(const std::map<std::string, std::string>& handlers);
 		void setCode(int code);
 		void setRedirect(const std::string& redirect);
+		void setClientMaxBodySize(size_t size);
+		void setClientBodyBufferSize(size_t size);
+		void setClientHeaderBufferSize(size_t size);
 
 		// Overload "<<" operator to print Route details
 		friend std::ostream& operator<<(std::ostream& os, const Route& route);
