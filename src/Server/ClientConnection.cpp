@@ -5,7 +5,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <algorithm>  // For std::search
 #include <array>
+#include <cstring>	// For strerror
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -52,7 +54,10 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 
 ClientConnection::~ClientConnection() {
 	LOG_INFO(_log("Closing client connection"));
-	close(_clientFd);
+	if (_clientFd != -1) {
+		close(_clientFd);
+		_clientFd = -1;
+	}
 }
 
 void ClientConnection::handleClient() {
@@ -108,15 +113,11 @@ bool ClientConnection::_receiveHeader() {
 		_request.getBodyType() == HttpRequest::BodyType::CONTENT_LENGTH) {
 		LOG_DEBUG(_log("Request has body"));
 		_bodyBuffer.reserve(_currentConfig.getClientBodyBufferSize());
-		// LOG_DEBUG(_log("Request has body with Content-Length: " + std::to_string(_request.getContentLength())));
-		// Handle cases with data already in buffer
 		_bodyBuffer.clear();
 		if (_headerBuffer.empty()) {
 			LOG_DEBUG(_log("No additional data in header buffer"));
 		} else {
 			_bodyBuffer.insert(_bodyBuffer.end(), _headerBuffer.begin(), _headerBuffer.end());
-			// LOG_DEBUG(
-			// 	_log("Added " + std::to_string(_headerBuffer.size()) + " bytes from header buffer to body buffer"));
 			_headerBuffer.clear();
 		}
 

@@ -1,7 +1,10 @@
 #include "MultiSocketWebserver.hpp"
 
 #include <arpa/inet.h>
+#include <sys/poll.h>
 #include <unistd.h>
+
+#include <cstddef>	// For size_t
 
 #include "ClientConnection.hpp"
 #include "Logger.hpp"
@@ -31,10 +34,20 @@ void MultiSocketWebserver::initSockets() {
 	}
 }
 
-MultiSocketWebserver::~MultiSocketWebserver() {	 // TODO: Implement destructor
+MultiSocketWebserver::~MultiSocketWebserver() {
 	for (const auto& [fd, _] : _sockets) {
-		close(fd);
+		if (fd != -1) {
+			close(fd);
+		}
 	}
+	_sockets.clear();
+
+	for (const auto& [fd, _] : _clients) {
+		if (fd != -1) {
+			close(fd);
+		}
+	}
+	_clients.clear();
 }
 
 void MultiSocketWebserver::run() {

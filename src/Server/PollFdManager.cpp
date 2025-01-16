@@ -1,6 +1,8 @@
 
 #include "PollFdManager.hpp"
 
+#include <algorithm>
+
 #include "Logger.hpp"
 
 PollFdManager& PollFdManager::getInstance() {
