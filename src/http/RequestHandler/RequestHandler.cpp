@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 13:22:06 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/16 14:24:22 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,8 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	if (!_matchedRoute.getCgiHandlers().empty()) {
 		handleRequestCGI(_matchedRoute);
 		if (_cgiExecuted) {
+			if (!_request.getHeader("Connection").empty())
+				_response.addHeader("Connection", _request.getHeader("Connection"));
 			_response.setDefaultHeaders();
 			return _response;
 		}
@@ -169,10 +171,8 @@ HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 
 	if (_request.getHttpVersion() == "HTTP/1.0")
 		_response.setHttpVersion("HTTP/1.0");
-	if (_request.getHeader("Connection") == "close")
-		_response.addHeader("Connection", "close");
-	else if (_request.getHeader("Connection") == "keep-alive")
-		_response.addHeader("Connection", "keep-alive");
+	if (!_request.getHeader("Connection").empty())
+		_response.addHeader("Connection", _request.getHeader("Connection"));
 	_response.setDefaultHeaders();
 	return _response;
 }
