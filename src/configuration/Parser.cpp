@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 12:42:11 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/16 13:41:13 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,10 @@ ServerConfig Parser::parseServer() {
 				std::string tmp;
 
 				while (std::getline(ss, tmp, ' '))
-					if (tmp.size() > 0)
+					if (tmp.size() > 0) {
+						std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
 						server.addServerName(tmp);
+					}
 
 				if (server.getServerNames().empty())
 					reportError(SERVER_NAME_MISSING_VALUES, "name1 name2", "");
