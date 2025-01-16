@@ -10,13 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <atomic>
+#include <csignal>
 #include <exception>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
 #include "MultiSocketWebserver.hpp"
+#include "globals.hpp"
 #include "webserv.hpp"
+
+std::atomic<bool> stopServer(false);
 
 std::string readFile(const std::string &filename) {
 	std::ifstream file(filename);
@@ -49,12 +54,22 @@ void printServerConfigs(const std::vector<std::vector<ServerConfig>> &server_con
 	}
 }
 
+// Signal handler function
+void signalHandler(const int signum) {
+	LOG_INFO("Interrupt signal (" + std::to_string(signum) + ") received. Stopping server...");
+	stopServer = true;
+}
+
 int main(const int argc, const char *argv[]) {
 	if (argc != 2) {
 		std::cerr << COLOR(RED, "Error: ") << "Invalid number of arguments" << std::endl;
 		std::cerr << "Usage: " << argv[0] << " <path_to_config_file>" << std::endl;
 		return 1;
 	}
+
+	// Register signal handler
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
 
 	std::string source;
 	std::vector<std::vector<ServerConfig>> server_config_vectors;

@@ -60,7 +60,6 @@ HttpResponse RequestHandler::handlePostMultipart() {
 		std::string line;
 		std::string contentDisposition;
 		std::string contentTypeFile;
-		LOG_ERROR(_request.getBody());
 		while (std::getline(partStream, line) && !line.empty()) {
 			if (line.find("Content-Disposition") == 0)
 				contentDisposition = line;
@@ -75,8 +74,10 @@ HttpResponse RequestHandler::handlePostMultipart() {
 			LOG_ERROR("Missing Content-Type header in part");
 			return buildDefaultResponse(Http::BAD_REQUEST);
 		}
-		if (contentDisposition.find("filename=") != std::string::npos)
+		if (contentDisposition.find("filename=") != std::string::npos) {
+			LOG_DEBUG("Handling file upload");
 			return handleFileUpload(part, contentDisposition);
+		}
 
 		// TODO: handle form fields - not sure if needed
 	}
