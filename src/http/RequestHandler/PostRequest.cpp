@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PostRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/16 20:26:16 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/17 17:01:15 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,13 +122,16 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 		LOG_ERROR("Invalid part: " + part);
 		return buildDefaultResponse(Http::BAD_REQUEST);
 	}
-	if (!_matchedRoute.getUploadDir().empty())
-		filename = buildpath(_matchedRoute.getUploadDir(), filename, _serverConfig.getRoot());
-	else {
+	if (!_matchedRoute.getUploadDir().empty()) {
+		if (!_matchedRoute.getRoot().empty())
+			filename = buildpath(_matchedRoute.getUploadDir(), filename, _matchedRoute.getRoot());
+		else
+			filename = buildpath(_matchedRoute.getUploadDir(), filename, _serverConfig.getRoot());
+	} else {
 		if (!_serverConfig.getUploadDir().empty())
 			filename = buildpath(_serverConfig.getUploadDir(), filename, _serverConfig.getRoot());
 		else
-			filename = buildpath(_serverConfig.getRoot(), filename, _serverConfig.getRoot());
+			return buildDefaultResponse(Http::FORBIDDEN);
 	}
 	std::ofstream file(filename, std::ios::binary);
 	if (!file.is_open()) {
