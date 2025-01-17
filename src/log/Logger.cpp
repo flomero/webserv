@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:20:32 by flfische          #+#    #+#             */
-/*   Updated: 2024/10/09 15:21:54 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/17 09:29:31 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ void Logger::setOutputToConsole() {
 }
 
 void Logger::log(const std::string& msg, const LogLevel level) {
+	if (level < LOG_LEVEL)
+		return;
 	const std::time_t now = std::time(nullptr);
 	if (outputToFile) {
 		logFile << std::left << std::put_time(std::localtime(&now), "%F %T") << " " << std::left << std::setw(20)
@@ -45,6 +47,9 @@ void Logger::log(const std::string& msg, const LogLevel level) {
 
 std::ostream& operator<<(std::ostream& os, const LogLevel level) {
 	switch (level) {
+		case TRACE:
+			os << TRACE_PREFIX;
+			break;
 		case DEBUG:
 			os << DEBUG_PREFIX;
 			break;
