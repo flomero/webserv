@@ -107,7 +107,7 @@ ServerConfig Parser::parseServer() {
 				std::string tmp;
 
 				while (std::getline(ss, tmp, ' '))
-					if (tmp.size() > 0) {
+					if (!tmp.empty()) {
 						std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
 						server.addServerName(tmp);
 					}
@@ -348,7 +348,7 @@ Route Parser::parseRoute() {
 						methods.push_back(_currentToken.value);
 						_currentToken = _lexer.nextToken();
 					}
-					if (methods.size() <= 0)
+					if (methods.empty())
 						reportError(ALLOW_METHODS_MISSING_VALUES, "at least one method: 'GET', 'POST' or 'DELETE'",
 									"None");
 					route.setMethods(methods);
