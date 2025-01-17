@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 17:08:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 11:53:34 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 15:01:40 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ enum eParsingErrors {
 
 #define ERROR_NAME 0
 #define ERROR_TEXT 1
+
+#define POSSIBLE_SERVER_CONFIGS                                                                                 \
+	"'location', 'listen', 'server_name', 'root', 'index', 'client_max_body_size', 'client_body_buffer_size', " \
+	"'client_header_buffer_size', 'uplaod_dir', 'request_timeout' or 'error_page'"
+#define POSSIBLE_ROUTE_CONFIGS                                                                                        \
+	"'root', 'index', 'client_max_body_size', 'client_body_buffer_size', 'client_header_buffer_size', 'uplaod_dir', " \
+	"'allow_methods', 'autoindex', 'alias', 'cgi' or 'return'"
 
 const std::map<eParsingErrors, std::vector<std::string> > parsingErrorsMessages = {
 	{UNEXPECTED_TOKEN, {"UNEXPECTED_TOKEN", "expected: "}},

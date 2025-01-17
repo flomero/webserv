@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:33:07 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 10:26:15 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 14:58:21 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,10 +152,6 @@ Token Lexer::parseKeywordOrString() {
 		if (value == snd)
 			return {fst, value, _line, _column};
 	}
-
-	// LOG_INFO("unmatched token string: " + value);
-	// if (value.find_first_not_of("0123456789") == std::string::npos)
-	// 	return {TOKEN_NUMBER, value, _line, _column};
 
 	return {TOKEN_STRING, value, _line, _column};  // Default to string if not a keyword
 }
