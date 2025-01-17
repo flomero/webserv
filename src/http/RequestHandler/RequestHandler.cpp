@@ -99,7 +99,8 @@ void RequestHandler::findMatchingRoute() {
  * @param request
  */
 bool RequestHandler::handleRequest(const HttpRequest& request) {
-	if (!_parsingDone) _request = request;
+	if (!_parsingDone)
+		_request = request;
 
 	// LOG_ERROR("request location: " + request.getLocation());
 	// _request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());

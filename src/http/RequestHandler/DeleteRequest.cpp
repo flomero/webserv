@@ -37,10 +37,10 @@ void RequestHandler::handleDeleteRequest() {
 			_response.setStatus(Http::NO_CONTENT);
 		} else {
 			LOG_WARN("Failed to delete file: " + serverSidePath);
-			_response =  buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 		}
 	} catch (const std::filesystem::filesystem_error& e) {
 		LOG_ERROR("Filesystem error: " + std::string(e.what()));
-		_response =  buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 	}
 }

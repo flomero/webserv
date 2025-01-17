@@ -158,8 +158,8 @@ bool RequestHandler::handleFileUpload() {
 		return true;
 	}
 
-	_bytesWrittenToFile += written;	 // Save how much is written already
-	_request.getBodyRef().erase(0, written);	 // Remove the written part from body
+	_bytesWrittenToFile += written;			  // Save how much is written already
+	_request.getBodyRef().erase(0, written);  // Remove the written part from body
 
 	close(fd);
 

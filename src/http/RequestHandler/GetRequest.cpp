@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/31 14:35:29 by flfische          #+#    #+#             */
-/*   Updated: 2024/12/10 19:24:48 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/17 23:13:39 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ bool RequestHandler::handleGetFile() {
 
 	file.seekg(0, std::ios::end);
 	const long long fileSize = file.tellg();
-	file.seekg(_bytesReadFromFile, std::ios::beg); // Set the offset
+	file.seekg(_bytesReadFromFile, std::ios::beg);	// Set the offset
 
 	std::string content;
 	content.reserve(fileSize);
@@ -67,7 +67,7 @@ bool RequestHandler::handleGetFile() {
 	file.read(buffer, GET_READ_SIZE);
 	const size_t readSize = file.gcount();
 	content.append(buffer, readSize);
-	LOG_ERROR("Content: " + content);
+	// LOG_ERROR("Content: " + content);
 	_bytesReadFromFile += readSize;
 	_response.appendToBody(content);
 	LOG_DEBUG("Read " + std::to_string(readSize) +

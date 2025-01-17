@@ -441,7 +441,7 @@ void ClientConnection::sendResponse() {
 	}
 	if (!_response.getStatus()) {
 		LOG_DEBUG(_log("Building response for request"));
-		if ( _requestHandler.handleRequest(_request)) {
+		if (_requestHandler.handleRequest(_request)) {
 			_response = _requestHandler.getResponse();
 		} else {
 			return;

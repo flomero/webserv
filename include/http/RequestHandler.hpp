@@ -48,7 +48,7 @@ class RequestHandler {
 
 		// POST request handlers
 		[[nodiscard]] bool handlePostRequest();
-		bool setFileNameAndBody(const std::string & part, const std::string & contentDisposition);
+		bool setFileNameAndBody(const std::string& part, const std::string& contentDisposition);
 		[[nodiscard]] bool handlePostMultipart();
 		[[nodiscard]] bool handleFileUpload();
 
