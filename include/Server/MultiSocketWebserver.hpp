@@ -18,6 +18,7 @@ class MultiSocketWebserver {
 		void _acceptConnection(int server_fd);
 		bool _handleClientData(int client_fd);
 		[[nodiscard]] bool isServerFd(int fd) const;
+		static void _setSocketTimeouts(int socketFd, size_t timeoutSec);
 
 	public:
 		explicit MultiSocketWebserver(std::vector<std::vector<ServerConfig>> servers_config);
