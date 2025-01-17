@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/15 21:16:39 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/17 09:28:25 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,6 @@ void HttpRequest::_validateRequestLine() const {
 }
 
 void HttpRequest::_validateHeaders() const {
-	// TODO: check if Host header is required
-	// TODO: check if other stuff is required
 	if (_method == "POST" && _bodyType == BodyType::NO_BODY) {
 		throw BadRequest();
 	}
@@ -93,10 +91,10 @@ void HttpRequest::_parseURI() {
 	}
 	LOG_DEBUG("  |- Location:            " + _location);
 	if (size_t queryStart = _location.find_first_of('?'); queryStart != std::string::npos) {
-		LOG_DEBUG("  |- Query string found:  " + _location);
+		LOG_TRACE("  |- Query string found:  " + _location);
 		_queryString = _location.substr(queryStart + 1, _location.back());
 		_location = _location.substr(0, queryStart);
-		LOG_DEBUG("  |- Query string:        " + _queryString);
+		LOG_TRACE("  |- Query string:        " + _queryString);
 	}
 }
 
