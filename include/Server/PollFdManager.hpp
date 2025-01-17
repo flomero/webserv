@@ -17,6 +17,7 @@ class PollFdManager {
 		pollfd* data();
 		[[nodiscard]] size_t size() const;
 		[[nodiscard]] std::vector<pollfd> getPolls() const;
+		[[nodiscard]] std::vector<pollfd> getShuffledPolls() const;
 
 	private:
 		PollFdManager() = default;

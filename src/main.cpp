@@ -56,8 +56,17 @@ void printServerConfigs(const std::vector<std::vector<ServerConfig>> &server_con
 
 // Signal handler function
 void signalHandler(const int signum) {
+	if (stopServer) {
+		LOG_INFO("Server is already stopping...");
+		return;
+	}
+	// Clear the line using ANSI escape code
+	std::cout << "\033[2K\r";
 	LOG_INFO("Interrupt signal (" + std::to_string(signum) + ") received. Stopping server...");
 	stopServer = true;
+
+	// Ignore further SIGINT signals to prevent ^C from being printed
+	signal(SIGINT, SIG_IGN);
 }
 
 int main(const int argc, const char *argv[]) {
