@@ -17,7 +17,7 @@
 #include "RequestHandler.hpp"
 #include "ServerConfig.hpp"
 
-HttpResponse RequestHandler::handlePostRequest() {
+bool RequestHandler::handlePostRequest() {
 	LOG_DEBUG("Handling POST request");
 	const std::string contentType = _request.getHeader("Content-Type");
 	if (contentType == "application/x-www-form-urlencoded") {

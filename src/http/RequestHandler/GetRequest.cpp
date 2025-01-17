@@ -21,64 +21,72 @@
 #include "mimetypes.hpp"
 #include "webserv.hpp"
 
-HttpResponse RequestHandler::handleGetRequest() {
+bool RequestHandler::handleGetRequest() {
 	LOG_DEBUG("Handling GET request");
-	HttpResponse response;
 
 	if (std::filesystem::is_directory(_request.getServerSidePath())) {
-		response = handleGetDirectory();
-	} else {
-		response = handleGetFile();
+		return handleGetDirectory();
 	}
-
-	return response;
+	return handleGetFile();
 }
 
-HttpResponse RequestHandler::handleGetFile() {
-	HttpResponse response;
-
-	int fd = open(_request.getServerSidePath().c_str(), O_RDONLY);
+bool RequestHandler::handleGetFile() {
+	const int fd = open(_request.getServerSidePath().c_str(), O_RDONLY);
 	if (fd == -1) {
-		return buildDefaultResponse(Http::Status::NOT_FOUND);
+		_response = buildDefaultResponse(Http::Status::NOT_FOUND);
+		return true;
 	}
 
-	struct pollfd pfd{};
+	pollfd pfd{};
 	pfd.fd = fd;
 	pfd.events = POLLIN;
 
-	if (int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT); ret <= 0 || !(pfd.revents & POLLIN)) {
+	if (const int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT); ret <= 0 || !(pfd.revents & POLLIN)) {
 		close(fd);
-		return buildDefaultResponse(Http::REQUEST_TIMEOUT);
+		_response = buildDefaultResponse(Http::REQUEST_TIMEOUT);
+		return true;
 	}
 
 	std::ifstream file(_request.getServerSidePath(), std::ios::binary);
 	if (!file.is_open()) {
 		close(fd);
-		return buildDefaultResponse(Http::NOT_FOUND);
+		_response = buildDefaultResponse(Http::NOT_FOUND);
+		return true;
 	}
 
 	file.seekg(0, std::ios::end);
-	size_t fileSize = file.tellg();
+	const size_t fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
-	std::string content(fileSize, '\0');
-	file.read(&content[0], content.size());
+
+	std::string content;
+	content.reserve(fileSize);
+
+	char buffer[GET_READ_SIZE];
+
+	file.read(buffer, GET_READ_SIZE);
+	const size_t readSize = file.gcount();
+	content.append(buffer, readSize);
+	_bytesReadFromFile += readSize;
+	_response.appendToBody(content);
+	LOG_DEBUG("Read " + std::to_string(readSize) +
+			  " bytes from file. Remaining: " + std::to_string(fileSize - _bytesReadFromFile));
+
 	file.close();
 	close(fd);
 
-	// Set up the HTTP response
-	response.setBody(content);
-	response.addHeader("Content-Type", getMimeType(_request.getServerSidePath()));
-	response.addHeader("Content-Length", std::to_string(fileSize));
-	response.setStatus(Http::OK);
+	if (_bytesReadFromFile >= fileSize) {
+		// Set up the HTTP response
+		_response.addHeader("Content-Type", getMimeType(_request.getServerSidePath()));
+		_response.addHeader("Content-Length", std::to_string(fileSize));
+		_response.setStatus(Http::OK);
+	}
 
-	return response;
+	return _bytesReadFromFile >= fileSize;
 }
 
-HttpResponse RequestHandler::handleGetDirectory() {
-	HttpResponse response;
-
+bool RequestHandler::handleGetDirectory() {
 	// check index file
-	std::string indexPath = _request.getServerSidePath() + "/" + _serverConfig.getIndex();
+	const std::string indexPath = _request.getServerSidePath() + "/" + _serverConfig.getIndex();
 	if (std::filesystem::exists(indexPath)) {
 		_request.setServerSidePath(indexPath);
 		return handleGetFile();
@@ -89,8 +97,9 @@ HttpResponse RequestHandler::handleGetDirectory() {
 	LOG_DEBUG(_matchedRoute.getPath());
 	if (_matchedRoute.isAutoindex()) {
 		handleAutoindex(_request.getServerSidePath());
-		return _response;
+		return true;
 	}
 	LOG_INFO("Directory listing is disabled");
-	return buildDefaultResponse(Http::FORBIDDEN);
+	_response = buildDefaultResponse(Http::FORBIDDEN);
+	return true;
 }

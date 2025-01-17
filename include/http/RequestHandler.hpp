@@ -23,10 +23,13 @@ class ServerConfig;
 
 class RequestHandler {
 		HttpRequest _request;
-		HttpResponse _response;
+		HttpResponse _response = HttpResponse();
 		bool _cgiExecuted = false;
 		ServerConfig& _serverConfig;
 		Route _matchedRoute;
+
+		size_t _bytesReadFromFile = 0;
+		bool _parsingDone = false;
 
 		// General Functions
 		void findMatchingRoute();
@@ -37,17 +40,17 @@ class RequestHandler {
 
 		// Request handlers
 		// GET request handlers
-		HttpResponse handleGetRequest();
-		HttpResponse handleGetFile();
-		HttpResponse handleGetDirectory();
+		bool handleGetRequest();
+		bool handleGetFile();
+		bool handleGetDirectory();
 
 		// POST request handlers
-		[[nodiscard]] HttpResponse handlePostRequest();
+		[[nodiscard]] bool handlePostRequest();
 		[[nodiscard]] HttpResponse handlePostMultipart();
 		[[nodiscard]] HttpResponse handleFileUpload(const std::string& part, const std::string& contentDisposition);
 
 		// DELETE request handler
-		[[nodiscard]] HttpResponse handleDeleteRequest();
+		[[nodiscard]] bool handleDeleteRequest();
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
@@ -64,6 +67,7 @@ class RequestHandler {
 
 		[[nodiscard]] ServerConfig& getConfig() const;
 		void setConfig(const ServerConfig& server_config) const;
-		HttpResponse handleRequest(const HttpRequest& request);
+		bool handleRequest(const HttpRequest& request);
+		HttpResponse getResponse();
 		HttpResponse buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request = std::nullopt);
 };

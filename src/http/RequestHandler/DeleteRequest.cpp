@@ -15,7 +15,7 @@
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 
-HttpResponse RequestHandler::handleDeleteRequest() {
+bool RequestHandler::handleDeleteRequest() {
 	LOG_DEBUG("Handling DELETE request");
 	HttpResponse response;
 
