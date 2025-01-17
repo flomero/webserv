@@ -50,7 +50,7 @@ class RequestHandler {
 		[[nodiscard]] HttpResponse handleFileUpload(const std::string& part, const std::string& contentDisposition);
 
 		// DELETE request handler
-		[[nodiscard]] bool handleDeleteRequest();
+		void handleDeleteRequest();
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);

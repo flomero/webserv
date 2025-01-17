@@ -185,8 +185,10 @@ bool RequestHandler::handleRequest(const HttpRequest& request) {
 		isFinished = handleGetRequest();
 	else if (_request.getMethod() == "POST")
 		isFinished = handlePostRequest();
-	else if (_request.getMethod() == "DELETE")
-		isFinished = handleDeleteRequest();
+	else if (_request.getMethod() == "DELETE") {
+		handleDeleteRequest();
+		isFinished = true;
+	}
 
 	if (isFinished) {
 		if (_request.getHttpVersion() == "HTTP/1.0")
