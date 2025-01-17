@@ -31,9 +31,10 @@ bool RequestHandler::handleGetRequest() {
 }
 
 bool RequestHandler::handleGetFile() {
+	LOG_ERROR("Try to open file: " + _request.getServerSidePath());
 	const int fd = open(_request.getServerSidePath().c_str(), O_RDONLY);
 	if (fd == -1) {
-		_response = buildDefaultResponse(Http::Status::NOT_FOUND);
+		_response = buildDefaultResponse(Http::Status::IM_A_TEAPOT);
 		return true;
 	}
 
@@ -50,7 +51,7 @@ bool RequestHandler::handleGetFile() {
 	std::ifstream file(_request.getServerSidePath(), std::ios::binary);
 	if (!file.is_open()) {
 		close(fd);
-		_response = buildDefaultResponse(Http::NOT_FOUND);
+		_response = buildDefaultResponse(Http::PAYLOAD_TOO_LARGE);
 		return true;
 	}
 
