@@ -201,6 +201,7 @@ HttpResponse RequestHandler::getResponse() {
 	_response = HttpResponse();
 	_parsingDone = false;
 	_fileName = "";
+	_bytesWrittenToFile = 0;
 
 	return tmp;
 }

@@ -39,6 +39,7 @@ bool RequestHandler::handlePostRequest() {
 bool RequestHandler::handlePostMultipart() {
 	LOG_DEBUG("Handling multipart POST request");
 	if (_fileName.empty()) {
+		LOG_DEBUG("No file name set yet");
 		std::string contentType = _request.getHeader("Content-Type");
 		std::size_t boundaryPos = contentType.find("boundary=");
 		if (boundaryPos == std::string::npos) {
@@ -118,7 +119,7 @@ std::string buildpath(const std::string &path, const std::string &filename, cons
 }
 
 bool RequestHandler::handleFileUpload() {
-	const int fd = open(_fileName.c_str(), O_WRONLY | O_CREAT, 0644);
+	const int fd = open(_fileName.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0) {
 		LOG_ERROR("Failed to open file descriptor for: " + _fileName + " with error: " + strerror(errno));
 		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
@@ -162,7 +163,7 @@ bool RequestHandler::handleFileUpload() {
 
 	close(fd);
 
-	if (_response.getBody().size() != 0) {
+	if (_request.getBody().size() != 0) {
 		return false;
 	}
 
