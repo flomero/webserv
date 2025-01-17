@@ -84,7 +84,7 @@ bool ClientConnection::_receiveHeader() {
 		return false;
 	}
 
-	LOG_DEBUG(_log("Header content: \n" + std::string(_headerBuffer.begin(), _headerBuffer.end())));
+	LOG_TRACE(_log("Header content: \n" + std::string(_headerBuffer.begin(), _headerBuffer.end())));
 	LOG_DEBUG(_log("Header buffer size after read: " + std::to_string(_headerBuffer.size())));
 
 	std::vector<char> header;
@@ -435,7 +435,6 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 
 void ClientConnection::sendResponse() {
 	if (_status != Status::READY_TO_SEND) {
-		// LOG_ERROR("Response is not ready to be sent");
 		return;
 	}
 	if (!_response.getStatus()) {
@@ -443,7 +442,7 @@ void ClientConnection::sendResponse() {
 		_response = _requestHandler.handleRequest(_request);
 	}
 	LOG_INFO(_log("Sending response with status code: " + std::to_string(_response.getStatus())));
-	LOG_DEBUG(_log("Response: \n" + _response.toString()));
+	LOG_TRACE(_log("Response: \n" + _response.toString()));
 	if (!_sendDataToClient(_response.toString())) {
 		return;
 	}
@@ -508,7 +507,7 @@ std::optional<size_t> ClientConnection::_findHeaderEnd(const std::vector<char>& 
 bool ClientConnection::isDisconnected() const { return _disconnected; }
 
 void ClientConnection::_logHeader() const {
-	LOG_DEBUG(_log("Request recieved:\n====================\n" + toString(_request) + "\n===================="));
+	LOG_TRACE(_log("Request recieved:\n====================\n" + toString(_request) + "\n===================="));
 }
 
 std::string ClientConnection::_log(const std::string& msg) const {

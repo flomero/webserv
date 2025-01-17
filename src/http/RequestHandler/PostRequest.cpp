@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/15 16:03:33 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/16 20:26:16 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ std::string buildpath(const std::string &path, const std::string &filename, cons
 }
 
 HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std::string &contentDisposition) {
-	LOG_DEBUG("Handling file upload");
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {
