@@ -4,6 +4,7 @@
 #include <sys/poll.h>
 #include <sys/sysctl.h>
 #include <unistd.h>
+
 #include <cstddef>
 #include <random>
 
@@ -59,7 +60,7 @@ void MultiSocketWebserver::run() {
 			break;
 		}
 
-		for (auto& [fd, events, revents] : _polls.getShuffledPolls()) {
+		for (auto& [fd, events, revents] : _polls.getPolls()) {
 			if (stopServer) {
 				break;
 			}
@@ -67,16 +68,12 @@ void MultiSocketWebserver::run() {
 			if (revents & POLLIN) {
 				if (isServerFd(fd)) {
 					_acceptConnection(fd);
-					break;
-				}
-				if (_handleClientData(fd)) {
-					break;
+				} else {
+					_handleClientData(fd);
 				}
 			}
 			if (revents & POLLOUT) {
-				if (_handleClientWrite(fd)) {
-					break;
-				}
+				_handleClientWrite(fd);
 			}
 			if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
 				LOG_ERROR("Error on socket " + std::to_string(fd));

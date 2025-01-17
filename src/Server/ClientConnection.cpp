@@ -318,8 +318,6 @@ void ClientConnection::_readRequestBodyIfContentLength() {
 	// Calculate the remaining body size to read
 	const size_t remainingBodySize = contentLength - currentBodySize;
 
-	LOG_ERROR("Remaining body size: " + std::to_string(remainingBodySize));
-
 	// Determine the maximum bytes to read in this iteration
 	const size_t maxReadSize = _requestHandler.getConfig().getClientBodyBufferSize();
 	const size_t bytesToRead = std::min(remainingBodySize, maxReadSize);
