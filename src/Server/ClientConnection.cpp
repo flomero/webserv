@@ -466,7 +466,6 @@ void ClientConnection::sendResponse() {
 	LOG_DEBUG(_log("Chunk sent successfully. Bytes sent in this chunk: " + std::to_string(bytesToSend) +
 				   ", Total bytes sent: " + std::to_string(_bytesSendToClient)));
 
-
 	if (_bytesSendToClient == _response.toString().size()) {
 		if (_response.getHeader("Connection") == "keep-alive") {
 			LOG_INFO(_log("Connection is keep-alive"));

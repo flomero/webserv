@@ -75,7 +75,7 @@ void MultiSocketWebserver::run() {
 			if (revents & POLLOUT) {
 				_handleClientWrite(fd);
 			}
-			if (revents & (POLLERR | POLLHUP | POLLNVAL |POLLPRI)) {
+			if (revents & (POLLERR | POLLHUP | POLLNVAL | POLLPRI)) {
 				if (revents & POLLHUP) {
 					LOG_INFO("Client disconnected from socket " + std::to_string(fd));
 				} else {
