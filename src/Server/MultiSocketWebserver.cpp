@@ -2,9 +2,10 @@
 
 #include <arpa/inet.h>
 #include <sys/poll.h>
+#include <sys/sysctl.h>
 #include <unistd.h>
-
 #include <cstddef>
+#include <random>
 
 #include "ClientConnection.hpp"
 #include "Logger.hpp"
@@ -53,13 +54,15 @@ MultiSocketWebserver::~MultiSocketWebserver() {
 
 void MultiSocketWebserver::run() {
 	while (stopServer == false) {
-		// TODO timeout
 		if (const int eventCount = poll(_polls.data(), _polls.size(), 5000); eventCount == -1 && !stopServer) {
 			LOG_ERROR("Poll failed: " + std::string(strerror(errno)));
 			break;
 		}
 
-		for (auto& [fd, events, revents] : _polls.getPolls()) {
+		for (auto& [fd, events, revents] : _polls.getShuffledPolls()) {
+			if (stopServer) {
+				break;
+			}
 			// Check if there are any events to process
 			if (revents & POLLIN) {
 				if (isServerFd(fd)) {
@@ -81,7 +84,6 @@ void MultiSocketWebserver::run() {
 			}
 		}
 	}
-	// TODO: Poll failed, handle error
 }
 
 void MultiSocketWebserver::_acceptConnection(const int server_fd) {

@@ -80,6 +80,7 @@ bool ClientConnection::_receiveHeader() {
 
 	// Attempt to read data into the header buffer
 	size_t remainingHeaderSize = _requestHandler.getConfig().getClientHeaderBufferSize() - _headerBuffer.size();
+	LOG_ERROR(_log("Remaining header size: " + std::to_string(remainingHeaderSize)));
 	if (!_readData(_clientFd, _headerBuffer, remainingHeaderSize)) {
 		return false;
 	}
@@ -112,7 +113,7 @@ bool ClientConnection::_receiveHeader() {
 	if (_request.getBodyType() == HttpRequest::BodyType::CHUNKED ||
 		_request.getBodyType() == HttpRequest::BodyType::CONTENT_LENGTH) {
 		LOG_DEBUG(_log("Request has body"));
-		_bodyBuffer.reserve(_currentConfig.getClientBodyBufferSize());
+		_bodyBuffer.reserve(_currentConfig.getClientMaxBodySize());
 		_bodyBuffer.clear();
 		if (_headerBuffer.empty()) {
 			LOG_DEBUG(_log("No additional data in header buffer"));
@@ -133,7 +134,7 @@ ClientConnection::Status ClientConnection::getStatus() const { return _status; }
 void ClientConnection::_handleCompleteChunkedBodyRead() {
 	LOG_DEBUG(_log("Finished reading chunked request body"));
 
-	LOG_DEBUG(_log("Request body: \n" + _request.getBody()));
+	// LOG_DEBUG(_log("Request body: \n" + _request.getBody()));
 	// _readingChunkSize = true;
 	// Set the status to ready to send
 	_status = Status::READY_TO_SEND;
@@ -317,6 +318,8 @@ void ClientConnection::_readRequestBodyIfContentLength() {
 	// Calculate the remaining body size to read
 	const size_t remainingBodySize = contentLength - currentBodySize;
 
+	LOG_ERROR("Remaining body size: " + std::to_string(remainingBodySize));
+
 	// Determine the maximum bytes to read in this iteration
 	const size_t maxReadSize = _requestHandler.getConfig().getClientBodyBufferSize();
 	const size_t bytesToRead = std::min(remainingBodySize, maxReadSize);
@@ -352,9 +355,6 @@ void ClientConnection::_handleCompleteBodyRead() {
 
 	// Set the complete body in the request
 	_request.setBody(std::string(_bodyBuffer.begin(), _bodyBuffer.end()));
-
-	// Log the completed header and body info
-	_logHeader();
 
 	// Update status to ready
 	_status = Status::READY_TO_SEND;

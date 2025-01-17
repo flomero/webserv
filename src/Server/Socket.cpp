@@ -31,6 +31,7 @@ Socket::Socket(std::vector<ServerConfig> configs)
 }
 
 Socket::~Socket() {
+	LOG_INFO("Closing socket");
 	if (_socketFd != -1) {
 		close(_socketFd);
 	}
