@@ -60,7 +60,8 @@ void RequestHandler::findMatchingRoute() {
 	LOG_DEBUG("  |- best match:   " + _matchedRoute.getPath() + "\n");
 
 	if (!_matchedRoute.getRoot().empty()) {
-		_request.setServerSidePath("." + _matchedRoute.getRoot() + "/" + _request.getLocation().erase(0, longestMatchLength));
+		_request.setServerSidePath("." + _matchedRoute.getRoot() + "/" +
+								   _request.getLocation().erase(0, longestMatchLength));
 	} else
 		_request.setServerSidePath("." + _serverConfig.getRoot() + "/" + _request.getLocation());
 
