@@ -22,3 +22,4 @@
 
 #define SERVER_NAME "webserv"
 #define DEFAULT_POLL_TIMEOUT 5000
+#define SIZE_BYTES_TO_SEND_BACK size_t(1024* 1024)

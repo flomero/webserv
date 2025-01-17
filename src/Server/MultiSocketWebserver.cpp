@@ -75,8 +75,20 @@ void MultiSocketWebserver::run() {
 			if (revents & POLLOUT) {
 				_handleClientWrite(fd);
 			}
-			if (revents & (POLLERR | POLLHUP | POLLNVAL)) {
-				LOG_ERROR("Error on socket " + std::to_string(fd));
+			if (revents & (POLLERR | POLLHUP | POLLNVAL |POLLPRI)) {
+				if (revents & POLLHUP) {
+					LOG_INFO("Client disconnected from socket " + std::to_string(fd));
+				} else {
+					LOG_ERROR("Error on socket " + std::to_string(fd));
+				}
+				if (isServerFd(fd)) {
+					_sockets.erase(fd);
+				} else {
+					_clients.erase(fd);
+				}
+				if (fd != -1) {
+					close(fd);
+				}
 				_polls.removeFd(fd);
 			}
 		}
@@ -143,7 +155,8 @@ bool MultiSocketWebserver::_handleClientWrite(int fd) {
 	}
 
 	ClientConnection& client = *it->second;
-	if (client.getStatus() != ClientConnection::Status::READY_TO_SEND) {
+	if (client.getStatus() != ClientConnection::Status::READY_TO_SEND &&
+		client.getStatus() != ClientConnection::Status::SENDING_RESPONSE) {
 		return false;
 	}
 
