@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/17 15:02:06 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 15:14:39 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,6 +250,10 @@ ServerConfig Parser::parseServer() {
 				}
 				headerBufferSize += mbValue;
 				server.setClientHeaderBufferSize(headerBufferSize);
+				if (headerBufferSize > MAX_HEADER_BUFFER_SIZE) {
+					LOG_WARN("client_header_buffer_size set higher than MAX_HEADER_BUFFER_SIZE: 1024");
+					server.setClientHeaderBufferSize(headerBufferSize);
+				}
 				expect(TOKEN_SEMICOLON);
 				break;
 			}

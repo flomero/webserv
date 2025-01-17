@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:58:34 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/17 14:36:03 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 15:14:24 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include "globals.hpp"
 
 #define REGEX_PORT "[0-9]{1,5}"
+#define MAX_HEADER_BUFFER_SIZE 1024
 
 class Parser {
 	private:
