@@ -20,7 +20,11 @@ class Socket {
 		void setSocketOpt() const;
 		int _socketFd;
 		int _port;
-		ServerConfig& _default_config;
+		ServerConfig &_default_config;
 		std::vector<ServerConfig> _configs;
 		sockaddr_in _addr;
 };
+
+uint32_t my_inet_addr(const std::string &ipStr);
+
+std::string my_inet_ntoa(const in_addr &in);
