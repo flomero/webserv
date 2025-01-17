@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX      := c++
-CXXFLAGS := -Wall -Werror -Wextra -std=c++17
+CXXFLAGS := -Wall -Werror -Wextra -std=c++17 -O3
 DEPFLAGS := -MMD -MP
 
 # Target name
@@ -76,6 +76,7 @@ HDRS     := webserv.hpp \
 			PollFdManager.hpp \
 			mimetypes.hpp \
 			ft_toString.hpp \
+			globals.hpp \
 
 OBJS     := $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 DEPS     := $(OBJS:.o=.d)
