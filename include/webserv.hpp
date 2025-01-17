@@ -24,3 +24,4 @@
 #define DEFAULT_POLL_TIMEOUT 5000
 #define SIZE_BYTES_TO_SEND_BACK size_t(1024 * 1024)
 #define GET_READ_SIZE size_t(1024)
+#define POST_WRITE_SIZE size_t(1024)
