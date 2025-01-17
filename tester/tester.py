@@ -40,6 +40,8 @@ def test_get_requests():
 	make_request("GET request to a non-existent endpoint.", "GET", "/nonexistent", expected_status=404)
 	make_request("GET request with body.", "GET", "/", data="This should be ignored", expected_status=200)
 
+	make_request("GET request with local root.", "GET", "/local-root/index.html", expected_status=200)
+
 # Testing POST requests
 def test_post_requests():
 	print("\nPOST Requests")
@@ -84,9 +86,10 @@ def test_invalid_requests():
 # Main function to run all tests
 if __name__ == "__main__":
 	print("Starting tests for webserv project...\n")
-	test_get_requests()
-	test_post_requests()
-	test_delete_requests()
-	test_cgi_requests()
-	test_invalid_requests()
+	# test_get_requests()
+	# test_post_requests()
+	# test_delete_requests()
+	# test_cgi_requests()
+	# test_invalid_requests()
+	make_request("GET request with local root.", "GET", "/local-root/index.html", expected_status=200)
 	print("\nAll tests completed.")

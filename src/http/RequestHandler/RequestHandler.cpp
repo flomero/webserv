@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 14:24:22 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 16:38:57 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,12 @@ void RequestHandler::findMatchingRoute() {
 	_matchedRoute = matchedRoute;
 	LOG_DEBUG("  |- best match:   " + _matchedRoute.getPath() + "\n");
 
+	if (!_matchedRoute.getRoot().empty()) {
+		_request.setServerSidePath("." + _matchedRoute.getRoot() + "/" +
+								   _request.getLocation().erase(0, longestMatchLength));
+	} else
+		_request.setServerSidePath("." + _serverConfig.getRoot() + "/" + _request.getLocation());
+
 	// if matches directly to a route, check for index file in the directory and change if applicable
 	if (_request.getLocation().back() == '/') {
 		std::string indexFile;
@@ -100,7 +106,8 @@ void RequestHandler::findMatchingRoute() {
 HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
 	_request = request;
 	_response = HttpResponse();
-	_request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
+	// LOG_ERROR("request location: " + request.getLocation());
+	// _request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
 	_cgiExecuted = false;
 
 	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
