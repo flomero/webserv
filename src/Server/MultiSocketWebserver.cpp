@@ -104,14 +104,12 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 		return;
 	}
 
-	timeval tv{};
-	tv.tv_sec = 5;
-	tv.tv_usec = 0;
-	setsockopt(clientFd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+	auto server_configs = _sockets.at(server_fd)->getConfig();
+
+	_setSocketTimeouts(clientFd, 5);
 
 	try {
-		_clients.emplace(clientFd,
-						 std::make_unique<ClientConnection>(clientFd, clientAddr, _sockets.at(server_fd)->getConfig()));
+		_clients.emplace(clientFd, std::make_unique<ClientConnection>(clientFd, clientAddr, server_configs));
 		_polls.addFd(clientFd);
 		LOG_INFO("Accepted connection from " + std::string(my_inet_ntoa(clientAddr.sin_addr)) + " on socket " +
 				 std::to_string(clientFd));
@@ -169,4 +167,20 @@ bool MultiSocketWebserver::_handleClientWrite(int fd) {
 	}
 
 	return true;
+}
+
+void MultiSocketWebserver::_setSocketTimeouts(const int socketFd, const size_t timeoutSec) {
+	timeval tv{};
+	tv.tv_sec = timeoutSec;
+	tv.tv_usec = 0;
+
+	// Set receive timeout
+	if (setsockopt(socketFd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+		LOG_ERROR("Error setting receive timeout: " + std::string(strerror(errno)));
+	}
+
+	// Set send timeout
+	if (setsockopt(socketFd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0) {
+		LOG_ERROR("Error setting send timeout: " + std::string(strerror(errno)));
+	}
 }
