@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
+/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 16:19:37 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/17 09:28:25 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/17 16:37:52 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,10 @@ void HttpRequest::setMethod(const std::string &method) { _method = method; }
 
 void HttpRequest::setRequestUri(const std::string &requestUri) { _requestUri = requestUri; }
 
-void HttpRequest::setServerSidePath(const std::string &serverSidePath) { _serverSidePath = serverSidePath; }
+void HttpRequest::setServerSidePath(const std::string &serverSidePath) {
+	std::filesystem::path tmpServerSidePath(serverSidePath);
+	_serverSidePath = tmpServerSidePath.lexically_normal();
+}
 
 void HttpRequest::setIsFile(const bool isFile) { _isFile = isFile; }
 
