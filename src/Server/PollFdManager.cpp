@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <random>
 
-#include "Logger.hpp"
-
 PollFdManager& PollFdManager::getInstance() {
 	static PollFdManager instance;
 	return instance;

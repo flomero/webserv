@@ -1,9 +1,9 @@
 #include "MultiSocketWebserver.hpp"
 
-
 #include <sys/poll.h>
 #include <sys/sysctl.h>
 #include <unistd.h>
+
 #include <cstddef>
 #include <random>
 
