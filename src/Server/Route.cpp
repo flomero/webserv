@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/06 13:58:51 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/14 15:30:25 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 09:33:21 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,10 +95,10 @@ std::ostream& operator<<(std::ostream& os, const Route& route) {
 		os << std::left << std::setw(24) << "      |- upload dir: " << route.getUploadDir() << "\n";
 	}
 
-	os << std::left << std::setw(32) << "  |- client max body size: " << route.getClientMaxBodySize() << " bytes\n";
-	os << std::left << std::setw(32) << "  |- client body buffer size: " << route.getClientBodyBufferSize()
+	os << std::left << std::setw(32) << "      |- client max body size: " << route.getClientMaxBodySize() << " bytes\n";
+	os << std::left << std::setw(32) << "      |- client body buffer size: " << route.getClientBodyBufferSize()
 	   << " bytes\n";
-	os << std::left << std::setw(32) << "  |- client header buffer size: " << route.getClientHeaderBufferSize()
+	os << std::left << std::setw(32) << "      |- client header buffer size: " << route.getClientHeaderBufferSize()
 	   << " bytes\n";
 
 	if (!route.getCgiHandlers().empty()) {

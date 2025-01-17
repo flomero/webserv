@@ -6,7 +6,7 @@
 /*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 14:02:16 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 17:59:38 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 15:14:39 by lgreau           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,15 @@ std::vector<std::vector<ServerConfig>> Parser::parse() {
 	std::vector<ServerConfig> servers;
 	expect(TOKEN_HTTP);
 	expect(TOKEN_OPEN_BRACE);
+	if (!_parsingErrors.empty())
+		throw std::runtime_error("Found some parsing errors");
 
-	while (_currentToken.type != TOKEN_CLOSE_BRACE) servers.push_back(parseServer());
+	try {
+		while ((_currentToken.type != TOKEN_CLOSE_BRACE && _currentToken.type != TOKEN_EOF) && !stopServer)
+			servers.push_back(parseServer());
+	} catch (std::exception& e) {
+		throw std::runtime_error("Found some parsing errors");
+	}
 
 	expect(TOKEN_CLOSE_BRACE);
 
@@ -69,7 +76,7 @@ ServerConfig Parser::parseServer() {
 
 	ServerConfig server;
 
-	while (_currentToken.type != TOKEN_CLOSE_BRACE) {
+	while ((_currentToken.type != TOKEN_CLOSE_BRACE && _currentToken.type != TOKEN_EOF) && !stopServer) {
 		switch (_currentToken.type) {
 			case TOKEN_LISTEN: {
 				expect(TOKEN_LISTEN);
@@ -243,6 +250,10 @@ ServerConfig Parser::parseServer() {
 				}
 				headerBufferSize += mbValue;
 				server.setClientHeaderBufferSize(headerBufferSize);
+				if (headerBufferSize > MAX_HEADER_BUFFER_SIZE) {
+					LOG_WARN("client_header_buffer_size set higher than MAX_HEADER_BUFFER_SIZE: 1024");
+					server.setClientHeaderBufferSize(headerBufferSize);
+				}
 				expect(TOKEN_SEMICOLON);
 				break;
 			}
@@ -311,9 +322,8 @@ ServerConfig Parser::parseServer() {
 			}
 
 			default:
-				reportError(UNEXPECTED_TOKEN, "something", _currentToken.value);
-				_currentToken = _lexer.nextToken();
-				break;
+				reportError(UNEXPECTED_TOKEN, POSSIBLE_SERVER_CONFIGS, _currentToken.value);
+				throw std::runtime_error("Found some parsing errors");
 		}
 	}
 
@@ -328,7 +338,7 @@ Route Parser::parseRoute() {
 	expect(TOKEN_STRING);
 	expect(TOKEN_OPEN_BRACE);
 
-	while (_currentToken.type != TOKEN_CLOSE_BRACE) {
+	while ((_currentToken.type != TOKEN_CLOSE_BRACE && _currentToken.type != TOKEN_EOF) && !stopServer) {
 		switch (_currentToken.type) {
 			case TOKEN_ALLOW_METHODS:
 				expect(TOKEN_ALLOW_METHODS);
@@ -536,9 +546,8 @@ Route Parser::parseRoute() {
 			}
 
 			default:
-				reportError(UNEXPECTED_TOKEN, "something", _currentToken.value);
-				_currentToken = _lexer.nextToken();
-				break;
+				reportError(UNEXPECTED_TOKEN, POSSIBLE_ROUTE_CONFIGS, _currentToken.value);
+				throw std::runtime_error("Found some parsing errors");
 		}
 	}
 
@@ -554,15 +563,7 @@ void Parser::reportError(eParsingErrors error, std::string expected, std::string
 			 << std::endl
 			 << std::left << std::setw(12) << parsingErrorsMessages.at(error).at(ERROR_TEXT);
 
-	switch (error) {
-		case UNEXPECTED_TOKEN:
-			errorMsg << "'" << expected << "'";
-			break;
-
-		default:
-			errorMsg << expected;
-			break;
-	}
+	errorMsg << expected;
 
 	errorMsg << std::endl << std::left << std::setw(12) << "got: " << found << std::endl;
 
