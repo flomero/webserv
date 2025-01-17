@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <Socket.hpp>
 #include <algorithm>  // For std::search
 #include <array>
 #include <cstring>	// For strerror
@@ -41,7 +42,7 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 	  _clientAddr(clientAddr),
 	  _requestHandler(_currentConfig) {
 	LOG_INFO(_log("New client connection established"));
-	LOG_INFO("Client address: " + std::string(inet_ntoa(_clientAddr.sin_addr)) +
+	LOG_INFO("Client address: " + std::string(my_inet_ntoa(_clientAddr.sin_addr)) +
 			 " Port: " + std::to_string(ntohs(_clientAddr.sin_port)));
 
 	if (fcntl(_clientFd, F_SETFL, O_NONBLOCK) == -1) {

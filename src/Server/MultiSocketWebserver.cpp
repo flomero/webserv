@@ -1,10 +1,9 @@
 #include "MultiSocketWebserver.hpp"
 
-#include <arpa/inet.h>
+
 #include <sys/poll.h>
 #include <sys/sysctl.h>
 #include <unistd.h>
-
 #include <cstddef>
 #include <random>
 
@@ -114,7 +113,7 @@ void MultiSocketWebserver::_acceptConnection(const int server_fd) {
 		_clients.emplace(clientFd,
 						 std::make_unique<ClientConnection>(clientFd, clientAddr, _sockets.at(server_fd)->getConfig()));
 		_polls.addFd(clientFd);
-		LOG_INFO("Accepted connection from " + std::string(inet_ntoa(clientAddr.sin_addr)) + " on socket " +
+		LOG_INFO("Accepted connection from " + std::string(my_inet_ntoa(clientAddr.sin_addr)) + " on socket " +
 				 std::to_string(clientFd));
 	} catch (const std::exception& e) {
 		LOG_ERROR("Failed to create ClientConnection: " + std::string(e.what()));
