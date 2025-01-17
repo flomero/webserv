@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/17 16:38:57 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 23:38:16 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,6 +203,9 @@ HttpResponse RequestHandler::getResponse() {
 	_parsingDone = false;
 	_fileName = "";
 	_bytesWrittenToFile = 0;
+	_cgi_status = CgiStatus::NONE;
+	_cgiExecuted = false;
+	_cgi_pid = 0;
 
 	return tmp;
 }

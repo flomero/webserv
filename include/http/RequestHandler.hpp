@@ -3,14 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/14 10:31:14 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/17 23:27:13 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <sys/types.h>
+
+#include <chrono>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -18,6 +22,13 @@
 #include "optional"
 
 #define DEFAULT_CGI_TIMEOUT_MS 5000
+
+enum CgiStatus {
+	NONE,
+	WRITING,
+	WAITING,
+	READING,
+};
 
 class ServerConfig;
 
@@ -28,10 +39,18 @@ class RequestHandler {
 		ServerConfig& _serverConfig;
 		Route _matchedRoute;
 
+		bool _parsingDone = false;
+
 		long long _bytesReadFromFile = 0;
 		long long _bytesWrittenToFile = 0;
+
+		pid_t _cgi_pid = 0;
+		std::chrono::milliseconds _cgi_startTime = std::chrono::milliseconds(0);
+		CgiStatus _cgi_status = CgiStatus::NONE;
+		int _cgi_pipeIn[2] = {0, 0};
+		int _cgi_pipeOut[2] = {0, 0};
+
 		std::string _fileName = "";
-		bool _parsingDone = false;
 
 		// General Functions
 		void findMatchingRoute();
