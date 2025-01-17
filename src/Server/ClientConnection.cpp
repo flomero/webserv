@@ -5,9 +5,11 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <Socket.hpp>
 #include <algorithm>  // For std::search
 #include <array>
 #include <cstring>	// For strerror
+#include <webserv.hpp>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
@@ -24,6 +26,8 @@ std::string statusToString(const ClientConnection::Status status) {
 			return "BODY";
 		case ClientConnection::Status::READY_TO_SEND:
 			return "READY_TO_SEND";
+		case ClientConnection::Status::SENDING_RESPONSE:
+			return "SENDING_RESPONSE";
 		default:
 			return "UNKNOWN";
 	}
@@ -38,7 +42,7 @@ ClientConnection::ClientConnection(const int clientFd, const sockaddr_in clientA
 	  _clientAddr(clientAddr),
 	  _requestHandler(_currentConfig) {
 	LOG_INFO(_log("New client connection established"));
-	LOG_INFO("Client address: " + std::string(inet_ntoa(_clientAddr.sin_addr)) +
+	LOG_INFO("Client address: " + std::string(my_inet_ntoa(_clientAddr.sin_addr)) +
 			 " Port: " + std::to_string(ntohs(_clientAddr.sin_port)));
 
 	if (fcntl(_clientFd, F_SETFL, O_NONBLOCK) == -1) {
@@ -70,6 +74,7 @@ void ClientConnection::handleClient() {
 			_receiveBody();
 			break;
 		case Status::READY_TO_SEND:
+		case Status::SENDING_RESPONSE:
 			// Nothing to do here
 			break;
 	}
@@ -80,6 +85,7 @@ bool ClientConnection::_receiveHeader() {
 
 	// Attempt to read data into the header buffer
 	size_t remainingHeaderSize = _requestHandler.getConfig().getClientHeaderBufferSize() - _headerBuffer.size();
+	LOG_TRACE(_log("Remaining header size: " + std::to_string(remainingHeaderSize)));
 	if (!_readData(_clientFd, _headerBuffer, remainingHeaderSize)) {
 		return false;
 	}
@@ -112,7 +118,7 @@ bool ClientConnection::_receiveHeader() {
 	if (_request.getBodyType() == HttpRequest::BodyType::CHUNKED ||
 		_request.getBodyType() == HttpRequest::BodyType::CONTENT_LENGTH) {
 		LOG_DEBUG(_log("Request has body"));
-		_bodyBuffer.reserve(_currentConfig.getClientBodyBufferSize());
+		_bodyBuffer.reserve(_currentConfig.getClientMaxBodySize());
 		_bodyBuffer.clear();
 		if (_headerBuffer.empty()) {
 			LOG_DEBUG(_log("No additional data in header buffer"));
@@ -133,7 +139,7 @@ ClientConnection::Status ClientConnection::getStatus() const { return _status; }
 void ClientConnection::_handleCompleteChunkedBodyRead() {
 	LOG_DEBUG(_log("Finished reading chunked request body"));
 
-	LOG_DEBUG(_log("Request body: \n" + _request.getBody()));
+	// LOG_DEBUG(_log("Request body: \n" + _request.getBody()));
 	// _readingChunkSize = true;
 	// Set the status to ready to send
 	_status = Status::READY_TO_SEND;
@@ -353,9 +359,6 @@ void ClientConnection::_handleCompleteBodyRead() {
 	// Set the complete body in the request
 	_request.setBody(std::string(_bodyBuffer.begin(), _bodyBuffer.end()));
 
-	// Log the completed header and body info
-	_logHeader();
-
 	// Update status to ready
 	_status = Status::READY_TO_SEND;
 }
@@ -434,26 +437,46 @@ bool ClientConnection::_parseHttpRequestHeader(const std::string& header) {
 }
 
 void ClientConnection::sendResponse() {
-	if (_status != Status::READY_TO_SEND) {
+	if (_status != Status::READY_TO_SEND && _status != Status::SENDING_RESPONSE) {
 		return;
 	}
 	if (!_response.getStatus()) {
 		LOG_DEBUG(_log("Building response for request"));
 		_response = _requestHandler.handleRequest(_request);
 	}
+
+	if (_status == Status::READY_TO_SEND) {
+		_status = Status::SENDING_RESPONSE;
+		_bytesSendToClient = 0;
+	}
+
 	LOG_INFO(_log("Sending response with status code: " + std::to_string(_response.getStatus())));
 	LOG_TRACE(_log("Response: \n" + _response.toString()));
-	if (!_sendDataToClient(_response.toString())) {
+	const size_t remainingBytes = _response.toString().size() - _bytesSendToClient;
+	const size_t bytesToSend = std::min(SIZE_BYTES_TO_SEND_BACK, remainingBytes);
+
+	LOG_DEBUG(_log("Preparing to send chunk. Total size: " + std::to_string(_response.toString().size()) +
+				   ", Bytes sent so far: " + std::to_string(_bytesSendToClient) +
+				   ", Chunk size: " + std::to_string(bytesToSend)));
+
+	if (!_sendDataToClient(_response.toString(), _bytesSendToClient, bytesToSend)) {
+		LOG_ERROR(_log("Failed to send chunk. Bytes sent so far: " + std::to_string(_bytesSendToClient)));
 		return;
 	}
-	if (_response.getHeader("Connection") == "keep-alive") {
-		LOG_INFO(_log("Connection is keep-alive"));
-		_status = Status::HEADER;
-		_disconnected = false;
-		_response = HttpResponse();
-	} else {
-		LOG_INFO(_log("Closing connection after response"));
-		_disconnected = true;
+
+	LOG_DEBUG(_log("Chunk sent successfully. Bytes sent in this chunk: " + std::to_string(bytesToSend) +
+				   ", Total bytes sent: " + std::to_string(_bytesSendToClient)));
+
+	if (_bytesSendToClient == _response.toString().size()) {
+		if (_response.getHeader("Connection") == "keep-alive") {
+			LOG_INFO(_log("Connection is keep-alive"));
+			_status = Status::HEADER;
+			_disconnected = false;
+			_response = HttpResponse();
+		} else {
+			LOG_INFO(_log("Closing connection after response"));
+			_disconnected = true;
+		}
 	}
 }
 
@@ -483,15 +506,15 @@ bool ClientConnection::_readData(const int fd, std::vector<char>& buffer, const 
 	return true;
 }
 
-bool ClientConnection::_sendDataToClient(const std::string& data) {
-	// TODO: Implement chunked transfer encoding if necessary
-	ssize_t bytesSent = send(_clientFd, data.data(), data.size(), 0);
+bool ClientConnection::_sendDataToClient(const std::string& data, size_t offset, size_t length) {
+	ssize_t bytesSent = send(_clientFd, data.data() + offset, length, 0);
 	if (bytesSent == -1) {
 		LOG_ERROR(_log("Failed to send data: " + std::string(strerror(errno))));
 		_disconnected = true;
 		return false;
 	}
 	LOG_DEBUG(_log("Sent " + std::to_string(bytesSent) + " bytes to client"));
+	_bytesSendToClient += bytesSent;
 	return true;
 }
 
