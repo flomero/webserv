@@ -28,7 +28,9 @@ class RequestHandler {
 		ServerConfig& _serverConfig;
 		Route _matchedRoute;
 
-		size_t _bytesReadFromFile = 0;
+		long long _bytesReadFromFile = 0;
+		long long _bytesWrittenToFile = 0;
+		std::string _fileName = "";
 		bool _parsingDone = false;
 
 		// General Functions
@@ -46,8 +48,9 @@ class RequestHandler {
 
 		// POST request handlers
 		[[nodiscard]] bool handlePostRequest();
-		[[nodiscard]] HttpResponse handlePostMultipart();
-		[[nodiscard]] HttpResponse handleFileUpload(const std::string& part, const std::string& contentDisposition);
+		bool setFileNameAndBody(const std::string & part, const std::string & contentDisposition);
+		[[nodiscard]] bool handlePostMultipart();
+		[[nodiscard]] bool handleFileUpload();
 
 		// DELETE request handler
 		void handleDeleteRequest();
@@ -60,11 +63,11 @@ class RequestHandler {
 		[[nodiscard]] HttpResponse handleRedirectRequest();
 
 	public:
-		explicit RequestHandler(ServerConfig& serverConfig);
 		~RequestHandler() = default;
 		RequestHandler(const RequestHandler& other) = delete;
 		RequestHandler& operator=(const RequestHandler& other) = delete;
 
+		RequestHandler(ServerConfig& serverConfig);
 		[[nodiscard]] ServerConfig& getConfig() const;
 		void setConfig(const ServerConfig& server_config) const;
 		bool handleRequest(const HttpRequest& request);

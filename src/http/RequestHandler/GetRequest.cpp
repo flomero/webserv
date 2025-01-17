@@ -56,8 +56,8 @@ bool RequestHandler::handleGetFile() {
 	}
 
 	file.seekg(0, std::ios::end);
-	const size_t fileSize = file.tellg();
-	file.seekg(0, std::ios::beg);
+	const long long fileSize = file.tellg();
+	file.seekg(_bytesReadFromFile, std::ios::beg); // Set the offset
 
 	std::string content;
 	content.reserve(fileSize);
@@ -67,6 +67,7 @@ bool RequestHandler::handleGetFile() {
 	file.read(buffer, GET_READ_SIZE);
 	const size_t readSize = file.gcount();
 	content.append(buffer, readSize);
+	LOG_ERROR("Content: " + content);
 	_bytesReadFromFile += readSize;
 	_response.appendToBody(content);
 	LOG_DEBUG("Read " + std::to_string(readSize) +

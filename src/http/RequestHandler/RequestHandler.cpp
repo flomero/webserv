@@ -19,11 +19,6 @@
 #include "Logger.hpp"
 #include "ServerConfig.hpp"
 
-/**
- * @brief Construct a new Request Handler:: Request Handler object
- *
- * @param serverConfig
- */
 RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serverConfig) {
 	LOG_INFO("RequestHandler created");
 }
@@ -104,7 +99,7 @@ void RequestHandler::findMatchingRoute() {
  * @param request
  */
 bool RequestHandler::handleRequest(const HttpRequest& request) {
-	_request = request;
+	if (!_parsingDone) _request = request;
 
 	// LOG_ERROR("request location: " + request.getLocation());
 	// _request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
@@ -202,8 +197,10 @@ bool RequestHandler::handleRequest(const HttpRequest& request) {
 
 HttpResponse RequestHandler::getResponse() {
 	_bytesReadFromFile = 0;
+	HttpResponse tmp = _response;
 	_response = HttpResponse();
 	_parsingDone = false;
+	_fileName = "";
 
-	return _response;
+	return tmp;
 }
