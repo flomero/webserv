@@ -27,13 +27,13 @@ std::string humanReadableSize(const uintmax_t size) {
 
 	std::ostringstream result;
 	if (size >= TB) {
-		result << std::fixed << std::setprecision(2) << (double)size / TB << " TB";
+		result << std::fixed << std::setprecision(2) << static_cast<double>(size) / TB << " TB";
 	} else if (size >= GB) {
-		result << std::fixed << std::setprecision(2) << (double)size / GB << " GB";
+		result << std::fixed << std::setprecision(2) << static_cast<double>(size) / GB << " GB";
 	} else if (size >= MB) {
-		result << std::fixed << std::setprecision(2) << (double)size / MB << " MB";
+		result << std::fixed << std::setprecision(2) << static_cast<double>(size) / MB << " MB";
 	} else if (size >= KB) {
-		result << std::fixed << std::setprecision(2) << (double)size / KB << " KB";
+		result << std::fixed << std::setprecision(2) << static_cast<double>(size) / KB << " KB";
 	} else {
 		result << size << " B";
 	}

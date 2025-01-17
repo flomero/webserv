@@ -449,14 +449,8 @@ void ClientConnection::sendResponse() {
 		_bytesSendToClient = 0;
 	}
 
-	LOG_INFO(_log("Sending response with status code: " + std::to_string(_response.getStatus())));
-	LOG_TRACE(_log("Response: \n" + _response.toString()));
 	const size_t remainingBytes = _response.toString().size() - _bytesSendToClient;
 	const size_t bytesToSend = std::min(SIZE_BYTES_TO_SEND_BACK, remainingBytes);
-
-	LOG_DEBUG(_log("Preparing to send chunk. Total size: " + std::to_string(_response.toString().size()) +
-				   ", Bytes sent so far: " + std::to_string(_bytesSendToClient) +
-				   ", Chunk size: " + std::to_string(bytesToSend)));
 
 	if (!_sendDataToClient(_response.toString(), _bytesSendToClient, bytesToSend)) {
 		LOG_ERROR(_log("Failed to send chunk. Bytes sent so far: " + std::to_string(_bytesSendToClient)));
@@ -467,6 +461,8 @@ void ClientConnection::sendResponse() {
 				   ", Total bytes sent: " + std::to_string(_bytesSendToClient)));
 
 	if (_bytesSendToClient == _response.toString().size()) {
+		LOG_INFO(_log("Sending response with status code: " + std::to_string(_response.getStatus())));
+		LOG_TRACE(_log("Response: \n" + _response.toString()));
 		if (_response.getHeader("Connection") == "keep-alive") {
 			LOG_INFO(_log("Connection is keep-alive"));
 			_status = Status::HEADER;

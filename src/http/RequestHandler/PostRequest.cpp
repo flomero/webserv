@@ -6,16 +6,22 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/16 20:26:16 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/17 18:16:06 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <errno.h>
+#include <fcntl.h>
+#include <poll.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
+#include <cerrno>
+#include <fstream>
 
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 #include "ServerConfig.hpp"
+#include "webserv.hpp"
 
 bool RequestHandler::handlePostRequest() {
 	LOG_DEBUG("Handling POST request");
@@ -122,21 +128,50 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 		LOG_ERROR("Invalid part: " + part);
 		return buildDefaultResponse(Http::BAD_REQUEST);
 	}
-	if (!_matchedRoute.getUploadDir().empty())
-		filename = buildpath(_matchedRoute.getUploadDir(), filename, _serverConfig.getRoot());
-	else {
+	if (!_matchedRoute.getUploadDir().empty()) {
+		if (!_matchedRoute.getRoot().empty())
+			filename = buildpath(_matchedRoute.getUploadDir(), filename, _matchedRoute.getRoot());
+		else
+			filename = buildpath(_matchedRoute.getUploadDir(), filename, _serverConfig.getRoot());
+	} else {
 		if (!_serverConfig.getUploadDir().empty())
 			filename = buildpath(_serverConfig.getUploadDir(), filename, _serverConfig.getRoot());
 		else
-			filename = buildpath(_serverConfig.getRoot(), filename, _serverConfig.getRoot());
+			return buildDefaultResponse(Http::FORBIDDEN);
 	}
-	std::ofstream file(filename, std::ios::binary);
-	if (!file.is_open()) {
-		LOG_ERROR("Failed to open file: " + filename);
+	int fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd < 0) {
+		LOG_ERROR("Failed to open file descriptor for: " + filename + " with error: " + strerror(errno));
 		return buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 	}
-	file.write(fileContent.c_str(), fileContent.size());
-	file.close();
-	LOG_INFO("File uploaded: " + filename);
+
+	struct pollfd pfd{};
+	pfd.fd = fd;
+	pfd.events = POLLOUT;
+
+	int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
+	if (ret < 0) {
+		LOG_ERROR("Poll error for file: " + filename + " with error: " + strerror(errno));
+		close(fd);
+		return buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+	} else if (ret == 0) {
+		LOG_WARN("Poll timeout for file: " + filename);
+		close(fd);
+		return buildDefaultResponse(Http::REQUEST_TIMEOUT);
+	} else if (!(pfd.revents & POLLOUT)) {
+		LOG_WARN("Unexpected poll revents for file: " + filename + " revents: " + std::to_string(pfd.revents));
+		close(fd);
+		return buildDefaultResponse(Http::REQUEST_TIMEOUT);
+	}
+
+	ssize_t written = write(fd, fileContent.c_str(), fileContent.size());
+	if (written < 0) {
+		LOG_ERROR("Failed to write to file: " + filename + " with error: " + strerror(errno));
+		close(fd);
+		return buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+	}
+
+	close(fd);
+	LOG_INFO("File uploaded successfully: " + filename);
 	return buildDefaultResponse(Http::CREATED);
 }

@@ -124,5 +124,5 @@ class Lexer {
 
 		// void reportError(const std::string &message, const std::string
 		// &expected, const std::string &found) const;
-		std::string getErrorPrefix() const;
+		[[nodiscard]] std::string getErrorPrefix() const;
 };
