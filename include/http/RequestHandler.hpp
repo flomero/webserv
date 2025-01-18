@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/17 23:27:13 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/18 13:36:57 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,21 +21,13 @@
 #include "Route.hpp"
 #include "optional"
 
-#define DEFAULT_CGI_TIMEOUT_MS 5000
-
-enum CgiStatus {
-	NONE,
-	WRITING,
-	WAITING,
-	READING,
-};
+enum cgiState { NONE, WRITING, WAITING, READING, FINISHED };
 
 class ServerConfig;
 
 class RequestHandler {
 		HttpRequest _request;
 		HttpResponse _response = HttpResponse();
-		bool _cgiExecuted = false;
 		ServerConfig& _serverConfig;
 		Route _matchedRoute;
 
@@ -44,11 +36,13 @@ class RequestHandler {
 		long long _bytesReadFromFile = 0;
 		long long _bytesWrittenToFile = 0;
 
+		bool _cgi_valid = false;
 		pid_t _cgi_pid = 0;
 		std::chrono::milliseconds _cgi_startTime = std::chrono::milliseconds(0);
-		CgiStatus _cgi_status = CgiStatus::NONE;
+		cgiState _cgi_state = cgiState::NONE;
 		int _cgi_pipeIn[2] = {0, 0};
 		int _cgi_pipeOut[2] = {0, 0};
+		int _cgi_status = 0;
 
 		std::string _fileName = "";
 
@@ -56,7 +50,7 @@ class RequestHandler {
 		void findMatchingRoute();
 
 		// CGI handler
-		void handleRequestCGI(Route& route);
+		[[nodiscard]] bool checkRequestCGI(Route& route);
 		void handleRequestCGIExecution(const Route& route);
 
 		// Request handlers

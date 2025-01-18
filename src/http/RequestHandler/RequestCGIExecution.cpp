@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/17 23:36:12 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/18 15:25:41 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,11 @@
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 #include "Route.hpp"
+#include "webserv.hpp"
 
 void RequestHandler::handleRequestCGIExecution(const Route& route) {
-	if (!_cgi_status) {
+	_cgi_valid = true;
+	if (!_cgi_state) {
 		const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
 
 		// Create environment variables for CGI
@@ -89,57 +91,53 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		close(_cgi_pipeIn[0]);
 		close(_cgi_pipeOut[1]);
 		if (_request.getMethod() == "POST") {
-			_cgi_status = CgiStatus::WRITING;
+			_cgi_state = cgiState::WRITING;
 		} else {
-			_cgi_status = CgiStatus::READING;
+			_cgi_state = cgiState::WAITING;
 			_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::high_resolution_clock::now().time_since_epoch());
 		}
 	}
-	if (_cgi_status == CgiStatus::WRITING) {
+	if (_cgi_state == cgiState::WRITING) {
+		LOG_DEBUG("Writing to CGI process");
 		if (_request.getMethod() == "POST") {
 			write(_cgi_pipeIn[1], _request.getBody().c_str(), _request.getBody().size());
 		}
 		close(_cgi_pipeIn[1]);
-		_cgi_status = CgiStatus::WAITING;
+		_cgi_state = cgiState::WAITING;
 		_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::high_resolution_clock::now().time_since_epoch());
 	}
-
-	int status;
-	bool child_terminated = false;
-
-	while (true) {
-		pid_t result = waitpid(_cgi_pid, &status, WNOHANG);
-		if (result == _cgi_pid) {
-			child_terminated = true;
-			break;
+	if (_cgi_state == cgiState::WAITING) {
+		LOG_DEBUG("Waiting for CGI process to finish");
+		pid_t result = waitpid(_cgi_pid, &_cgi_status, WNOHANG);
+		if (result != _cgi_pid) {
+			_cgi_state = cgiState::READING;
+		} else {
+			auto now = std::chrono::high_resolution_clock::now();
+			auto elapsed_ms =
+				std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch() - _cgi_startTime).count();
+			if (elapsed_ms > DEFAULT_CGI_TIMEOUT_MS) {
+				LOG_ERROR("CGI execution timed out. Killing process...");
+				kill(_cgi_pid, SIGKILL);
+				waitpid(_cgi_pid, &_cgi_status, 0);	 // TODO: why is this needed?
+				_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
+				_cgi_state = cgiState::FINISHED;
+			}
 		}
-
-		auto now = std::chrono::high_resolution_clock::now();
-		auto elapsed_ms =
-			std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch() - _cgi_startTime).count();
-		if (elapsed_ms > DEFAULT_CGI_TIMEOUT_MS) {
-			LOG_ERROR("CGI execution timed out. Killing process...");
-			kill(_cgi_pid, SIGKILL);
-			waitpid(_cgi_pid, &status, 0);
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	if (_cgi_state == cgiState::READING) {
+		LOG_DEBUG("Reading from CGI process");
+		char buffer[4096];
+		ssize_t bytesRead;
+		std::string response;
 
-	char buffer[4096];
-	ssize_t bytesRead;
-	std::string response;
-
-	if (child_terminated) {
 		while ((bytesRead = read(_cgi_pipeOut[0], buffer, sizeof(buffer))) > 0) {
 			response.append(buffer, bytesRead);
 		}
 		_response = HttpResponse(response);
-		_response.setStatus(status == 0 ? Http::OK : Http::INTERNAL_SERVER_ERROR);
-	} else {
-		_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
+		_response.setStatus(_cgi_status == 0 ? Http::OK : Http::INTERNAL_SERVER_ERROR);
+		close(_cgi_pipeOut[0]);
+		_cgi_state = cgiState::FINISHED;
 	}
-	_cgiExecuted = true;
-	close(_cgi_pipeOut[0]);
 }

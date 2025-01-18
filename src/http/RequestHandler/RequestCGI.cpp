@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:21 by lgreau            #+#    #+#             */
-/*   Updated: 2024/12/10 16:54:01 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/18 13:35:14 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,25 +23,27 @@
  *
  * @param route
  */
-void RequestHandler::handleRequestCGI(Route& route) {
-	LOG_INFO("Entered handleRequestCGI");
+bool RequestHandler::checkRequestCGI(Route& route) {
+	LOG_INFO("Entered checkRequestCGI");
 
 	if (_request.getIsFile()) {
-		LOG_INFO("Handling file CGI");
+		LOG_DEBUG("Handling file CGI");
 
 		// Checks if this extensions has to be handled by a CGI
-		LOG_INFO("Checks if this extension has to be handled by a CGI");
+		LOG_DEBUG("Checks if this extension has to be handled by a CGI");
 
 		if (route.getCgiHandlers().find(_request.getResourceExtension()) == route.getCgiHandlers().end() ||
-			route.getCgiHandlers().at(_request.getResourceExtension()).empty())
+			route.getCgiHandlers().at(_request.getResourceExtension()).empty()) {
 			LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getResourceExtension() + "\n");
-		else {
+			return false;
+		} else {
 			LOG_DEBUG("  |- Found:            " + _request.getResourceExtension());
 			LOG_DEBUG("  |- Executable path:  " + route.getCgiHandlers().at(_request.getResourceExtension()) + "\n");
-			handleRequestCGIExecution(route);
+			return true;
 		}
 
 	} else {
 		LOG_INFO("Handling directory CGI");
+		return false;
 	}
 }

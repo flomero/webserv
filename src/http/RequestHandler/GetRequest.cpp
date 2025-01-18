@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/31 14:35:29 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/17 23:13:39 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/18 11:43:58 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ bool RequestHandler::handleGetRequest() {
 }
 
 bool RequestHandler::handleGetFile() {
-	LOG_ERROR("Try to open file: " + _request.getServerSidePath());
+	LOG_INFO("Try to open file: " + _request.getServerSidePath());
 	const int fd = open(_request.getServerSidePath().c_str(), O_RDONLY);
 	if (fd == -1) {
 		_response = buildDefaultResponse(Http::Status::IM_A_TEAPOT);
