@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:43:58 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/18 14:50:00 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/18 16:01:23 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,3 +28,4 @@
 #define SIZE_BYTES_TO_SEND_BACK size_t(1024 * 1024)
 #define GET_READ_SIZE size_t(1024 * 1024)
 #define POST_WRITE_SIZE size_t(1024 * 1024)
+#define CGI_READ_BUFFER_SIZE size_t(1024 * 1024)

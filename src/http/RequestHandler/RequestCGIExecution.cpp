@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/18 15:25:41 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/18 16:14:11 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,16 +128,20 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 	}
 	if (_cgi_state == cgiState::READING) {
 		LOG_DEBUG("Reading from CGI process");
-		char buffer[4096];
-		ssize_t bytesRead;
-		std::string response;
+		char buffer[CGI_READ_BUFFER_SIZE];
 
-		while ((bytesRead = read(_cgi_pipeOut[0], buffer, sizeof(buffer))) > 0) {
-			response.append(buffer, bytesRead);
+		const ssize_t bytesRead = read(_cgi_pipeOut[0], buffer, sizeof(buffer));
+		if (bytesRead > 0) {
+			_response.appendToBody(std::string(buffer, bytesRead));
+		} else if (bytesRead == 0) {
+			_response = HttpResponse(_response.getBody());
+			_response.setStatus(_cgi_status == 0 ? Http::OK : Http::INTERNAL_SERVER_ERROR);
+			close(_cgi_pipeOut[0]);
+			_cgi_state = cgiState::FINISHED;
+		} else {
+			LOG_ERROR("Error reading from CGI process");
+			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+			_cgi_state = cgiState::FINISHED;
 		}
-		_response = HttpResponse(response);
-		_response.setStatus(_cgi_status == 0 ? Http::OK : Http::INTERNAL_SERVER_ERROR);
-		close(_cgi_pipeOut[0]);
-		_cgi_state = cgiState::FINISHED;
 	}
 }

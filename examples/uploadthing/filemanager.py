@@ -13,7 +13,7 @@ def list_files():
     return os.listdir(UPLOAD_DIR)
 
 def main():
-    time.sleep(30) 
+    time.sleep(5)
     print("Content-Type: application/json\n")
     files = list_files()
     files = [f for f in files if f != ".gitignore"]
