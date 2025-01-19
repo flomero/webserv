@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/19 12:27:37 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/19 12:35:41 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,6 +199,10 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 			} else if (bytesRead == 0) {
 				_response = HttpResponse(_response.getBody());
 				_response.setStatus(_cgi_status == 0 ? Http::OK : Http::INTERNAL_SERVER_ERROR);
+				if (_response.getStatus() == Http::INTERNAL_SERVER_ERROR) {
+					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+					LOG_ERROR("CGI proces returned with error");
+				}
 				close(_cgi_pipeOut[0]);
 				_cgi_state = cgiState::FINISHED;
 			} else {
