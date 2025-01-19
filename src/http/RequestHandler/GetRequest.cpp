@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/31 14:35:29 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/18 11:43:58 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/18 16:17:18 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,25 +32,24 @@ bool RequestHandler::handleGetRequest() {
 
 bool RequestHandler::handleGetFile() {
 	LOG_INFO("Try to open file: " + _request.getServerSidePath());
-	const int fd = open(_request.getServerSidePath().c_str(), O_RDONLY);
-	if (fd == -1) {
-		_response = buildDefaultResponse(Http::Status::IM_A_TEAPOT);
-		return true;
-	}
+	// const int fd = open(_request.getServerSidePath().c_str(), O_RDONLY);
+	// if (fd == -1) {
+	// 	_response = buildDefaultResponse(Http::Status::IM_A_TEAPOT);
+	// 	return true;
+	// }
 
-	pollfd pfd{};
-	pfd.fd = fd;
-	pfd.events = POLLIN;
+	// pollfd pfd{};
+	// pfd.fd = fd;
+	// pfd.events = POLLIN;
 
-	if (const int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT); ret <= 0 || !(pfd.revents & POLLIN)) {
-		close(fd);
-		_response = buildDefaultResponse(Http::REQUEST_TIMEOUT);
-		return true;
-	}
+	// if (const int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT); ret <= 0 || !(pfd.revents & POLLIN)) {
+	// 	close(fd);
+	// 	_response = buildDefaultResponse(Http::REQUEST_TIMEOUT);
+	// 	return true;
+	// }
 
 	std::ifstream file(_request.getServerSidePath(), std::ios::binary);
 	if (!file.is_open()) {
-		close(fd);
 		_response = buildDefaultResponse(Http::PAYLOAD_TOO_LARGE);
 		return true;
 	}
@@ -74,7 +73,6 @@ bool RequestHandler::handleGetFile() {
 			  " bytes from file. Remaining: " + std::to_string(fileSize - _bytesReadFromFile));
 
 	file.close();
-	close(fd);
 
 	if (_bytesReadFromFile >= fileSize) {
 		// Set up the HTTP response

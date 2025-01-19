@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/17 18:16:06 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/19 11:02:36 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,51 +119,34 @@ std::string buildpath(const std::string &path, const std::string &filename, cons
 }
 
 bool RequestHandler::handleFileUpload() {
-	const int fd = open(_fileName.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (fd < 0) {
-		LOG_ERROR("Failed to open file descriptor for: " + _fileName + " with error: " + strerror(errno));
+	std::ofstream fileStream;
+
+	// Open the file in append mode
+	fileStream.open(_fileName, std::ios::out | std::ios::app | std::ios::binary);
+	if (!fileStream.is_open()) {
+		LOG_ERROR("Failed to open file: " + _fileName + " with error: " + strerror(errno));
 		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 		return true;
 	}
 
-	pollfd pfd{};
-	pfd.fd = fd;
-	pfd.events = POLLOUT;
+	// Write data in chunks
+	const size_t chunkSize = std::min(POST_WRITE_SIZE, _request.getBody().size());
+	fileStream.write(_request.getBody().c_str(), chunkSize);
 
-	const int pollret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
-	if (pollret < 0) {
-		LOG_ERROR("Poll error for file: " + _fileName + " with error: " + strerror(errno));
-		close(fd);
-		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-		return true;
-	}
-	if (pollret == 0) {
-		LOG_WARN("Poll timeout for file: " + _fileName);
-		close(fd);
-		_response = buildDefaultResponse(Http::REQUEST_TIMEOUT);
-		return true;
-	}
-	if (!(pfd.revents & POLLOUT)) {
-		LOG_WARN("Unexpected poll revents for file: " + _fileName + " revents: " + std::to_string(pfd.revents));
-		close(fd);
-		_response = buildDefaultResponse(Http::REQUEST_TIMEOUT);
-		return true;
-	}
-
-	const ssize_t written = write(fd, _request.getBody().c_str(), std::min(POST_WRITE_SIZE, _request.getBody().size()));
-	if (written < 0) {
-		LOG_ERROR("Failed to write to file: " + _fileName + " with error: " + strerror(errno));
-		close(fd);
+	if (fileStream.fail()) {
+		LOG_ERROR("Failed to write to file: " + _fileName);
+		fileStream.close();
 		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 		return true;
 	}
 
-	_bytesWrittenToFile += written;			  // Save how much is written already
-	_request.getBodyRef().erase(0, written);  // Remove the written part from body
+	_bytesWrittenToFile += chunkSize;			// Save how much is written already
+	_request.getBodyRef().erase(0, chunkSize);	// Remove the written part from body
 
-	close(fd);
+	fileStream.close();
 
 	if (_request.getBody().size() != 0) {
+		// More data left to write, continue the process
 		return false;
 	}
 
