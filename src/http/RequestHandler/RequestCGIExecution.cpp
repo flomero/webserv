@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/19 12:35:41 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/19 13:50:17 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,13 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 			if (pfd.revents & POLLOUT) {
 				size_t chunkSize = std::min(POST_WRITE_SIZE, bytesToWrite);
 				ssize_t written = write(_cgi_pipeIn[1], _request.getBody().c_str() + offset, chunkSize);
-				if (written < 0) {
+				if (written == 0) {
+					LOG_WARN("Write to CGI process returned 0");
+					close(_cgi_pipeIn[1]);
+					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+					_cgi_state = cgiState::FINISHED;
+					return;
+				} else if (written < 0) {
 					LOG_ERROR("Write error to CGI process: " + std::string(strerror(errno)));
 					close(_cgi_pipeIn[1]);
 					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
