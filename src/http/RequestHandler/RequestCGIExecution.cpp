@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/19 11:26:27 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/19 12:27:37 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		if (_request.getMethod() == "POST") {
 			_cgi_state = cgiState::WRITING;
 		} else {
+			_cgi_pid = pid;
 			close(_cgi_pipeIn[1]);
 			_cgi_state = cgiState::WAITING;
 			_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -153,7 +154,7 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 	if (_cgi_state == cgiState::WAITING) {
 		LOG_TRACE("Waiting for CGI process to finish");
 		pid_t result = waitpid(_cgi_pid, &_cgi_status, WNOHANG);
-		if (result != _cgi_pid) {
+		if (result == _cgi_pid) {
 			_cgi_state = cgiState::READING;
 		} else {
 			auto now = std::chrono::high_resolution_clock::now();
@@ -161,6 +162,7 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 				std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch() - _cgi_startTime).count();
 			if (elapsed_ms > DEFAULT_CGI_TIMEOUT_MS) {
 				LOG_ERROR("CGI execution timed out. Killing process...");
+				LOG_DEBUG("Killing CGI process with PID: " + std::to_string(_cgi_pid));
 				kill(_cgi_pid, SIGKILL);
 				waitpid(_cgi_pid, &_cgi_status, 0);	 // TODO: why is this needed?
 				_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
