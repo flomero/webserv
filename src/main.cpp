@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/04 17:16:09 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/14 15:25:40 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/19 11:57:24 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,13 @@ void signalHandler(const int signum) {
 }
 
 int main(const int argc, const char *argv[]) {
+	std::string filepath;
 	if (argc != 2) {
-		std::cerr << COLOR(RED, "Error: ") << "Invalid number of arguments" << std::endl;
-		std::cerr << "Usage: " << argv[0] << " <path_to_config_file>" << std::endl;
-		return 1;
+		LOG_WARN("No configuration file provided. Using default configuration file: " + DEFAULT_CONFIG_STR);
+		LOG_WARN("Usage: " + std::string(argv[0]) + " <config_file>");
+		filepath = DEFAULT_CONFIG_STR;
+	} else {
+		filepath = argv[1];
 	}
 
 	// Register signal handler
@@ -85,13 +88,13 @@ int main(const int argc, const char *argv[]) {
 
 	LOG_INFO("Parsing configuration file...");
 	try {
-		source = readFile(argv[1]);
+		source = readFile(filepath);
 	} catch (const std::runtime_error &e) {
 		LOG_ERROR("Failed to read configuration file: " + std::string(e.what()));
 		return 1;
 	}
 
-	Lexer lexer(std::string(argv[1]), source);
+	Lexer lexer(filepath, source);
 	Parser parser(lexer);
 
 	try {

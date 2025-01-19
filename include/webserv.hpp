@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/02 13:43:58 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/18 16:01:23 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/19 11:57:15 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@
 #include "ServerConfig.hpp"
 
 #define SERVER_NAME "webserv"
+#define DEFAULT_CONFIG "./default.conf"
+
+#define DEFAULT_CONFIG_STR std::string(DEFAULT_CONFIG)
 
 #define DEFAULT_POLL_TIMEOUT 5000
 #define DEFAULT_CGI_TIMEOUT_MS 100000
