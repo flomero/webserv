@@ -13,20 +13,35 @@ body, html {
 
 #matrixHeader {
 	position: absolute;
-	top: 35%;
 	left: 50%;
+	top: 35%;
 	transform: translateX(-50%);
-	font-family: 'Courier New', 'Lucida Console', 'Consolas', 'monospace'; /* Match the Matrix font */
-	font-size: 200px; /* Match the Matrix font size */
-	color: #00FF00; /* Matrix green */
+	font-family: 'Courier New', 'Lucida Console', 'Consolas', 'monospace';
+	font-size: 200px;
+	color: #00FF00;
 	text-shadow: 0 0 10px #00FF00, 0 0 20px #003300;
 	white-space: nowrap;
 	user-select: none;
 	z-index: 10;
+}
+
+#matrixFooter {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	font-family: 'Courier New', 'Lucida Console', 'Consolas', 'monospace';
+	font-size: 25px; /* Smaller font size for footer */
+	color: #00FF00;
+	text-shadow: 0 0 10px #00FF00, 0 0 20px #003300;
+	white-space: nowrap;
+	user-select: none;
+	bottom: 10%;
+}
+
+.glitch {
 	animation: glitch 3s infinite linear alternate;
 }
 
-/* Glitch Animation */
 @keyframes glitch {
 	0% {
 		text-shadow: 2px 2px #00FF00, -2px -2px #003300;

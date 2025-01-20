@@ -51,35 +51,35 @@ function drawMatrix() {
 drawMatrix();
 
 // Header Glitch Effect
-const header = document.getElementById('matrixHeader');
+const glitchElements = document.querySelectorAll('.glitch');
 
-// Random Glitch Effect for Header
+// Random Glitch Effect for Elements
 function addGlitchEffect() {
-	const glitchChance = Math.random();
-	if (glitchChance > 0.8) {
-		header.style.transform = `translateX(-50%) skew(${Math.random() * 10 - 5}deg)`;
-		header.style.opacity = Math.random() > 0.5 ? '0.8' : '1';
+	glitchElements.forEach(element => {
+		const glitchChance = Math.random();
+		if (glitchChance > 0.8) {
+			element.style.opacity = Math.random() > 0.5 ? '0.8' : '1';
 
-		// Change individual letters
-		const originalText = header.textContent;
-		let glitchedText = '';
-		for (let i = 0; i < originalText.length; i++) {
-			if (Math.random() > 0.7) {
-				glitchedText += letters.charAt(Math.floor(Math.random() * letters.length));
-			} else {
-				glitchedText += originalText[i];
+			// Change individual letters
+			const originalText = element.textContent;
+			let glitchedText = '';
+			for (let i = 0; i < originalText.length; i++) {
+				if (Math.random() > 0.7) {
+					glitchedText += letters.charAt(Math.floor(Math.random() * letters.length));
+				} else {
+					glitchedText += originalText[i];
+				}
 			}
-		}
-		header.textContent = glitchedText;
+			element.textContent = glitchedText;
 
-		// Revert back to original text after a short delay
-		setTimeout(() => {
-			header.textContent = originalText;
-		}, 200);
-	} else {
-		header.style.transform = 'translateX(-50%)';
-		header.style.opacity = '1';
-	}
+			// Revert back to original text after a short delay
+			setTimeout(() => {
+				element.textContent = originalText;
+			}, 200);
+		} else {
+			element.style.opacity = '1';
+		}
+	});
 }
 
 // Apply Glitch Effect at Random Intervals
