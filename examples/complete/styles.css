@@ -1,0 +1,61 @@
+body, html {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	background: black;
+}
+
+#matrixCanvas {
+	display: block;
+}
+
+#matrixHeader {
+	position: absolute;
+	left: 50%;
+	top: 35%;
+	transform: translateX(-50%);
+	font-family: 'Courier New', 'Lucida Console', 'Consolas', 'monospace';
+	font-size: 200px;
+	color: #00FF00;
+	text-shadow: 0 0 10px #00FF00, 0 0 20px #003300;
+	white-space: nowrap;
+	user-select: none;
+	z-index: 10;
+}
+
+#matrixFooter {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	font-family: 'Courier New', 'Lucida Console', 'Consolas', 'monospace';
+	font-size: 25px; /* Smaller font size for footer */
+	color: #00FF00;
+	text-shadow: 0 0 10px #00FF00, 0 0 20px #003300;
+	white-space: nowrap;
+	user-select: none;
+	bottom: 10%;
+}
+
+.glitch {
+	animation: glitch 3s infinite linear alternate;
+}
+
+@keyframes glitch {
+	0% {
+		text-shadow: 2px 2px #00FF00, -2px -2px #003300;
+	}
+	25% {
+		text-shadow: -2px 2px #00FF00, 2px -2px #003300;
+	}
+	50% {
+		text-shadow: 3px -1px #00FF00, -3px 1px #003300;
+	}
+	75% {
+		text-shadow: -1px 3px #00FF00, 1px -3px #003300;
+	}
+	100% {
+		text-shadow: 0px 0px 10px #00FF00, 0px 0px 20px #003300;
+	}
+}
