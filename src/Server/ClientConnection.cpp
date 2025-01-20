@@ -512,6 +512,11 @@ bool ClientConnection::_sendDataToClient(const std::string& data, size_t offset,
 		_disconnected = true;
 		return false;
 	}
+	if (bytesSent == 0) {
+		LOG_INFO(_log("Client disconnected"));
+		_disconnected = true;
+		return false;
+	}
 	LOG_DEBUG(_log("Sent " + std::to_string(bytesSent) + " bytes to client"));
 	_bytesSendToClient += bytesSent;
 	return true;
