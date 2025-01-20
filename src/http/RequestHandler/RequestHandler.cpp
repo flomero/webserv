@@ -166,7 +166,7 @@ bool RequestHandler::handleRequest(const HttpRequest& request) {
 
 	if (_cgi_valid) {
 		handleRequestCGIExecution(_matchedRoute);
-		if (!(_cgi_state == cgiState::FINISHED))
+		if (_cgi_state != FINISHED)
 			return false;
 		if (!_request.getHeader("Connection").empty())
 			_response.addHeader("Connection", _request.getHeader("Connection"));

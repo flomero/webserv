@@ -92,16 +92,16 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		close(_cgi_pipeIn[0]);
 		close(_cgi_pipeOut[1]);
 		if (_request.getMethod() == "POST") {
-			_cgi_state = cgiState::WRITING;
+			_cgi_state = WRITING;
 		} else {
 			_cgi_pid = pid;
 			close(_cgi_pipeIn[1]);
-			_cgi_state = cgiState::WAITING;
+			_cgi_state = WAITING;
 			_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::high_resolution_clock::now().time_since_epoch());
 		}
 	}
-	if (_cgi_state == cgiState::WRITING) {
+	if (_cgi_state == WRITING) {
 		LOG_DEBUG("Writing to CGI process");
 
 		size_t bytesToWrite = _request.getBody().size();
@@ -116,14 +116,14 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 				LOG_ERROR("Poll error while writing to CGI process: " + std::string(strerror(errno)));
 				close(_cgi_pipeIn[1]);
 				_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-				_cgi_state = cgiState::FINISHED;
+				_cgi_state = FINISHED;
 				return;
 			}
 			if (pollret == 0) {
 				LOG_WARN("Poll timeout while writing to CGI process");
 				close(_cgi_pipeIn[1]);
 				_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
-				_cgi_state = cgiState::FINISHED;
+				_cgi_state = FINISHED;
 				return;
 			}
 			if (pfd.revents & POLLOUT) {
@@ -133,13 +133,13 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 					LOG_WARN("Write to CGI process returned 0");
 					close(_cgi_pipeIn[1]);
 					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-					_cgi_state = cgiState::FINISHED;
+					_cgi_state = FINISHED;
 					return;
 				} else if (written < 0) {
 					LOG_ERROR("Write error to CGI process: " + std::string(strerror(errno)));
 					close(_cgi_pipeIn[1]);
 					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-					_cgi_state = cgiState::FINISHED;
+					_cgi_state = FINISHED;
 					return;
 				}
 				offset += written;
@@ -148,20 +148,20 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 				LOG_WARN("Unexpected poll revents: " + std::to_string(pfd.revents));
 				close(_cgi_pipeIn[1]);
 				_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-				_cgi_state = cgiState::FINISHED;
+				_cgi_state = FINISHED;
 				return;
 			}
 		}
 		close(_cgi_pipeIn[1]);
-		_cgi_state = cgiState::WAITING;
+		_cgi_state = WAITING;
 		_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::high_resolution_clock::now().time_since_epoch());
 	}
-	if (_cgi_state == cgiState::WAITING) {
+	if (_cgi_state == WAITING) {
 		LOG_TRACE("Waiting for CGI process to finish");
 		pid_t result = waitpid(_cgi_pid, &_cgi_status, WNOHANG);
 		if (result == _cgi_pid) {
-			_cgi_state = cgiState::READING;
+			_cgi_state = READING;
 		} else {
 			auto now = std::chrono::high_resolution_clock::now();
 			auto elapsed_ms =
@@ -172,7 +172,7 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 				kill(_cgi_pid, SIGKILL);
 				waitpid(_cgi_pid, &_cgi_status, 0);	 // TODO: why is this needed?
 				_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
-				_cgi_state = cgiState::FINISHED;
+				_cgi_state = FINISHED;
 			}
 		}
 	}
@@ -188,14 +188,14 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 			LOG_ERROR("Poll error while reading from CGI process: " + std::string(strerror(errno)));
 			close(_cgi_pipeOut[0]);
 			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-			_cgi_state = cgiState::FINISHED;
+			_cgi_state = FINISHED;
 			return;
 		}
 		if (pollret == 0) {
 			LOG_WARN("Poll timeout while reading from CGI process");
 			close(_cgi_pipeOut[0]);
 			_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
-			_cgi_state = cgiState::FINISHED;
+			_cgi_state = FINISHED;
 			return;
 		}
 		if (pfd.revents & POLLIN) {
@@ -210,18 +210,17 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 					LOG_ERROR("CGI proces returned with error");
 				}
 				close(_cgi_pipeOut[0]);
-				_cgi_state = cgiState::FINISHED;
+				_cgi_state = FINISHED;
 			} else {
 				LOG_ERROR("Error reading from CGI process");
 				_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-				_cgi_state = cgiState::FINISHED;
+				_cgi_state = FINISHED;
 			}
 		} else {
 			LOG_WARN("Unexpected poll revents: " + std::to_string(pfd.revents));
 			close(_cgi_pipeOut[0]);
 			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-			_cgi_state = cgiState::FINISHED;
-			return;
+			_cgi_state = FINISHED;
 		}
 	}
 }
