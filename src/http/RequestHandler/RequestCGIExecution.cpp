@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/19 13:50:17 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/20 11:30:57 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,10 @@ void RequestHandler::handleRequestCGIExecution(const Route& route) {
 		}
 		close(_cgi_pipeIn[0]);
 		close(_cgi_pipeOut[1]);
+		_cgi_pid = pid;
 		if (_request.getMethod() == "POST") {
 			_cgi_state = WRITING;
 		} else {
-			_cgi_pid = pid;
 			close(_cgi_pipeIn[1]);
 			_cgi_state = WAITING;
 			_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
