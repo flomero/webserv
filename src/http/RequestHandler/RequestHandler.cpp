@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 15:43:23 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/17 16:38:57 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/18 13:46:55 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,6 @@
 #include "Logger.hpp"
 #include "ServerConfig.hpp"
 
-/**
- * @brief Construct a new Request Handler:: Request Handler object
- *
- * @param serverConfig
- */
 RequestHandler::RequestHandler(ServerConfig& serverConfig) : _serverConfig(serverConfig) {
 	LOG_INFO("RequestHandler created");
 }
@@ -103,83 +98,120 @@ void RequestHandler::findMatchingRoute() {
  *
  * @param request
  */
-HttpResponse RequestHandler::handleRequest(const HttpRequest& request) {
-	_request = request;
-	_response = HttpResponse();
-	// LOG_ERROR("request location: " + request.getLocation());
-	// _request.setServerSidePath("." + _serverConfig.getRoot() + request.getLocation());
-	_cgiExecuted = false;
+bool RequestHandler::handleRequest(const HttpRequest& request) {
+	if (!_parsingDone)
+		_request = request;
 
-	LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
-	LOG_DEBUG("  |- location:                " + _request.getLocation());
-	LOG_DEBUG("  |- server side path:        " + _request.getServerSidePath());
+	if (!_parsingDone) {
+		LOG_DEBUG("  |- uri:                     " + _request.getRequestUri());
+		LOG_DEBUG("  |- location:                " + _request.getLocation());
+		LOG_DEBUG("  |- server side path:        " + _request.getServerSidePath());
 
-	// Find the best matching route
-	findMatchingRoute();
+		// Find the best matching route
+		findMatchingRoute();
 
-	const std::filesystem::path serverSidePath(_request.getServerSidePath());
-	LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
+		const std::filesystem::path serverSidePath(_request.getServerSidePath());
+		LOG_DEBUG("  |- filesystem::path:        " + serverSidePath.generic_string() + "\n");
 
-	if (_matchedRoute.getCode() != 0) {
-		LOG_INFO("Route has a return directive.");
-		return handleRedirectRequest();
-	}
-
-	// check if method is allowed
-	if (std::find(_matchedRoute.getMethods().begin(), _matchedRoute.getMethods().end(), _request.getMethod()) ==
-		_matchedRoute.getMethods().end()) {
-		LOG_WARN("Method not allowed");
-		return buildDefaultResponse(Http::METHOD_NOT_ALLOWED);
-	}
-
-	// Check resource existence
-	if (_request.getMethod() != "POST" ||
-		!_matchedRoute.getCgiHandlers().empty()) {	// Check only if not POST or POST w/ CGI
-		LOG_INFO("Checking resource existence");
-		if (!exists(serverSidePath))
-			return buildDefaultResponse(Http::NOT_FOUND);
-		_request.setIsFile(is_regular_file(serverSidePath));
-
-		LOG_DEBUG("  |- Resource exists");
-		LOG_DEBUG(_request.getIsFile() ? "  |- Resource is a file\n" : "  |- Resource is a directory\n");
-
-		if (_request.getIsFile()) {
-			// Extracting file extension
-			LOG_INFO("Extracting resource extensions");
-			const size_t fileStart = _request.getServerSidePath().find_last_of('/');
-			LOG_DEBUG("  |- Resource from trailing '/':  " +
-					  _request.getServerSidePath().substr(fileStart + 1, _request.getServerSidePath().back()));
-			const std::string filename =
-				_request.getServerSidePath().substr(fileStart + 1, _request.getServerSidePath().back());
-			const size_t extensionStart = filename.find_first_of('.');
-			LOG_DEBUG("  |- Extension:                    " + filename.substr(extensionStart, filename.back()) + "\n");
-			_request.setResourceExtension(filename.substr(extensionStart, filename.back()));
+		if (_matchedRoute.getCode() != 0) {
+			LOG_INFO("Route has a return directive.");
+			_response = handleRedirectRequest();
+			return true;
 		}
+
+		// check if method is allowed
+		if (std::find(_matchedRoute.getMethods().begin(), _matchedRoute.getMethods().end(), _request.getMethod()) ==
+			_matchedRoute.getMethods().end()) {
+			LOG_WARN("Method not allowed");
+			_response = buildDefaultResponse(Http::METHOD_NOT_ALLOWED);
+			return true;
+		}
+
+		// Check resource existence
+		if (_request.getMethod() != "POST" ||
+			!_matchedRoute.getCgiHandlers().empty()) {	// Check only if not POST or POST w/ CGI
+			LOG_INFO("Checking resource existence");
+			if (!exists(serverSidePath)) {
+				_response = buildDefaultResponse(Http::NOT_FOUND);
+				return true;
+			}
+			_request.setIsFile(is_regular_file(serverSidePath));
+
+			LOG_DEBUG("  |- Resource exists");
+			LOG_DEBUG(_request.getIsFile() ? "  |- Resource is a file\n" : "  |- Resource is a directory\n");
+
+			if (_request.getIsFile()) {
+				// Extracting file extension
+				LOG_INFO("Extracting resource extensions");
+				const size_t fileStart = _request.getServerSidePath().find_last_of('/');
+				LOG_DEBUG("  |- Resource from trailing '/':  " +
+						  _request.getServerSidePath().substr(fileStart + 1, _request.getServerSidePath().back()));
+				const std::string filename =
+					_request.getServerSidePath().substr(fileStart + 1, _request.getServerSidePath().back());
+				const size_t extensionStart = filename.find_first_of('.');
+				LOG_DEBUG("  |- Extension:                    " + filename.substr(extensionStart, filename.back()) +
+						  "\n");
+				_request.setResourceExtension(filename.substr(extensionStart, filename.back()));
+			}
+		}
+		if (!_matchedRoute.getCgiHandlers().empty()) {
+			LOG_INFO("Checking for route's information's: CGI");
+			_cgi_valid = checkRequestCGI(_matchedRoute);
+		} else {
+			LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getResourceExtension());
+			_cgi_valid = false;
+		}
+		_parsingDone = true;
 	}
 
-	// Check for CGI on the Route
-	LOG_INFO("Checking for route's information's: CGI");
-	if (!_matchedRoute.getCgiHandlers().empty()) {
-		handleRequestCGI(_matchedRoute);
-		if (_cgiExecuted) {
-			if (!_request.getHeader("Connection").empty())
-				_response.addHeader("Connection", _request.getHeader("Connection"));
-			_response.setDefaultHeaders();
-			return _response;
-		}
-		LOG_DEBUG("  |- No CGI handlers found for extension:  " + _request.getResourceExtension());
+	if (_cgi_valid) {
+		handleRequestCGIExecution(_matchedRoute);
+		if (_cgi_state != FINISHED)
+			return false;
+		if (!_request.getHeader("Connection").empty())
+			_response.addHeader("Connection", _request.getHeader("Connection"));
+		_response.setDefaultHeaders();
+		return true;
 	}
+
+	bool isFinished = false;
+
 	if (_request.getMethod() == "GET")
-		_response = handleGetRequest();
+		isFinished = handleGetRequest();
 	else if (_request.getMethod() == "POST")
-		_response = handlePostRequest();
-	else if (_request.getMethod() == "DELETE")
-		_response = handleDeleteRequest();
+		isFinished = handlePostRequest();
+	else if (_request.getMethod() == "DELETE") {
+		handleDeleteRequest();
+		isFinished = true;
+	}
 
-	if (_request.getHttpVersion() == "HTTP/1.0")
-		_response.setHttpVersion("HTTP/1.0");
-	if (!_request.getHeader("Connection").empty())
-		_response.addHeader("Connection", _request.getHeader("Connection"));
-	_response.setDefaultHeaders();
-	return _response;
+	if (isFinished) {
+		if (_request.getHttpVersion() == "HTTP/1.0")
+			_response.setHttpVersion("HTTP/1.0");
+		if (!_request.getHeader("Connection").empty())
+			_response.addHeader("Connection", _request.getHeader("Connection"));
+		_response.setDefaultHeaders();
+	}
+	return isFinished;
+}
+
+HttpResponse RequestHandler::getResponse() {
+	_bytesReadFromFile = 0;
+	HttpResponse tmp = _response;
+	_response = HttpResponse();
+	_parsingDone = false;
+	_fileName = "";
+	_bytesWrittenToFile = 0;
+	_cgi_valid = false;
+	_cgi_state = cgiState::NONE;
+	_cgi_valid = false;
+	_cgi_pid = 0;
+	_cgi_status = 0;
+	_cgi_pipeOut[0] = 0;
+	_cgi_pipeOut[1] = 0;
+	_cgi_pipeIn[0] = 0;
+	_cgi_pipeIn[1] = 0;
+	_cgi_startTime = std::chrono::milliseconds(0);
+
+	return tmp;
 }

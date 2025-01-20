@@ -440,8 +440,12 @@ void ClientConnection::sendResponse() {
 		return;
 	}
 	if (!_response.getStatus()) {
-		LOG_DEBUG(_log("Building response for request"));
-		_response = _requestHandler.handleRequest(_request);
+		if (_requestHandler.handleRequest(_request)) {
+			LOG_DEBUG(_log("Building response for request"));
+			_response = _requestHandler.getResponse();
+		} else {
+			return;
+		}
 	}
 
 	if (_status == Status::READY_TO_SEND) {

@@ -15,34 +15,32 @@
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 
-HttpResponse RequestHandler::handleDeleteRequest() {
+void RequestHandler::handleDeleteRequest() {
 	LOG_DEBUG("Handling DELETE request");
-	HttpResponse response;
 
 	const std::string& serverSidePath = _request.getServerSidePath();
 
 	if (!std::filesystem::exists(serverSidePath)) {
 		LOG_WARN("File or directory not found: " + serverSidePath);
-		return buildDefaultResponse(Http::NOT_FOUND);
+		_response = buildDefaultResponse(Http::NOT_FOUND);
+		return;
 	}
 
 	if (std::filesystem::is_directory(serverSidePath)) {
 		LOG_WARN("Attempt to delete a directory: " + serverSidePath);
-		return buildDefaultResponse(Http::FORBIDDEN);
+		_response = buildDefaultResponse(Http::FORBIDDEN);
 	}
 
 	try {
 		if (std::filesystem::remove(serverSidePath)) {
 			LOG_INFO("File deleted successfully: " + serverSidePath);
-			response.setStatus(Http::NO_CONTENT);
+			_response.setStatus(Http::NO_CONTENT);
 		} else {
 			LOG_WARN("Failed to delete file: " + serverSidePath);
-			response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 		}
 	} catch (const std::filesystem::filesystem_error& e) {
 		LOG_ERROR("Filesystem error: " + std::string(e.what()));
-		response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
 	}
-
-	return response;
 }

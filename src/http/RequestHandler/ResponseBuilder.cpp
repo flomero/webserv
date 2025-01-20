@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 19:57:06 by flfische          #+#    #+#             */
-/*   Updated: 2024/12/10 19:23:09 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/19 11:06:36 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,31 +37,22 @@ HttpResponse RequestHandler::buildDefaultResponse(Http::Status code, std::option
 
 	// Check if there's a configured error page for this status code
 	std::optional<std::string> errorPage = _serverConfig.getErrorPage(code);
-	if (errorPage.has_value()) {
-		//  TODO: check if this is correct
-		// build path to error page
-		std::string path = "." + _serverConfig.getRoot();
-		if (path.back() != '/') {
-			path += '/';
-		}
-		path += errorPage.value();
-		LOG_DEBUG("Error page path: " + path);
-		if (int fd = open(path.c_str(), O_RDONLY); fd != -1) {
-			struct pollfd pfd{};
-			pfd.fd = fd;
-			pfd.events = POLLIN;
+	try {
+		if (errorPage.has_value()) {
+			std::string path = "." + _serverConfig.getRoot() + "/" + errorPage.value();
+			std::filesystem::path fsPath(path);
+			LOG_DEBUG("Error page path: " + path);
 
-			if (int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT); ret > 0 && pfd.revents & POLLIN) {
-				if (std::ifstream file(path); file.is_open()) {
-					std::string content((std::istreambuf_iterator(file)), std::istreambuf_iterator<char>());
-					response.setBody(content);
-					file.close();
-				}
+			if (std::ifstream file(fsPath); file.is_open()) {
+				std::string content((std::istreambuf_iterator(file)), std::istreambuf_iterator<char>());
+				response.setBody(content);
+				file.close();
+			} else {
+				LOG_ERROR("Failed to open error page: " + std::string(strerror(errno)));
 			}
-			close(fd);
-		} else {
-			LOG_ERROR("Failed to open error page: " + std::string(strerror(errno)));
 		}
+	} catch (const std::exception &e) {
+		LOG_ERROR("Error while getting custom error page: " + std::string(e.what()));
 	}
 
 	if (response.getBody().empty()) {

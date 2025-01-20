@@ -29,6 +29,7 @@ class HttpMessage {
 		[[nodiscard]] std::map<std::string, std::string> getHeaders() const;
 		[[nodiscard]] std::string getHeader(const std::string &key) const;
 		[[nodiscard]] std::string getBody() const;
+		std::string &getBodyRef();
 		[[nodiscard]] bool hasHeader(const std::string &key) const;
 
 		// Setters

@@ -3,13 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   RequestCGIExecution.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 15:55:29 by lgreau            #+#    #+#             */
-/*   Updated: 2025/01/16 14:37:13 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/20 11:30:57 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <poll.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -22,115 +23,204 @@
 #include "Logger.hpp"
 #include "RequestHandler.hpp"
 #include "Route.hpp"
+#include "webserv.hpp"
 
 void RequestHandler::handleRequestCGIExecution(const Route& route) {
-	const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
+	_cgi_valid = true;
+	if (!_cgi_state) {
+		const std::string cgiPath = route.getCgiHandlers().at(_request.getResourceExtension());
 
-	// Create environment variables for CGI
-	LOG_INFO("Create environment variables for CGI");
-	std::map<std::string, std::string> env;
-	env["REQUEST_METHOD"] = _request.getMethod();
-	env["QUERY_STRING"] = _request.getQueryString();
-	env["SCRIPT_NAME"] = _request.getServerSidePath();
-	env["PATH_INFO"] = _request.getServerSidePath();
-	env["CONTENT_LENGTH"] = std::to_string(_request.getBody().size());
-	env["CONTENT_TYPE"] = _request.getHeader("Content-Type");
+		// Create environment variables for CGI
+		LOG_INFO("Create environment variables for CGI");
+		std::map<std::string, std::string> env;
+		env["REQUEST_METHOD"] = _request.getMethod();
+		env["QUERY_STRING"] = _request.getQueryString();
+		env["SCRIPT_NAME"] = _request.getServerSidePath();
+		env["PATH_INFO"] = _request.getServerSidePath();
+		env["CONTENT_LENGTH"] = std::to_string(_request.getBody().size());
+		env["CONTENT_TYPE"] = _request.getHeader("Content-Type");
 
-	for (const auto& [key, value] : _request.getHeaders()) {
-		std::string headerKey = "HTTP_" + key;
-		std::transform(headerKey.begin(), headerKey.end(), headerKey.begin(), ::toupper);
-		std::replace(headerKey.begin(), headerKey.end(), '-', '_');
-		env[headerKey] = value;
-	}
-
-	// Prepare environment for execv
-	LOG_INFO("Prepare environment for execv");
-	std::vector<std::string> envStrings;
-	std::vector<char*> envp;
-	for (const auto& [key, value] : env) {
-		envStrings.push_back(key + "=" + value);
-		envp.push_back(envStrings.back().data());
-	}
-	envp.push_back(nullptr);
-
-	int pipeIn[2], pipeOut[2];
-	pipe(pipeIn);
-	pipe(pipeOut);
-
-	const pid_t pid = fork();
-	if (pid == 0) {
-		// Child process: set up pipes and execv
-		close(pipeIn[1]);
-		close(pipeOut[0]);
-
-		dup2(pipeIn[0], STDIN_FILENO);
-		dup2(pipeOut[1], STDOUT_FILENO);
-
-		std::string script_path = _request.getServerSidePath();
-		size_t sep = script_path.find_last_of('/');
-		if (sep != std::string::npos) {
-			std::string cd_path = script_path.substr(0, sep);
-			script_path = script_path.substr(sep + 1);
-			if (chdir(cd_path.c_str()) != 0)
-				LOG_ERROR("chdir error");
+		for (const auto& [key, value] : _request.getHeaders()) {
+			std::string headerKey = "HTTP_" + key;
+			std::transform(headerKey.begin(), headerKey.end(), headerKey.begin(), ::toupper);
+			std::replace(headerKey.begin(), headerKey.end(), '-', '_');
+			env[headerKey] = value;
 		}
 
-		std::vector<std::string> args = {cgiPath, script_path};
-		std::vector<char*> argv;
-		for (auto& arg : args) {
-			argv.push_back(arg.data());
+		// Prepare environment for execv
+		LOG_INFO("Prepare environment for execv");
+		std::vector<std::string> envStrings;
+		std::vector<char*> envp;
+		for (const auto& [key, value] : env) {
+			envStrings.push_back(key + "=" + value);
+			envp.push_back(envStrings.back().data());
 		}
-		argv.push_back(nullptr);
+		envp.push_back(nullptr);
 
-		execve(argv[0], argv.data(), envp.data());
-		perror("execve failed");
-		exit(EXIT_FAILURE);
-	}
+		pipe(_cgi_pipeIn);
+		pipe(_cgi_pipeOut);
 
-	// Parent process: send data to child and read response
-	close(pipeIn[0]);
-	close(pipeOut[1]);
+		const pid_t pid = fork();
+		if (pid == 0) {
+			// Child process: set up pipes and execv
+			close(_cgi_pipeIn[1]);
+			close(_cgi_pipeOut[0]);
 
-	if (_request.getMethod() == "POST") {
-		write(pipeIn[1], _request.getBody().c_str(), _request.getBody().size());
-	}
-	close(pipeIn[1]);
+			dup2(_cgi_pipeIn[0], STDIN_FILENO);
+			dup2(_cgi_pipeOut[1], STDOUT_FILENO);
 
-	auto start_time = std::chrono::high_resolution_clock::now();
-	int status;
-	bool child_terminated = false;
+			std::string script_path = _request.getServerSidePath();
+			size_t sep = script_path.find_last_of('/');
+			if (sep != std::string::npos) {
+				std::string cd_path = script_path.substr(0, sep);
+				script_path = script_path.substr(sep + 1);
+				if (chdir(cd_path.c_str()) != 0)
+					LOG_ERROR("chdir error");
+			}
 
-	while (true) {
-		pid_t result = waitpid(pid, &status, WNOHANG);
-		if (result == pid) {
-			child_terminated = true;
-			break;
+			std::vector<std::string> args = {cgiPath, script_path};
+			std::vector<char*> argv;
+			for (auto& arg : args) {
+				argv.push_back(arg.data());
+			}
+			argv.push_back(nullptr);
+
+			execve(argv[0], argv.data(), envp.data());
+			perror("execve failed");
+			exit(EXIT_FAILURE);
 		}
-
-		auto now = std::chrono::high_resolution_clock::now();
-		auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-		if (elapsed_ms > DEFAULT_CGI_TIMEOUT_MS) {
-			LOG_ERROR("CGI execution timed out. Killing process...");
-			kill(pid, SIGKILL);
-			waitpid(pid, &status, 0);
-			break;
+		close(_cgi_pipeIn[0]);
+		close(_cgi_pipeOut[1]);
+		_cgi_pid = pid;
+		if (_request.getMethod() == "POST") {
+			_cgi_state = WRITING;
+		} else {
+			close(_cgi_pipeIn[1]);
+			_cgi_state = WAITING;
+			_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::high_resolution_clock::now().time_since_epoch());
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	if (_cgi_state == WRITING) {
+		LOG_DEBUG("Writing to CGI process");
 
-	char buffer[4096];
-	ssize_t bytesRead;
-	std::string response;
+		size_t bytesToWrite = _request.getBody().size();
+		size_t offset = 0;
+		while (bytesToWrite > 0) {
+			pollfd pfd{};
+			pfd.fd = _cgi_pipeIn[1];
+			pfd.events = POLLOUT;
 
-	if (child_terminated) {
-		while ((bytesRead = read(pipeOut[0], buffer, sizeof(buffer))) > 0) {
-			response.append(buffer, bytesRead);
+			int pollret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
+			if (pollret < 0) {
+				LOG_ERROR("Poll error while writing to CGI process: " + std::string(strerror(errno)));
+				close(_cgi_pipeIn[1]);
+				_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+				_cgi_state = FINISHED;
+				return;
+			}
+			if (pollret == 0) {
+				LOG_WARN("Poll timeout while writing to CGI process");
+				close(_cgi_pipeIn[1]);
+				_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
+				_cgi_state = FINISHED;
+				return;
+			}
+			if (pfd.revents & POLLOUT) {
+				size_t chunkSize = std::min(POST_WRITE_SIZE, bytesToWrite);
+				ssize_t written = write(_cgi_pipeIn[1], _request.getBody().c_str() + offset, chunkSize);
+				if (written == 0) {
+					LOG_WARN("Write to CGI process returned 0");
+					close(_cgi_pipeIn[1]);
+					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+					_cgi_state = FINISHED;
+					return;
+				} else if (written < 0) {
+					LOG_ERROR("Write error to CGI process: " + std::string(strerror(errno)));
+					close(_cgi_pipeIn[1]);
+					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+					_cgi_state = FINISHED;
+					return;
+				}
+				offset += written;
+				bytesToWrite -= written;
+			} else {
+				LOG_WARN("Unexpected poll revents: " + std::to_string(pfd.revents));
+				close(_cgi_pipeIn[1]);
+				_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+				_cgi_state = FINISHED;
+				return;
+			}
 		}
-		_response = HttpResponse(response);
-		_response.setStatus(status == 0 ? Http::OK : Http::INTERNAL_SERVER_ERROR);
-	} else {
-		_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
+		close(_cgi_pipeIn[1]);
+		_cgi_state = WAITING;
+		_cgi_startTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::high_resolution_clock::now().time_since_epoch());
 	}
-	_cgiExecuted = true;
-	close(pipeOut[0]);
+	if (_cgi_state == WAITING) {
+		LOG_TRACE("Waiting for CGI process to finish");
+		pid_t result = waitpid(_cgi_pid, &_cgi_status, WNOHANG);
+		if (result == _cgi_pid) {
+			_cgi_state = READING;
+		} else {
+			auto now = std::chrono::high_resolution_clock::now();
+			auto elapsed_ms =
+				std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch() - _cgi_startTime).count();
+			if (elapsed_ms > DEFAULT_CGI_TIMEOUT_MS) {
+				LOG_ERROR("CGI execution timed out. Killing process...");
+				LOG_DEBUG("Killing CGI process with PID: " + std::to_string(_cgi_pid));
+				kill(_cgi_pid, SIGKILL);
+				waitpid(_cgi_pid, &_cgi_status, 0);	 // TODO: why is this needed?
+				_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
+				_cgi_state = FINISHED;
+			}
+		}
+	}
+	if (_cgi_state == cgiState::READING) {
+		LOG_DEBUG("Reading from CGI process");
+		char buffer[CGI_READ_BUFFER_SIZE];
+		pollfd pfd{};
+		pfd.fd = _cgi_pipeOut[0];
+		pfd.events = POLLIN;
+
+		int pollret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
+		if (pollret < 0) {
+			LOG_ERROR("Poll error while reading from CGI process: " + std::string(strerror(errno)));
+			close(_cgi_pipeOut[0]);
+			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+			_cgi_state = FINISHED;
+			return;
+		}
+		if (pollret == 0) {
+			LOG_WARN("Poll timeout while reading from CGI process");
+			close(_cgi_pipeOut[0]);
+			_response = buildDefaultResponse(Http::GATEWAY_TIMEOUT);
+			_cgi_state = FINISHED;
+			return;
+		}
+		if (pfd.revents & POLLIN) {
+			const ssize_t bytesRead = read(_cgi_pipeOut[0], buffer, sizeof(buffer));
+			if (bytesRead > 0) {
+				_response.appendToBody(std::string(buffer, bytesRead));
+			} else if (bytesRead == 0) {
+				_response = HttpResponse(_response.getBody());
+				_response.setStatus(_cgi_status == 0 ? Http::OK : Http::INTERNAL_SERVER_ERROR);
+				if (_response.getStatus() == Http::INTERNAL_SERVER_ERROR) {
+					_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+					LOG_ERROR("CGI proces returned with error");
+				}
+				close(_cgi_pipeOut[0]);
+				_cgi_state = FINISHED;
+			} else {
+				LOG_ERROR("Error reading from CGI process");
+				_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+				_cgi_state = FINISHED;
+			}
+		} else {
+			LOG_WARN("Unexpected poll revents: " + std::to_string(pfd.revents));
+			close(_cgi_pipeOut[0]);
+			_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+			_cgi_state = FINISHED;
+		}
+	}
 }

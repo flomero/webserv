@@ -27,6 +27,8 @@ std::string HttpMessage::getHeader(const std::string &key) const {
 
 std::string HttpMessage::getBody() const { return _body; }
 
+std::string &HttpMessage::getBodyRef() { return _body; }
+
 bool HttpMessage::hasHeader(const std::string &key) const { return _headers.find(key) != _headers.end(); }
 
 #pragma endregion

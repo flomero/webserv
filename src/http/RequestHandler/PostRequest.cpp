@@ -6,7 +6,7 @@
 /*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/11 14:43:11 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/17 18:16:06 by flfische         ###   ########.fr       */
+/*   Updated: 2025/01/19 11:02:36 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,71 +23,80 @@
 #include "ServerConfig.hpp"
 #include "webserv.hpp"
 
-HttpResponse RequestHandler::handlePostRequest() {
+bool RequestHandler::handlePostRequest() {
 	LOG_DEBUG("Handling POST request");
 	const std::string contentType = _request.getHeader("Content-Type");
 	if (contentType == "application/x-www-form-urlencoded") {
 		LOG_INFO("application/x-www-form-urlencoded");
-		// TODO: not sure if needed
 	} else if (contentType.find("multipart/form-data") != std::string::npos)
 		return handlePostMultipart();
 
 	LOG_ERROR("Unsupported content type: " + contentType);
-	return buildDefaultResponse(Http::UNSUPPORTED_MEDIA_TYPE);
+	_response = buildDefaultResponse(Http::UNSUPPORTED_MEDIA_TYPE);
+	return true;
 }
 
-HttpResponse RequestHandler::handlePostMultipart() {
+bool RequestHandler::handlePostMultipart() {
 	LOG_DEBUG("Handling multipart POST request");
-	std::string contentType = _request.getHeader("Content-Type");
-	std::size_t boundaryPos = contentType.find("boundary=");
-	if (boundaryPos == std::string::npos) {
-		LOG_ERROR("Invalid Content-Type header: " + contentType);
-		return buildDefaultResponse(Http::BAD_REQUEST);
-	}
-	std::string boundary = contentType.substr(boundaryPos + 9);
-	if (boundary.empty()) {
-		LOG_ERROR("Invalid boundary in Content-Type header: " + contentType);
-		return buildDefaultResponse(Http::BAD_REQUEST);
-	}
-	std::string boundaryDelimiter = "--" + boundary;
-	std::string boundaryEnd = boundaryDelimiter + "--";
-	std::size_t pos = 0;
+	if (_fileName.empty()) {
+		LOG_DEBUG("No file name set yet");
+		std::string contentType = _request.getHeader("Content-Type");
+		std::size_t boundaryPos = contentType.find("boundary=");
+		if (boundaryPos == std::string::npos) {
+			LOG_ERROR("Invalid Content-Type header: " + contentType);
+			_response = buildDefaultResponse(Http::BAD_REQUEST);
+			return true;
+		}
+		std::string boundary = contentType.substr(boundaryPos + 9);
+		if (boundary.empty()) {
+			LOG_ERROR("Invalid boundary in Content-Type header: " + contentType);
+			_response = buildDefaultResponse(Http::BAD_REQUEST);
+			return true;
+		}
+		std::string boundaryDelimiter = "--" + boundary;
+		std::string boundaryEnd = boundaryDelimiter + "--";
+		std::size_t pos = 0;
 
-	std::string body = _request.getBody();
-	while ((pos = body.find(boundaryDelimiter, pos)) != std::string::npos) {
-		pos += boundaryDelimiter.length();
-		if (pos == body.size())
-			break;
-		std::size_t endPos = body.find(boundaryDelimiter, pos);
-		std::string part = body.substr(pos, endPos - pos);
-		pos = endPos;
+		std::string body = _request.getBody();
+		while ((pos = body.find(boundaryDelimiter, pos)) != std::string::npos) {
+			pos += boundaryDelimiter.length();
+			if (pos == body.size())
+				break;
+			std::size_t endPos = body.find(boundaryDelimiter, pos);
+			std::string part = body.substr(pos, endPos - pos);
+			pos = endPos;
 
-		std::istringstream partStream(part);
-		std::string line;
-		std::string contentDisposition;
-		std::string contentTypeFile;
-		while (std::getline(partStream, line) && !line.empty()) {
-			if (line.find("Content-Disposition") == 0)
-				contentDisposition = line;
-			else if (line.find("Content-Type") == 0)
-				contentTypeFile = line;
+			std::istringstream partStream(part);
+			std::string line;
+			std::string contentDisposition;
+			std::string contentTypeFile;
+			while (std::getline(partStream, line) && !line.empty()) {
+				if (line.find("Content-Disposition") == 0)
+					contentDisposition = line;
+				else if (line.find("Content-Type") == 0)
+					contentTypeFile = line;
+			}
+			if (contentDisposition.empty()) {
+				LOG_ERROR("Missing Content-Disposition header in part");
+				_response = buildDefaultResponse(Http::BAD_REQUEST);
+				return true;
+			}
+			if (contentTypeFile.empty()) {
+				LOG_ERROR("Missing Content-Type header in part");
+				_response = buildDefaultResponse(Http::BAD_REQUEST);
+				return true;
+			}
+			if (contentDisposition.find("filename=") != std::string::npos) {
+				LOG_DEBUG("Handling file upload");
+				if (setFileNameAndBody(part, contentDisposition)) {
+					return true;  // TODO maybe break
+				}
+				break;
+			}
 		}
-		if (contentDisposition.empty()) {
-			LOG_ERROR("Missing Content-Disposition header in part");
-			return buildDefaultResponse(Http::BAD_REQUEST);
-		}
-		if (contentTypeFile.empty()) {
-			LOG_ERROR("Missing Content-Type header in part");
-			return buildDefaultResponse(Http::BAD_REQUEST);
-		}
-		if (contentDisposition.find("filename=") != std::string::npos) {
-			LOG_DEBUG("Handling file upload");
-			return handleFileUpload(part, contentDisposition);
-		}
-
-		// TODO: handle form fields - not sure if needed
 	}
-	return buildDefaultResponse(Http::OK);
+	LOG_DEBUG("Handling file upload");
+	return handleFileUpload();
 }
 
 std::string buildpath(const std::string &path, const std::string &filename, const std::string &root) {
@@ -109,7 +118,44 @@ std::string buildpath(const std::string &path, const std::string &filename, cons
 	return result;
 }
 
-HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std::string &contentDisposition) {
+bool RequestHandler::handleFileUpload() {
+	std::ofstream fileStream;
+
+	// Open the file in append mode
+	fileStream.open(_fileName, std::ios::out | std::ios::app | std::ios::binary);
+	if (!fileStream.is_open()) {
+		LOG_ERROR("Failed to open file: " + _fileName + " with error: " + strerror(errno));
+		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+		return true;
+	}
+
+	// Write data in chunks
+	const size_t chunkSize = std::min(POST_WRITE_SIZE, _request.getBody().size());
+	fileStream.write(_request.getBody().c_str(), chunkSize);
+
+	if (fileStream.fail()) {
+		LOG_ERROR("Failed to write to file: " + _fileName);
+		fileStream.close();
+		_response = buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+		return true;
+	}
+
+	_bytesWrittenToFile += chunkSize;			// Save how much is written already
+	_request.getBodyRef().erase(0, chunkSize);	// Remove the written part from body
+
+	fileStream.close();
+
+	if (_request.getBody().size() != 0) {
+		// More data left to write, continue the process
+		return false;
+	}
+
+	LOG_INFO("File uploaded successfully: " + _fileName);
+	_response = buildDefaultResponse(Http::CREATED);
+	return true;
+}
+
+bool RequestHandler::setFileNameAndBody(const std::string &part, const std::string &contentDisposition) {
 	std::string filename;
 	std::size_t filenamePos = contentDisposition.find("filename=");
 	if (filenamePos != std::string::npos) {
@@ -118,7 +164,8 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 	}
 	if (filename.empty()) {
 		LOG_ERROR("Invalid filename in Content-Disposition header: " + contentDisposition);
-		return buildDefaultResponse(Http::BAD_REQUEST);
+		_response = buildDefaultResponse(Http::BAD_REQUEST);
+		return true;
 	}
 	std::string fileContent;
 	std::size_t pos = part.find("\r\n\r\n");
@@ -126,7 +173,8 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 		fileContent = part.substr(pos + 4);
 	else {
 		LOG_ERROR("Invalid part: " + part);
-		return buildDefaultResponse(Http::BAD_REQUEST);
+		_response = buildDefaultResponse(Http::BAD_REQUEST);
+		return true;
 	}
 	if (!_matchedRoute.getUploadDir().empty()) {
 		if (!_matchedRoute.getRoot().empty())
@@ -136,42 +184,19 @@ HttpResponse RequestHandler::handleFileUpload(const std::string &part, const std
 	} else {
 		if (!_serverConfig.getUploadDir().empty())
 			filename = buildpath(_serverConfig.getUploadDir(), filename, _serverConfig.getRoot());
-		else
-			return buildDefaultResponse(Http::FORBIDDEN);
-	}
-	int fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd < 0) {
-		LOG_ERROR("Failed to open file descriptor for: " + filename + " with error: " + strerror(errno));
-		return buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
+		else {
+			_response = buildDefaultResponse(Http::FORBIDDEN);
+			return true;
+		}
 	}
 
-	struct pollfd pfd{};
-	pfd.fd = fd;
-	pfd.events = POLLOUT;
-
-	int ret = poll(&pfd, 1, DEFAULT_POLL_TIMEOUT);
-	if (ret < 0) {
-		LOG_ERROR("Poll error for file: " + filename + " with error: " + strerror(errno));
-		close(fd);
-		return buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-	} else if (ret == 0) {
-		LOG_WARN("Poll timeout for file: " + filename);
-		close(fd);
-		return buildDefaultResponse(Http::REQUEST_TIMEOUT);
-	} else if (!(pfd.revents & POLLOUT)) {
-		LOG_WARN("Unexpected poll revents for file: " + filename + " revents: " + std::to_string(pfd.revents));
-		close(fd);
-		return buildDefaultResponse(Http::REQUEST_TIMEOUT);
+	if (access(filename.c_str(), F_OK) == 0 && !_bytesWrittenToFile) {
+		LOG_WARN("File already exists: " + filename);
+		_response = buildDefaultResponse(Http::CONFLICT);
+		return true;
 	}
 
-	ssize_t written = write(fd, fileContent.c_str(), fileContent.size());
-	if (written < 0) {
-		LOG_ERROR("Failed to write to file: " + filename + " with error: " + strerror(errno));
-		close(fd);
-		return buildDefaultResponse(Http::INTERNAL_SERVER_ERROR);
-	}
-
-	close(fd);
-	LOG_INFO("File uploaded successfully: " + filename);
-	return buildDefaultResponse(Http::CREATED);
+	_fileName = filename;
+	_request.setBody(fileContent);
+	return false;
 }

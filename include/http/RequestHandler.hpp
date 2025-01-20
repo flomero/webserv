@@ -3,51 +3,70 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lgreau <lgreau@student.42heilbronn.de>     +#+  +:+       +#+        */
+/*   By: flfische <flfische@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/28 15:29:41 by flfische          #+#    #+#             */
-/*   Updated: 2025/01/14 10:31:14 by lgreau           ###   ########.fr       */
+/*   Updated: 2025/01/18 13:36:57 by flfische         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include <sys/types.h>
+
+#include <chrono>
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "Route.hpp"
 #include "optional"
 
-#define DEFAULT_CGI_TIMEOUT_MS 5000
+enum cgiState { NONE, WRITING, WAITING, READING, FINISHED };
 
 class ServerConfig;
 
 class RequestHandler {
 		HttpRequest _request;
-		HttpResponse _response;
-		bool _cgiExecuted = false;
+		HttpResponse _response = HttpResponse();
 		ServerConfig& _serverConfig;
 		Route _matchedRoute;
+
+		bool _parsingDone = false;
+
+		long long _bytesReadFromFile = 0;
+		long long _bytesWrittenToFile = 0;
+
+		bool _cgi_valid = false;
+		pid_t _cgi_pid = 0;
+		std::chrono::milliseconds _cgi_startTime = std::chrono::milliseconds(0);
+		cgiState _cgi_state = cgiState::NONE;
+		int _cgi_pipeIn[2] = {0, 0};
+		int _cgi_pipeOut[2] = {0, 0};
+		int _cgi_status = 0;
+
+		std::string _fileName = "";
 
 		// General Functions
 		void findMatchingRoute();
 
 		// CGI handler
-		void handleRequestCGI(Route& route);
+		[[nodiscard]] bool checkRequestCGI(Route& route);
 		void handleRequestCGIExecution(const Route& route);
 
 		// Request handlers
 		// GET request handlers
-		HttpResponse handleGetRequest();
-		HttpResponse handleGetFile();
-		HttpResponse handleGetDirectory();
+		bool handleGetRequest();
+		bool handleGetFile();
+		bool handleGetDirectory();
 
 		// POST request handlers
-		[[nodiscard]] HttpResponse handlePostRequest();
-		[[nodiscard]] HttpResponse handlePostMultipart();
-		[[nodiscard]] HttpResponse handleFileUpload(const std::string& part, const std::string& contentDisposition);
+		[[nodiscard]] bool handlePostRequest();
+		bool setFileNameAndBody(const std::string& part, const std::string& contentDisposition);
+		[[nodiscard]] bool handlePostMultipart();
+		[[nodiscard]] bool handleFileUpload();
 
 		// DELETE request handler
-		[[nodiscard]] HttpResponse handleDeleteRequest();
+		void handleDeleteRequest();
 
 		// Autoindex handler
 		void handleAutoindex(const std::string& path);
@@ -57,13 +76,14 @@ class RequestHandler {
 		[[nodiscard]] HttpResponse handleRedirectRequest();
 
 	public:
-		explicit RequestHandler(ServerConfig& serverConfig);
 		~RequestHandler() = default;
 		RequestHandler(const RequestHandler& other) = delete;
 		RequestHandler& operator=(const RequestHandler& other) = delete;
 
+		RequestHandler(ServerConfig& serverConfig);
 		[[nodiscard]] ServerConfig& getConfig() const;
 		void setConfig(const ServerConfig& server_config) const;
-		HttpResponse handleRequest(const HttpRequest& request);
+		bool handleRequest(const HttpRequest& request);
+		HttpResponse getResponse();
 		HttpResponse buildDefaultResponse(Http::Status code, std::optional<HttpRequest> request = std::nullopt);
 };
