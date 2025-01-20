@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Error 404 - Page Not Found</title>
+	<style>
+		body {
+			background-color: #f1f1f1;
+			color: #333;
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			text-align: center;
+		}
+		.glitch {
+			position: relative;
+			color: #333;
+			font-size: 2em;
+			font-weight: bold;
+			animation: glitch 1s infinite;
+		}
+		@keyframes glitch {
+			0% {
+				text-shadow: 2px 2px #ff0000, -2px -2px #00ff00;
+			}
+			20% {
+				text-shadow: -2px -2px #ff0000, 2px 2px #00ff00;
+			}
+			40% {
+				text-shadow: 2px -2px #ff0000, -2px 2px #00ff00;
+			}
+			60% {
+				text-shadow: -2px 2px #ff0000, 2px -2px #00ff00;
+			}
+			80% {
+				text-shadow: 2px 2px #ff0000, -2px -2px #00ff00;
+			}
+			100% {
+				text-shadow: -2px -2px #ff0000, 2px 2px #00ff00;
+			}
+		}
+	</style>
+</head>
+<body>
+<div>
+	<div class="glitch">ERROR 404</div>
+	<p class="glitch">Page Not Found</p>
+</div>
+</body>
+</html>
